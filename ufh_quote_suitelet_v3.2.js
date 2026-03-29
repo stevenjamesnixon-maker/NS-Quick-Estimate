@@ -352,6 +352,23 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '        .actions { display: flex; gap: 12px; margin-top: 20px; }' +
 '        .chevron { transition: transform 0.2s; }' +
 '        .chevron.down { transform: rotate(90deg); }' +
+'        .fc-spinner {' +
+'            display: flex; align-items: center; gap: 8px;' +
+'            font-size: 13px; color: #64748b; padding: 10px 12px;' +
+'            border: 1px solid #e2e8f0; border-radius: 8px;' +
+'        }' +
+'        .fc-spinner::before {' +
+'            content: ""; width: 14px; height: 14px;' +
+'            border: 2px solid #e2e8f0; border-top-color: var(--nuheat-green);' +
+'            border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;' +
+'        }' +
+'        .fc-error-inline {' +
+'            font-size: 12px; color: #dc2626; padding: 6px 10px;' +
+'            border: 1px solid #fecaca; border-radius: 8px; background: #fef2f2;' +
+'        }' +
+'        @keyframes spin { to { transform: rotate(360deg); } }' +
+'        .join-zone-label { font-size: 12px; color: #475569; display: flex; align-items: center; gap: 6px; margin-top: 4px; cursor: pointer; }' +
+'        .join-zone-label input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--nuheat-green); }' +
 '    </style>' +
 '</head>' +
 '<body>' +
@@ -381,6 +398,29 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '                <label>Target Margin (%)</label>' +
 '                <input type="number" id="targetMargin" value="55" min="0" max="100">' +
 '            </div>' +
+'            <div class="form-group">' +
+'                <label>Work Type</label>' +
+'                <select id="workType" onchange="window.renderManifolds()">' +
+'                    <option value="New Build" selected>New Build</option>' +
+'                    <option value="Renovation (Back to Brick)">Renovation (Back to Brick)</option>' +
+'                    <option value="Renovation (Light Touch)">Renovation (Light Touch)</option>' +
+'                </select>' +
+'            </div>' +
+'            <div class="form-group">' +
+'                <label>Ground Floor Construction</label>' +
+'                <select id="groundFloorType" onchange="window.renderManifolds()">' +
+'                    <option value="Solid" selected>Solid</option>' +
+'                    <option value="Joisted">Joisted</option>' +
+'                </select>' +
+'            </div>' +
+'            <div class="form-group">' +
+'                <label>Thermostat Type</label>' +
+'                <select id="thermostatType">' +
+'                    <option value="Dial" selected>Dial</option>' +
+'                    <option value="Wired Programmable">Wired Programmable</option>' +
+'                    <option value="Wireless">Wireless</option>' +
+'                </select>' +
+'            </div>' +
 '        </div>' +
 '    </div>' +
 '    <div class="card">' +
@@ -405,17 +445,31 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '    </div>' +
 '</div>' +
 '<script>' +
-'var FLOOR_CONSTRUCTIONS = [' +
-'    { name: "Screed (Cliptrack)", itemCode: "SC(200)14", pipeDiameter: 14, tubeSpacing: 200, palletsPerM2: 0.002, cost: 1.28, price: 3.48 },' +
-'    { name: "Screed (Staple)", itemCode: "SSE(200)14", pipeDiameter: 14, tubeSpacing: 200, palletsPerM2: 0.004, cost: 0.56, price: 2.79 },' +
-'    { name: "LoPro", itemCode: "LP(150)10", pipeDiameter: 10, tubeSpacing: 150, palletsPerM2: 0.02, cost: 17.64, price: 51.15 },' +
-'    { name: "LoPro Max", itemCode: "LPM(150)10", pipeDiameter: 10, tubeSpacing: 150, palletsPerM2: 0.041, cost: 23.86, price: 59.24 },' +
-'    { name: "Nu-Deck", itemCode: "ND(150)14", pipeDiameter: 14, tubeSpacing: 150, palletsPerM2: 0.04, cost: 29.0, price: 77.4 },' +
-'    { name: "Torfloor 2 Plus", itemCode: "TF2+(150)12", pipeDiameter: 12, tubeSpacing: 150, palletsPerM2: 0.04, cost: 42.24, price: 126.05 },' +
-'    { name: "Floating (DPL)", itemCode: "DPL(175)14", pipeDiameter: 14, tubeSpacing: 133, palletsPerM2: 0.0173, cost: 10.78, price: 29.18 },' +
-'    { name: "Joisted (ClippaPlate)", itemCode: "TPBA(400)14", pipeDiameter: 14, tubeSpacing: 200, palletsPerM2: 0.0011, cost: 7.2, price: 11.4 },' +
-'    { name: "Lowboard", itemCode: "LB2+(150)12", pipeDiameter: 12, tubeSpacing: 150, palletsPerM2: 0.02, cost: 35.13, price: 104.54 }' +
-'];' +
+'// ── IMPORTANT: Replace with the deployed RESTlet URL before going live ──────' +
+'// Get this URL from the Script Deployment record in NetSuite after deploying' +
+'// ufh_quote_restlet.js (Customization > Scripting > Scripts > [RESTlet record]' +
+'//   > Deployments subtab > External URL).' +
+'var RESTLET_URL = "/app/site/hosting/restlet.nl?script=YOUR_SCRIPT_ID&deploy=YOUR_DEPLOY_ID";' +
+'' +
+'// ── SCENARIO_FC_MAP ──────────────────────────────────────────────────────────' +
+'// Easy to edit: add new scenarios or change defaults here.' +
+'// Maps scenario key → { groups: [allowed custitem_fc_group IDs], defaultItem: "itemid" }' +
+'// Groups: 1 = solid screed, 2 = joisted/nu-deck, 3 = overlay/low-profile' +
+'// (Groups 4 and 6 are excluded from the RESTlet search)' +
+'var SCENARIO_FC_MAP = {' +
+'    newbuild_solid:        { groups: [1, 3], defaultItem: "SSE(150)14" },' +
+'    newbuild_joisted:      { groups: [2, 3], defaultItem: "ND(150)14" },' +
+'    backtobrick_solid:     { groups: [1, 3], defaultItem: "SC(150)14" },' +
+'    backtobrick_joisted:   { groups: [2, 3], defaultItem: "TF2(150)12" },' +
+'    lighttouch_solid:      { groups: [3],    defaultItem: "LPM(150)10" },' +
+'    lighttouch_joisted:    { groups: [3],    defaultItem: "OT2(120)12" },' +
+'    upper_floor:           { groups: [2, 3], defaultItem: "ND(150)14" }' +
+'};' +
+'' +
+'// Floor constructions — populated at runtime from the RESTlet (action=getFloorConstructions).' +
+'// Do NOT add hardcoded items here; they are loaded dynamically on page load.' +
+'var FLOOR_CONSTRUCTIONS = [];' +
+'var floorConstructionsLoaded = false;' +
 'var BOILER_PUMPS = [' +
 '    { itemCode: "PM1W/2-A", description: "Manifold-mounted pump module for underfloor heating temperature control.", cost: 132.57, price: 460.26, newBuildArea: 215, renovationArea: 125 },' +
 '    { itemCode: "PM2W/3-A", description: "Pump and temperature control module with Wilo variable speed pump and ESBE mixing valve (remote mount)", cost: 248.28, price: 644.83, newBuildArea: 380, renovationArea: 225 },' +
@@ -444,8 +498,20 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '    { ports: 12, itemCode: "OMS12-C", description: "12-Port Optiflo control manifolds, stainless steel", cost: 139.18, price: 617.37 }' +
 '];' +
 'var MANIFOLD_CONNECTION = { itemCode: "MCP-A", description: "Isolator pack for Optiflo manifolds", cost: 17.46, price: 55.5 };' +
-'var THERMOSTAT = { itemCode: "neoStatWv2-C", description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection", cost: 36.28, price: 126.37 };' +
-'var WIRING_CENTRE = { itemCode: "UH8-C", description: "UH8, 8 zone 230V Wiring Centre", cost: 34.16, price: 165.84 };' +
+'// Thermostats — keyed by Thermostat Type dropdown value.' +
+'// Cost/price for DSSB5-C (Dial) and neoAirWv3-C (Wireless) are placeholders; confirm with client.' +
+'var THERMOSTATS = {' +
+'    "Dial":               { itemCode: "DSSB5-C",       description: "Dial thermostat",                                                      cost: 0,     price: 0 },' +
+'    "Wired Programmable": { itemCode: "neoStatWv2-C",  description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection",   cost: 36.28, price: 126.37 },' +
+'    "Wireless":           { itemCode: "neoAirWv3-C",   description: "Wireless thermostat",                                                   cost: 0,     price: 0 }' +
+'};' +
+'// Wiring centres — keyed by Thermostat Type dropdown value.' +
+'// Cost/price for UH8RF-C (Wireless) are placeholders; confirm with client.' +
+'var WIRING_CENTRES = {' +
+'    "Dial":               { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
+'    "Wired Programmable": { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
+'    "Wireless":           { itemCode: "UH8RF-C", description: "UH8RF, 8 zone Wireless Wiring Centre",    cost: 0,     price: 0 }' +
+'};' +
 'var ACTUATOR = { itemCode: "OMDA-C", description: "Zone valve actuator", cost: 6.29, price: 36.97 };' +
 'var JUNCTION_BOX = { itemCode: "JB12-C", description: "Danfoss connection block", cost: 3.59, price: 12.12 };' +
 'var PIPE_COILS = {' +
@@ -473,22 +539,32 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '        { length: 100, itemCode: "WPER14/100-C", description: "14mm x 100m Fastflo pipe", cost: 31.56, price: 183.9 },' +
 '        { length: 110, itemCode: "WPER14/110-C", description: "14mm x 110m Fastflo pipe", cost: 34.71, price: 202.28 },' +
 '        { length: 120, itemCode: "WPER14/120-C", description: "14mm x 120m Fastflo pipe", cost: 37.87, price: 220.65 }' +
+'    ] },' +
+'    16: { coils: [' +
+'        { length: 40,  itemCode: "UP160240-A", description: "16mm OMNIFLO pipe (40m)",  cost: 0, price: 0 },' +
+'        { length: 60,  itemCode: "UP160260-A", description: "16mm OMNIFLO pipe (60m)",  cost: 0, price: 0 },' +
+'        { length: 80,  itemCode: "UP160280-A", description: "16mm OMNIFLO pipe (80m)",  cost: 0, price: 0 },' +
+'        { length: 100, itemCode: "UP160210-A", description: "16mm OMNIFLO pipe (100m)", cost: 0, price: 0 },' +
+'        { length: 120, itemCode: "UP160212-A", description: "16mm OMNIFLO pipe (120m)", cost: 0, price: 0 }' +
 '    ] }' +
 '};' +
 'var PIPE_CONNECTORS = {' +
 '    10: { itemCode: "ALE075/10-C", description: "3/4in x 10mm Eurofitting manifold pipe nut, tail and olive", cost: 0.97, price: 7.04 },' +
 '    12: { itemCode: "UMFP0112-C", description: "12mm pipe connectors", cost: 0.64, price: 3.96 },' +
-'    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive", cost: 1.0, price: 4.43 }' +
+'    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive", cost: 1.0, price: 4.43 },' +
+'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder — confirm item code)", cost: 0, price: 0 }' +
 '};' +
 'var GUIDE_CURVES = {' +
 '    10: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe", cost: 0.27, price: 1.34 },' +
 '    12: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe", cost: 0.27, price: 1.34 },' +
-'    14: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe", cost: 0.3, price: 2.04 }' +
+'    14: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe", cost: 0.3, price: 2.04 },' +
+'    16: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe", cost: 0.3, price: 2.04 }' +
 '};' +
 'var MAX_PIPE_LENGTH = {' +
 '    10: { newBuild: 50, renovation: 45 },' +
 '    12: { newBuild: 80, renovation: 70 },' +
-'    14: { newBuild: 110, renovation: 105 }' +
+'    14: { newBuild: 110, renovation: 105 },' +
+'    16: { newBuild: 110, renovation: 100 }' +
 '};' +
 'var DESIGN_RATE_PER_HOUR = 36;' +
 'var DESIGN_AREA_MULTIPLIER = 0.015;' +
@@ -503,32 +579,63 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 'function generateId() {' +
 '    return Math.random().toString(36).substring(2, 9);' +
 '}' +
+'function findFC(itemid) {' +
+'    for (var j = 0; j < FLOOR_CONSTRUCTIONS.length; j++) {' +
+'        if (FLOOR_CONSTRUCTIONS[j].itemid === itemid) return FLOOR_CONSTRUCTIONS[j];' +
+'    }' +
+'    return null;' +
+'}' +
+'function fcPipeSpacing(fc) {' +
+'    return parseFloat(fc.custitem_qdt_pipe_spacing) || 150;' +
+'}' +
+'function fcPipeDiameter(fc) {' +
+'    return parseInt(fc.custitem_qdt_pipe_diameter, 10) || 14;' +
+'}' +
 'function calculateManifoldPorts(areas, buildType) {' +
 '    var totalPorts = 0;' +
 '    for (var i = 0; i < areas.length; i++) {' +
 '        var area = areas[i];' +
-'        var fc = null;' +
-'        for (var j = 0; j < FLOOR_CONSTRUCTIONS.length; j++) {' +
-'            if (FLOOR_CONSTRUCTIONS[j].name === area.floorConstruction) {' +
-'                fc = FLOOR_CONSTRUCTIONS[j];' +
-'                break;' +
-'            }' +
-'        }' +
+'        var fc = findFC(area.floorConstruction);' +
 '        if (fc && area.areaSqm > 0) {' +
-'            var pipeLength = (area.areaSqm * 1000) / fc.tubeSpacing;' +
-'            var maxLength = MAX_PIPE_LENGTH[fc.pipeDiameter][buildType === "New Build" ? "newBuild" : "renovation"];' +
-'            var coils = Math.ceil(pipeLength / maxLength);' +
-'            totalPorts += coils;' +
+'            var spacing = fcPipeSpacing(fc);' +
+'            var diameter = fcPipeDiameter(fc);' +
+'            var pipeLength = (area.areaSqm * 1000) / spacing;' +
+'            var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
+'            var maxLength = maxLengthMap ? maxLengthMap[buildType === "New Build" ? "newBuild" : "renovation"] : 100;' +
+'            totalPorts += Math.ceil(pipeLength / maxLength);' +
 '        }' +
 '    }' +
 '    return totalPorts;' +
 '}' +
+'function getScenarioKey(isUpperFloor) {' +
+'    if (isUpperFloor) return "upper_floor";' +
+'    var workTypeEl = document.getElementById("workType");' +
+'    var groundFloorEl = document.getElementById("groundFloorType");' +
+'    var workType = workTypeEl ? workTypeEl.value : "New Build";' +
+'    var groundFloor = groundFloorEl ? groundFloorEl.value : "Solid";' +
+'    var prefix = workType === "New Build" ? "newbuild" :' +
+'                 workType === "Renovation (Back to Brick)" ? "backtobrick" : "lighttouch";' +
+'    var suffix = groundFloor === "Solid" ? "solid" : "joisted";' +
+'    return prefix + "_" + suffix;' +
+'}' +
+'function defaultFCForScenario(scenarioKey) {' +
+'    var scenario = SCENARIO_FC_MAP[scenarioKey];' +
+'    if (!scenario) return "";' +
+'    // Return default item if it exists in loaded data, otherwise return the code string' +
+'    for (var i = 0; i < FLOOR_CONSTRUCTIONS.length; i++) {' +
+'        if (FLOOR_CONSTRUCTIONS[i].itemid === scenario.defaultItem) return scenario.defaultItem;' +
+'    }' +
+'    // Data not loaded yet — return the code string anyway; will match once loaded' +
+'    return scenario.defaultItem;' +
+'}' +
 'window.addManifold = function() {' +
 '    manifoldCounter++;' +
+'    var scenarioKey = getScenarioKey(false);' +
+'    var defaultFC = defaultFCForScenario(scenarioKey);' +
 '    var manifold = {' +
 '        id: generateId(),' +
 '        name: "Manifold " + manifoldCounter,' +
-'        areas: [{ id: generateId(), roomName: "", floorConstruction: "Screed (Cliptrack)", areaSqm: 20, thermostats: 1 }],' +
+'        areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFC, areaSqm: 20, thermostats: 1, joinZone: false }],' +
 '        expanded: true' +
 '    };' +
 '    manifolds.push(manifold);' +
@@ -547,7 +654,10 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 'window.addArea = function(manifoldId) {' +
 '    for (var i = 0; i < manifolds.length; i++) {' +
 '        if (manifolds[i].id === manifoldId) {' +
-'            manifolds[i].areas.push({ id: generateId(), roomName: "", floorConstruction: "Screed (Cliptrack)", areaSqm: 20, thermostats: 1 });' +
+'            var isUpper = manifolds[i].name.toLowerCase().indexOf("upper") !== -1;' +
+'            var areaScenario = getScenarioKey(isUpper);' +
+'            var defaultFC2 = defaultFCForScenario(areaScenario);' +
+'            manifolds[i].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFC2, areaSqm: 20, thermostats: 1, joinZone: false });' +
 '            break;' +
 '        }' +
 '    }' +
@@ -630,12 +740,26 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '            html += "</div>";' +
 '            html += "<div class=\\"form-group\\">";' +
 '            html += "<label>Floor Construction</label>";' +
-'            html += "<select onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderManifolds();\\">";' +
-'            for (var fcIdx = 0; fcIdx < FLOOR_CONSTRUCTIONS.length; fcIdx++) {' +
-'                var fc = FLOOR_CONSTRUCTIONS[fcIdx];' +
-'                html += "<option value=\\"" + fc.name + "\\"" + (area.floorConstruction === fc.name ? " selected" : "") + ">" + fc.name + "</option>";' +
+'            var isUpperFloor = manifold.name.toLowerCase().indexOf("upper") !== -1;' +
+'            var scenarioKey = getScenarioKey(isUpperFloor);' +
+'            var scenarioCfg = SCENARIO_FC_MAP[scenarioKey] || { groups: [1,2,3], defaultItem: "" };' +
+'            if (!floorConstructionsLoaded) {' +
+'                html += "<div class=\\"fc-spinner\\">Loading floor constructions\u2026</div>";' +
+'            } else if (FLOOR_CONSTRUCTIONS.length === 0) {' +
+'                html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable \u2014 please contact support</div>";' +
+'            } else {' +
+'                var allowedFCs = FLOOR_CONSTRUCTIONS.filter(function(fc) {' +
+'                    return scenarioCfg.groups.indexOf(fc.custitem_fc_group) !== -1;' +
+'                });' +
+'                if (allowedFCs.length === 0) allowedFCs = FLOOR_CONSTRUCTIONS;' +
+'                html += "<select onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderManifolds();\\">";' +
+'                for (var fcIdx = 0; fcIdx < allowedFCs.length; fcIdx++) {' +
+'                    var fc = allowedFCs[fcIdx];' +
+'                    html += "<option value=\\"" + fc.itemid + "\\"" + (area.floorConstruction === fc.itemid ? " selected" : "") + ">" + (fc.label || fc.itemid) + " (" + fc.itemid + ")</option>";' +
+'                }' +
+'                html += "</select>";' +
 '            }' +
-'            html += "</select></div>";' +
+'            html += "</div>";' +
 '            html += "<div class=\\"form-group\\">";' +
 '            html += "<label>Area (m2)</label>";' +
 '            html += "<input type=\\"number\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0); window.renderManifolds();\\">";' +
@@ -643,6 +767,9 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '            html += "<div class=\\"form-group\\">";' +
 '            html += "<label>Thermostats</label>";' +
 '            html += "<input type=\\"number\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
+'            html += "<label class=\\"join-zone-label\\" style=\\"margin-top:6px;\\">" +' +
+'                "<input type=\\"checkbox\\"" + (area.joinZone ? " checked" : "") + " onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'joinZone\', this.checked);\\">" +' +
+'                " Join to adjacent zone (shared thermostat)</label>";' +
 '            html += "</div>";' +
 '            html += "</div></div>";' +
 '        }' +
@@ -693,6 +820,7 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 'window.calculateQuote = function() {' +
 '    var heatSource = document.getElementById("heatSource").value;' +
 '    var buildType = document.getElementById("buildType").value;' +
+'    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
 '    var targetMargin = parseFloat(document.getElementById("targetMargin").value) || 0;' +
 '    var lineItems = [];' +
 '    var errors = [];' +
@@ -711,26 +839,27 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '        for (var aIdx = 0; aIdx < manifold.areas.length; aIdx++) {' +
 '            var area = manifold.areas[aIdx];' +
 '            totalArea += area.areaSqm;' +
-'            totalThermostats += area.thermostats;' +
-'            var fc = null;' +
-'            for (var fcIdx = 0; fcIdx < FLOOR_CONSTRUCTIONS.length; fcIdx++) {' +
-'                if (FLOOR_CONSTRUCTIONS[fcIdx].name === area.floorConstruction) {' +
-'                    fc = FLOOR_CONSTRUCTIONS[fcIdx];' +
-'                    break;' +
-'                }' +
+'            // joinZone areas share a thermostat — do not add to thermostat count' +
+'            if (!area.joinZone) {' +
+'                totalThermostats += area.thermostats;' +
 '            }' +
+'            var fc = findFC(area.floorConstruction);' +
 '            if (fc) {' +
-'                if (!floorConstructionTotals[fc.name]) {' +
-'                    floorConstructionTotals[fc.name] = { area: 0, fc: fc };' +
+'                var fcKey = fc.itemid;' +
+'                if (!floorConstructionTotals[fcKey]) {' +
+'                    floorConstructionTotals[fcKey] = { area: 0, fc: fc };' +
 '                }' +
-'                floorConstructionTotals[fc.name].area += area.areaSqm;' +
-'                if (!pipeDiameterTotals[fc.pipeDiameter]) {' +
-'                    pipeDiameterTotals[fc.pipeDiameter] = { length: 0, ports: 0 };' +
+'                floorConstructionTotals[fcKey].area += area.areaSqm;' +
+'                var spacing = fcPipeSpacing(fc);' +
+'                var diameter = fcPipeDiameter(fc);' +
+'                if (!pipeDiameterTotals[diameter]) {' +
+'                    pipeDiameterTotals[diameter] = { length: 0, ports: 0 };' +
 '                }' +
-'                var pipeLength = (area.areaSqm * 1000) / fc.tubeSpacing;' +
-'                pipeDiameterTotals[fc.pipeDiameter].length += pipeLength;' +
-'                var maxLength = MAX_PIPE_LENGTH[fc.pipeDiameter][buildType === "New Build" ? "newBuild" : "renovation"];' +
-'                pipeDiameterTotals[fc.pipeDiameter].ports += Math.ceil(pipeLength / maxLength);' +
+'                var pipeLength = (area.areaSqm * 1000) / spacing;' +
+'                pipeDiameterTotals[diameter].length += pipeLength;' +
+'                var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
+'                var maxLength = maxLengthMap ? maxLengthMap[buildType === "New Build" ? "newBuild" : "renovation"] : 100;' +
+'                pipeDiameterTotals[diameter].ports += Math.ceil(pipeLength / maxLength);' +
 '            }' +
 '        }' +
 '    }' +
@@ -758,12 +887,15 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '        lineItems.push({ section: "Manifold", description: manifoldData.description + " (" + manifoldData.itemCode + ")", quantity: 1, cost: manifoldData.cost, price: manifoldData.price, totalCost: manifoldData.cost, totalPrice: manifoldData.price });' +
 '    }' +
 '    lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: manifolds.length, cost: MANIFOLD_CONNECTION.cost, price: MANIFOLD_CONNECTION.price, totalCost: MANIFOLD_CONNECTION.cost * manifolds.length, totalPrice: MANIFOLD_CONNECTION.price * manifolds.length });' +
+'    var selectedThermostat = THERMOSTATS[thermostatType] || THERMOSTATS["Dial"];' +
+'    var selectedWiringCentre = WIRING_CENTRES[thermostatType] || WIRING_CENTRES["Dial"];' +
 '    if (totalThermostats > 0) {' +
-'        lineItems.push({ section: "Controls", description: THERMOSTAT.description + " (" + THERMOSTAT.itemCode + ")", quantity: totalThermostats, cost: THERMOSTAT.cost, price: THERMOSTAT.price, totalCost: THERMOSTAT.cost * totalThermostats, totalPrice: THERMOSTAT.price * totalThermostats });' +
+'        lineItems.push({ section: "Controls", description: selectedThermostat.description + " (" + selectedThermostat.itemCode + ")", quantity: totalThermostats, cost: selectedThermostat.cost, price: selectedThermostat.price, totalCost: selectedThermostat.cost * totalThermostats, totalPrice: selectedThermostat.price * totalThermostats });' +
 '    }' +
-'    var wiringCentres = Math.ceil(totalThermostats / 8);' +
+'    // Wiring centre quantity = max(ceil(thermostats/8), number of manifolds)' +
+'    var wiringCentres = Math.max(Math.ceil(totalThermostats / 8), manifolds.length);' +
 '    if (wiringCentres > 0) {' +
-'        lineItems.push({ section: "Controls", description: WIRING_CENTRE.description + " (" + WIRING_CENTRE.itemCode + ")", quantity: wiringCentres, cost: WIRING_CENTRE.cost, price: WIRING_CENTRE.price, totalCost: WIRING_CENTRE.cost * wiringCentres, totalPrice: WIRING_CENTRE.price * wiringCentres });' +
+'        lineItems.push({ section: "Controls", description: selectedWiringCentre.description + " (" + selectedWiringCentre.itemCode + ")", quantity: wiringCentres, cost: selectedWiringCentre.cost, price: selectedWiringCentre.price, totalCost: selectedWiringCentre.cost * wiringCentres, totalPrice: selectedWiringCentre.price * wiringCentres });' +
 '    }' +
 '    if (totalPorts > 0) {' +
 '        lineItems.push({ section: "Controls", description: ACTUATOR.description + " (" + ACTUATOR.itemCode + ")", quantity: totalPorts, cost: ACTUATOR.cost, price: ACTUATOR.price, totalCost: ACTUATOR.cost * totalPorts, totalPrice: ACTUATOR.price * totalPorts });' +
@@ -792,16 +924,17 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '    for (var fcName in floorConstructionTotals) {' +
 '        if (floorConstructionTotals.hasOwnProperty(fcName)) {' +
 '            var fcData = floorConstructionTotals[fcName];' +
-'            lineItems.push({ section: "Floor Construction", description: fcName + " (" + fcData.fc.itemCode + ") - " + fcData.area.toFixed(1) + " m2", quantity: Math.ceil(fcData.area), cost: fcData.fc.cost, price: fcData.fc.price, totalCost: fcData.fc.cost * fcData.area, totalPrice: fcData.fc.price * fcData.area });' +
+'            var fcLabel = (fcData.fc.label || fcData.fc.itemid) + " (" + fcData.fc.itemid + ") - " + fcData.area.toFixed(1) + " m2";' +
+'            // Note: FC cost/price not yet fetched from getItemPrices — shown as 0 in this phase' +
+'            lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcData.area), cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
 '        }' +
 '    }' +
-'    var designHours = Math.ceil(totalArea * DESIGN_AREA_MULTIPLIER + DESIGN_BASE_HOURS);' +
-'    var designCost = designHours * DESIGN_RATE_PER_HOUR;' +
-'    var designPrice = designCost / (1 - DESIGN_MARGIN);' +
-'    lineItems.push({ section: "Design and Delivery", description: "Design charge (" + designHours + " hours)", quantity: 1, cost: designCost, price: designPrice, totalCost: designCost, totalPrice: designPrice });' +
+'    // Design line: cost and price are both 0 (included in project scope)' +
+'    lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
 '    var pallets = Math.max(2, Math.ceil(totalArea / 100) + 1);' +
 '    var deliveryCost = pallets * DELIVERY_PER_100M2;' +
-'    var deliveryPrice = deliveryCost / (1 - DELIVERY_MARGIN);' +
+'    // Delivery price = cost × 1.15' +
+'    var deliveryPrice = deliveryCost * 1.15;' +
 '    lineItems.push({ section: "Design and Delivery", description: "Delivery charge (" + pallets + " pallets)", quantity: 1, cost: deliveryCost, price: deliveryPrice, totalCost: deliveryCost, totalPrice: deliveryPrice });' +
 '    var totalCost = 0;' +
 '    var totalListPrice = 0;' +
@@ -916,6 +1049,34 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
 '}' +
+'// Fetch floor constructions from the RESTlet on page load.' +
+'// Renders manifolds once loaded; shows spinner in FC dropdowns while loading.' +
+'(function fetchFloorConstructions() {' +
+'    fetch(RESTLET_URL + "&action=getFloorConstructions", {' +
+'        method: "GET",' +
+'        headers: { "Content-Type": "application/json" }' +
+'    })' +
+'    .then(function(response) {' +
+'        if (!response.ok) throw new Error("HTTP " + response.status);' +
+'        return response.json();' +
+'    })' +
+'    .then(function(data) {' +
+'        if (data && data.success && Array.isArray(data.data)) {' +
+'            FLOOR_CONSTRUCTIONS = data.data;' +
+'        } else {' +
+'            console.warn("getFloorConstructions: unexpected response", data);' +
+'            FLOOR_CONSTRUCTIONS = [];' +
+'        }' +
+'        floorConstructionsLoaded = true;' +
+'        window.renderManifolds();' +
+'    })' +
+'    .catch(function(err) {' +
+'        console.error("Failed to load floor constructions:", err);' +
+'        FLOOR_CONSTRUCTIONS = [];' +
+'        floorConstructionsLoaded = true;  // allow render with empty list + error message' +
+'        window.renderManifolds();' +
+'    });' +
+'})();' +
 'window.addManifold();' +
 '</script>' +
 '</body>' +
