@@ -18,7 +18,7 @@
  * 5. Access via the generated URL
  */
 
-define(['N/ui/serverWidget'], function(serverWidget) {
+define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 
     function onRequest(context) {
         if (context.request.method === 'GET') {
@@ -32,12 +32,27 @@ define(['N/ui/serverWidget'], function(serverWidget) {
                 label: ' '
             });
 
-            htmlField.defaultValue = getQuoteToolHTML();
+            // Build the RESTlet URL server-side so no environment URL is hardcoded
+            // in the client-side HTML.
+            // IMPORTANT: Replace 'customscript_ufh_quote_restlet' and
+            // 'customdeploy_ufh_quote_restlet' with the actual Script ID and
+            // Deployment ID values once the RESTlet has been deployed in NetSuite.
+            // The Script ID is visible on the Script record
+            // (Customization > Scripting > Scripts > [RESTlet record] > ID field).
+            // The Deployment ID is on the Deployment record
+            // (same Script record > Deployments subtab > open the deployment > ID field).
+            var restletUrl = url.resolveScript({
+                scriptId: 'customscript_ufh_quote_restlet',
+                deploymentId: 'customdeploy_ufh_quote_restlet',
+                returnExternalUrl: false
+            });
+
+            htmlField.defaultValue = getQuoteToolHTML(restletUrl);
             context.response.writePage(form);
         }
     }
 
-    function getQuoteToolHTML() {
+    function getQuoteToolHTML(restletUrl) {
         return '<!DOCTYPE html>' +
 '<html lang="en">' +
 '<head>' +
@@ -445,11 +460,10 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '    </div>' +
 '</div>' +
 '<script>' +
-'// ── IMPORTANT: Replace with the deployed RESTlet URL before going live ──────' +
-'// Get this URL from the Script Deployment record in NetSuite after deploying' +
-'// ufh_quote_restlet.js (Customization > Scripting > Scripts > [RESTlet record]' +
-'//   > Deployments subtab > External URL).' +
-'var RESTLET_URL = "/app/site/hosting/restlet.nl?script=YOUR_SCRIPT_ID&deploy=YOUR_DEPLOY_ID";' +
+'// RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript.' +
+'// It resolves correctly for whichever NetSuite environment (production / sandbox)' +
+'// the Suitelet is running in — no environment URL is hardcoded here.' +
+'var RESTLET_BASE_URL = ' + JSON.stringify(restletUrl) + ';' +
 '' +
 '// ── SCENARIO_FC_MAP ──────────────────────────────────────────────────────────' +
 '// Easy to edit: add new scenarios or change defaults here.' +
@@ -1052,7 +1066,7 @@ define(['N/ui/serverWidget'], function(serverWidget) {
 '// Fetch floor constructions from the RESTlet on page load.' +
 '// Renders manifolds once loaded; shows spinner in FC dropdowns while loading.' +
 '(function fetchFloorConstructions() {' +
-'    fetch(RESTLET_URL + "&action=getFloorConstructions", {' +
+'    fetch(RESTLET_BASE_URL + "&action=getFloorConstructions", {' +
 '        method: "GET",' +
 '        headers: { "Content-Type": "application/json" }' +
 '    })' +
