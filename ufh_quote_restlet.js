@@ -76,113 +76,33 @@ define(['N/search', 'N/log'], function(search, log) {
      */
     function getFloorConstructions() {
         try {
-            var floorConstructionSearch = search.create({
+            log.debug('getFloorConstructions', 'Minimal test started');
+
+            var testSearch = search.create({
                 type: search.Type.ASSEMBLY_ITEM,
                 filters: [
-                    ['custitem_prod_type', search.Operator.ANYOF, ['2']],
-                    'AND',
-                    ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
-                    'AND',
-                    ['isinactive', search.Operator.IS, 'F'],
-                    'AND',
-                    // Allowlist — add new floor construction item IDs here inside this array using the same OR pattern
-                    [
-                        ['name', search.Operator.IS, 'SC(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'SSE(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LP(150)10'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LPM(150)10'],
-                        'OR',
-                        ['name', search.Operator.IS, 'ND(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TF2+(150)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'DPJ(133)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TPBA(400)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'OT2(120)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'FF25(150)16'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LB2+(150)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'DPL(175)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TF2(150)12']
-                    ]
+                    ['isinactive', search.Operator.IS, 'F']
                 ],
                 columns: [
-                    search.createColumn({ name: 'itemid' }),
-                    search.createColumn({ name: 'internalid' }),
-                    search.createColumn({ name: 'custitem_fc_group' }),
-                    search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
-                    search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
-                    search.createColumn({ name: 'displayname' }),
-                    search.createColumn({ name: 'salesdescription' })
+                    search.createColumn({ name: 'itemid' })
                 ]
             });
 
-            // Collect raw search result objects first
-            var results = [];
-            var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
+            log.debug('getFloorConstructions', 'Search created');
 
-            pageData.pageRanges.forEach(function(pageRange) {
-                var page = pageData.fetch({ index: pageRange.index });
-                page.data.forEach(function(result) {
-                    results.push(result);
-                });
-            });
+            var count = testSearch.runPaged({ pageSize: 10 });
 
-            // Process raw results into output — each result in its own try/catch
-            // so a bad record is skipped rather than crashing the whole response.
-            var output = [];
-            for (var i = 0; i < results.length; i++) {
-                try {
-                    var result     = results[i];
-                    var displayname = result.getValue({ name: 'displayname' });
-                    var salesDesc   = result.getValue({ name: 'salesdescription' });
+            log.debug('getFloorConstructions', 'runPaged succeeded, page count: ' + count.count);
 
-                    // custitem_fc_group may come back as an object { value, text }
-                    // or as a plain number/string — handle both.
-                    var groupRaw = result.getValue({ name: 'custitem_fc_group' });
-                    var groupVal = (groupRaw !== null && groupRaw !== undefined)
-                        ? (typeof groupRaw === 'object' ? groupRaw.value : groupRaw)
-                        : null;
-
-                    // Spacing and diameter: default to null if missing rather than throwing.
-                    var spacingRaw  = result.getValue({ name: 'custitem_qdt_pipe_spacing' });
-                    var diameterRaw = result.getValue({ name: 'custitem_qdt_pipe_diameter' });
-
-                    output.push({
-                        itemid:                     result.getValue({ name: 'itemid' }),
-                        internalid:                 result.id,
-                        custitem_fc_group:          groupVal !== null ? parseInt(groupVal, 10) : null,
-                        custitem_qdt_pipe_spacing:  (spacingRaw  !== null && spacingRaw  !== undefined) ? spacingRaw  : null,
-                        custitem_qdt_pipe_diameter: (diameterRaw !== null && diameterRaw !== undefined) ? diameterRaw : null,
-                        label:                      displayname || salesDesc || ''
-                    });
-                } catch (e) {
-                    log.error('Result processing error at index ' + i, JSON.stringify({ name: e.name, message: e.message, result: JSON.stringify(results[i]) }));
-                }
-            }
-
-            // Sort by group ID (ascending), then by itemid (alphabetical)
-            output.sort(function(a, b) {
-                var groupDiff = (a.custitem_fc_group || 0) - (b.custitem_fc_group || 0);
-                if (groupDiff !== 0) return groupDiff;
-                if (a.itemid < b.itemid) return -1;
-                if (a.itemid > b.itemid) return 1;
-                return 0;
-            });
-
-            return { success: true, data: output };
+            return { success: true, count: count.count };
 
         } catch (e) {
-            log.error('getFloorConstructions error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
-            return { success: false, error: e.message || String(e) };
+            log.error('getFloorConstructions error', JSON.stringify({
+                name: e.name,
+                message: e.message,
+                stack: e.stack
+            }));
+            return { success: false, error: e.message };
         }
     }
 
