@@ -76,8 +76,6 @@ define(['N/search', 'N/log'], function(search, log) {
      */
     function getFloorConstructions() {
         try {
-            log.debug('getFloorConstructions', 'Function started');
-
             var floorConstructionSearch = search.create({
                 type: search.Type.ASSEMBLY_ITEM,
                 filters: [
@@ -85,7 +83,15 @@ define(['N/search', 'N/log'], function(search, log) {
                     'AND',
                     ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
                     'AND',
-                    ['isinactive', search.Operator.IS, false]
+                    ['isinactive', search.Operator.IS, false],
+                    'AND',
+                    // Allowlist — add new floor construction item IDs here to make them available in the tool
+                    ['name', search.Operator.ANYOF, [
+                        'SC(150)14', 'SSE(150)14', 'LP(150)10', 'LPM(150)10',
+                        'ND(150)14', 'TF2+(150)12', 'DPJ(133)14', 'TPBA(400)14',
+                        'OT2(120)12', 'FF25(150)16', 'LB2+(150)12', 'DPL(175)14',
+                        'TF2(150)12'
+                    ]]
                 ],
                 columns: [
                     search.createColumn({ name: 'itemid' }),
@@ -98,8 +104,6 @@ define(['N/search', 'N/log'], function(search, log) {
                 ]
             });
 
-            log.debug('getFloorConstructions', 'Search created');
-
             // Collect raw search result objects first
             var results = [];
             var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
@@ -110,9 +114,6 @@ define(['N/search', 'N/log'], function(search, log) {
                     results.push(result);
                 });
             });
-
-            log.debug('getFloorConstructions', 'Result count: ' + results.length);
-            log.debug('First raw result', JSON.stringify(results[0]));
 
             // Process raw results into output — each result in its own try/catch
             // so a bad record is skipped rather than crashing the whole response.
@@ -156,7 +157,6 @@ define(['N/search', 'N/log'], function(search, log) {
                 return 0;
             });
 
-            log.debug('getFloorConstructions', 'Returning ' + output.length + ' results');
             return { success: true, data: output };
 
         } catch (e) {
