@@ -48,7 +48,7 @@ define(['N/search', 'N/log'], function(search, log) {
             return { success: false, error: 'Unknown action: ' + action };
 
         } catch (e) {
-            log.error({ title: 'UFH RESTlet GET error', details: e });
+            log.error('UFH RESTlet GET error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
             return { success: false, error: e.message || String(e) };
         }
     }
@@ -75,57 +75,69 @@ define(['N/search', 'N/log'], function(search, log) {
      * @returns {Object} { success: true, data: Array } or { success: false, error: string }
      */
     function getFloorConstructions() {
-        var floorConstructionSearch = search.create({
-            type: search.Type.ASSEMBLY_ITEM,
-            filters: [
-                ['custitem_prod_type', search.Operator.IS, '2'],
-                'AND',
-                ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
-                'AND',
-                ['isinactive', search.Operator.IS, false]
-            ],
-            columns: [
-                search.createColumn({ name: 'itemid' }),
-                search.createColumn({ name: 'internalid' }),
-                search.createColumn({ name: 'custitem_fc_group' }),
-                search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
-                search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
-                search.createColumn({ name: 'displayname' }),
-                search.createColumn({ name: 'salesdescription' })
-            ]
-        });
+        try {
+            log.debug('getFloorConstructions', 'Function started');
 
-        var results = [];
-        var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
+            var floorConstructionSearch = search.create({
+                type: search.Type.ASSEMBLY_ITEM,
+                filters: [
+                    ['custitem_prod_type', search.Operator.IS, '2'],
+                    'AND',
+                    ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
+                    'AND',
+                    ['isinactive', search.Operator.IS, false]
+                ],
+                columns: [
+                    search.createColumn({ name: 'itemid' }),
+                    search.createColumn({ name: 'internalid' }),
+                    search.createColumn({ name: 'custitem_fc_group' }),
+                    search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
+                    search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
+                    search.createColumn({ name: 'displayname' }),
+                    search.createColumn({ name: 'salesdescription' })
+                ]
+            });
 
-        pageData.pageRanges.forEach(function(pageRange) {
-            var page = pageData.fetch({ index: pageRange.index });
-            page.data.forEach(function(result) {
-                var displayname   = result.getValue({ name: 'displayname' });
-                var salesDesc     = result.getValue({ name: 'salesdescription' });
-                var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
+            log.debug('getFloorConstructions', 'Search created');
 
-                results.push({
-                    itemid:                       result.getValue({ name: 'itemid' }),
-                    internalid:                   result.id,
-                    custitem_fc_group:            groupRaw ? parseInt(groupRaw, 10) : null,
-                    custitem_qdt_pipe_spacing:    result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
-                    custitem_qdt_pipe_diameter:   result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
-                    label:                        displayname || salesDesc || ''
+            var results = [];
+            var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
+
+            pageData.pageRanges.forEach(function(pageRange) {
+                var page = pageData.fetch({ index: pageRange.index });
+                page.data.forEach(function(result) {
+                    var displayname   = result.getValue({ name: 'displayname' });
+                    var salesDesc     = result.getValue({ name: 'salesdescription' });
+                    var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
+
+                    results.push({
+                        itemid:                       result.getValue({ name: 'itemid' }),
+                        internalid:                   result.id,
+                        custitem_fc_group:            groupRaw ? parseInt(groupRaw, 10) : null,
+                        custitem_qdt_pipe_spacing:    result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
+                        custitem_qdt_pipe_diameter:   result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
+                        label:                        displayname || salesDesc || ''
+                    });
                 });
             });
-        });
 
-        // Sort by group ID (ascending), then by itemid (alphabetical)
-        results.sort(function(a, b) {
-            var groupDiff = (a.custitem_fc_group || 0) - (b.custitem_fc_group || 0);
-            if (groupDiff !== 0) return groupDiff;
-            if (a.itemid < b.itemid) return -1;
-            if (a.itemid > b.itemid) return 1;
-            return 0;
-        });
+            log.debug('getFloorConstructions', 'Result count: ' + results.length);
 
-        return { success: true, data: results };
+            // Sort by group ID (ascending), then by itemid (alphabetical)
+            results.sort(function(a, b) {
+                var groupDiff = (a.custitem_fc_group || 0) - (b.custitem_fc_group || 0);
+                if (groupDiff !== 0) return groupDiff;
+                if (a.itemid < b.itemid) return -1;
+                if (a.itemid > b.itemid) return 1;
+                return 0;
+            });
+
+            return { success: true, data: results };
+
+        } catch (e) {
+            log.error('getFloorConstructions error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
+            return { success: false, error: e.message || String(e) };
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
