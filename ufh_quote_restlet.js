@@ -100,31 +100,55 @@ define(['N/search', 'N/log'], function(search, log) {
 
             log.debug('getFloorConstructions', 'Search created');
 
+            // Collect raw search result objects first
             var results = [];
             var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
 
             pageData.pageRanges.forEach(function(pageRange) {
                 var page = pageData.fetch({ index: pageRange.index });
                 page.data.forEach(function(result) {
-                    var displayname   = result.getValue({ name: 'displayname' });
-                    var salesDesc     = result.getValue({ name: 'salesdescription' });
-                    var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
-
-                    results.push({
-                        itemid:                       result.getValue({ name: 'itemid' }),
-                        internalid:                   result.id,
-                        custitem_fc_group:            groupRaw ? parseInt(groupRaw, 10) : null,
-                        custitem_qdt_pipe_spacing:    result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
-                        custitem_qdt_pipe_diameter:   result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
-                        label:                        displayname || salesDesc || ''
-                    });
+                    results.push(result);
                 });
             });
 
             log.debug('getFloorConstructions', 'Result count: ' + results.length);
+            log.debug('First raw result', JSON.stringify(results[0]));
+
+            // Process raw results into output — each result in its own try/catch
+            // so a bad record is skipped rather than crashing the whole response.
+            var output = [];
+            for (var i = 0; i < results.length; i++) {
+                try {
+                    var result     = results[i];
+                    var displayname = result.getValue({ name: 'displayname' });
+                    var salesDesc   = result.getValue({ name: 'salesdescription' });
+
+                    // custitem_fc_group may come back as an object { value, text }
+                    // or as a plain number/string — handle both.
+                    var groupRaw = result.getValue({ name: 'custitem_fc_group' });
+                    var groupVal = (groupRaw !== null && groupRaw !== undefined)
+                        ? (typeof groupRaw === 'object' ? groupRaw.value : groupRaw)
+                        : null;
+
+                    // Spacing and diameter: default to null if missing rather than throwing.
+                    var spacingRaw  = result.getValue({ name: 'custitem_qdt_pipe_spacing' });
+                    var diameterRaw = result.getValue({ name: 'custitem_qdt_pipe_diameter' });
+
+                    output.push({
+                        itemid:                     result.getValue({ name: 'itemid' }),
+                        internalid:                 result.id,
+                        custitem_fc_group:          groupVal !== null ? parseInt(groupVal, 10) : null,
+                        custitem_qdt_pipe_spacing:  (spacingRaw  !== null && spacingRaw  !== undefined) ? spacingRaw  : null,
+                        custitem_qdt_pipe_diameter: (diameterRaw !== null && diameterRaw !== undefined) ? diameterRaw : null,
+                        label:                      displayname || salesDesc || ''
+                    });
+                } catch (e) {
+                    log.error('Result processing error at index ' + i, JSON.stringify({ name: e.name, message: e.message, result: JSON.stringify(results[i]) }));
+                }
+            }
 
             // Sort by group ID (ascending), then by itemid (alphabetical)
-            results.sort(function(a, b) {
+            output.sort(function(a, b) {
                 var groupDiff = (a.custitem_fc_group || 0) - (b.custitem_fc_group || 0);
                 if (groupDiff !== 0) return groupDiff;
                 if (a.itemid < b.itemid) return -1;
@@ -132,7 +156,8 @@ define(['N/search', 'N/log'], function(search, log) {
                 return 0;
             });
 
-            return { success: true, data: results };
+            log.debug('getFloorConstructions', 'Returning ' + output.length + ' results');
+            return { success: true, data: output };
 
         } catch (e) {
             log.error('getFloorConstructions error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
