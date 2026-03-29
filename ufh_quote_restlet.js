@@ -78,7 +78,7 @@ define(['N/search', 'N/log'], function(search, log) {
         var floorConstructionSearch = search.create({
             type: search.Type.ASSEMBLY_ITEM,
             filters: [
-                ['custitem_prod_type', search.Operator.IS, 'Floor Construction'],
+                ['custitem_prod_type', search.Operator.IS, '2'],
                 'AND',
                 ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
                 'AND',
