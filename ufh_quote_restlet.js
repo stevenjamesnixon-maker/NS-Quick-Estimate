@@ -79,25 +79,110 @@ define(['N/search', 'N/log'], function(search, log) {
      */
     function getFloorConstructions() {
         try {
-            log.debug('getFloorConstructions', 'Minimal test started');
+            log.debug('getFloorConstructions', 'Function started');
 
-            var testSearch = search.create({
+            var floorConstructionSearch = search.create({
                 type: search.Type.ASSEMBLY_ITEM,
                 filters: [
-                    ['isinactive', search.Operator.IS, 'F']
+                    ['custitem_prod_type', search.Operator.ANYOF, ['2']],
+                    'AND',
+                    ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
+                    'AND',
+                    ['isinactive', search.Operator.IS, 'F'],
+                    'AND',
+                    // Allowlist — add new floor construction item IDs here inside this array using the same OR pattern
+                    [
+                        ['name', search.Operator.IS, 'SC(150)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'SSE(150)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'LP(150)10'],
+                        'OR',
+                        ['name', search.Operator.IS, 'LPM(150)10'],
+                        'OR',
+                        ['name', search.Operator.IS, 'ND(150)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'TF2+(150)12'],
+                        'OR',
+                        ['name', search.Operator.IS, 'DPJ(133)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'TPBA(400)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'OT2(120)12'],
+                        'OR',
+                        ['name', search.Operator.IS, 'FF25(150)16'],
+                        'OR',
+                        ['name', search.Operator.IS, 'LB2+(150)12'],
+                        'OR',
+                        ['name', search.Operator.IS, 'DPL(175)14'],
+                        'OR',
+                        ['name', search.Operator.IS, 'TF2(150)12']
+                    ]
                 ],
                 columns: [
-                    search.createColumn({ name: 'itemid' })
+                    search.createColumn({ name: 'itemid' }),
+                    search.createColumn({ name: 'internalid' }),
+                    search.createColumn({ name: 'custitem_fc_group' }),
+                    search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
+                    search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
+                    search.createColumn({ name: 'displayname' }),
+                    search.createColumn({ name: 'salesdescription' })
                 ]
             });
 
             log.debug('getFloorConstructions', 'Search created');
 
-            var count = testSearch.runPaged({ pageSize: 10 });
+            var results = [];
+            var pageData = floorConstructionSearch.runPaged({ pageSize: 100 });
 
-            log.debug('getFloorConstructions', 'runPaged succeeded, page count: ' + count.count);
+            pageData.pageRanges.forEach(function(pageRange) {
+                var page = pageData.fetch({ index: pageRange.index });
+                page.data.forEach(function(result) {
+                    results.push(result);
+                });
+            });
 
-            return { success: true, count: count.count };
+            log.debug('getFloorConstructions', 'Result count: ' + results.length);
+
+            var output = [];
+            for (var i = 0; i < results.length; i++) {
+                try {
+                    var result = results[i];
+
+                    var fcGroupRaw = result.getValue({ name: 'custitem_fc_group' });
+                    var fcGroup = (fcGroupRaw && typeof fcGroupRaw === 'object') ? fcGroupRaw.value : fcGroupRaw;
+
+                    var pipeSpacing = result.getValue({ name: 'custitem_qdt_pipe_spacing' }) || null;
+                    var pipeDiameter = result.getValue({ name: 'custitem_qdt_pipe_diameter' }) || null;
+
+                    var displayName = result.getValue({ name: 'displayname' });
+                    var salesDesc = result.getValue({ name: 'salesdescription' });
+                    var label = (displayName && displayName !== '') ? displayName : (salesDesc && salesDesc !== '') ? salesDesc : result.getValue({ name: 'itemid' });
+
+                    output.push({
+                        itemid: result.getValue({ name: 'itemid' }),
+                        internalid: result.id,
+                        fcGroup: String(fcGroup),
+                        pipeSpacing: pipeSpacing,
+                        pipeDiameter: pipeDiameter,
+                        label: label
+                    });
+                } catch (itemErr) {
+                    log.error('Result processing error at index ' + i, JSON.stringify({
+                        name: itemErr.name,
+                        message: itemErr.message
+                    }));
+                }
+            }
+
+            output.sort(function(a, b) {
+                if (a.fcGroup !== b.fcGroup) return parseInt(a.fcGroup) - parseInt(b.fcGroup);
+                return a.itemid < b.itemid ? -1 : 1;
+            });
+
+            log.debug('getFloorConstructions', 'Returning ' + output.length + ' items');
+
+            return output;
 
         } catch (e) {
             log.error('getFloorConstructions error', JSON.stringify({
