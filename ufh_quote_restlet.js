@@ -19,6 +19,9 @@
  *    - Go to the Deployments subtab on the Script record
  *    - Set Status to "Released"
  *    - Set Audience as appropriate (e.g. specific role or all employees)
+ *    // IMPORTANT: On the Deployment record, set the "Response Content Type" to "TEXT"
+ *    // — this allows the RESTlet to return a JSON string which the front-end will
+ *    // parse with JSON.parse()
  * 6. Copy the generated External URL from the deployment record
  *    and update the RESTLET_URL constant in ufh_quote_suitelet_v3.2.js
  * ============================================================
@@ -38,18 +41,18 @@ define(['N/search', 'N/log'], function(search, log) {
 
         try {
             if (action === 'getFloorConstructions') {
-                return getFloorConstructions();
+                return JSON.stringify(getFloorConstructions());
             }
 
             if (action === 'getItemPrices') {
-                return getItemPrices(params);
+                return JSON.stringify(getItemPrices(params));
             }
 
-            return { success: false, error: 'Unknown action: ' + action };
+            return JSON.stringify({ success: false, error: 'Unknown action: ' + action });
 
         } catch (e) {
             log.error('UFH RESTlet GET error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
-            return { success: false, error: e.message || String(e) };
+            return JSON.stringify({ success: false, error: e.message || String(e) });
         }
     }
 
