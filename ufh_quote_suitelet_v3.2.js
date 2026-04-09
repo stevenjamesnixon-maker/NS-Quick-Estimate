@@ -410,13 +410,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    <option value="Renovation (Light Touch)">Renovation (Light Touch)</option>' +
 '                </select>' +
 '            </div>' +
-'            <div class="form-group">' +
-'                <label>Property Floor Type</label>' +
-'                <select id="propertyFloorType" onchange="window.applyFloorTypeToProperty(this.value)">' +
-'                    <option value="solid" selected>Solid</option>' +
-'                    <option value="joisted">Joisted</option>' +
-'                </select>' +
-'            </div>' +
+''
 '            <div class="form-group">' +
 '                <label>Thermostat Type</label>' +
 '                <select id="thermostatType">' +
@@ -440,9 +434,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="card-title">Floors and Manifolds</div>' +
 '        <div id="floorsContainer"></div>' +
 '        <div class="floor-add-buttons">' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'ground\')">+ Ground Floor</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'upper\')">+ Upper Floor</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'basement\')">+ Basement</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'ground\')">+ Add Ground Floor</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'lowerground\')">+ Add Lower Ground</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'basement\')">+ Add Basement</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'upper\')">+ Add Upper Floor</button>' +
 '        </div>' +
 '    </div>' +
 '    <div class="actions">' +
@@ -566,9 +561,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'var DESIGN_RATE_PER_HOUR = 36;' +
 'var DESIGN_BASE_HOURS = 2;' +
 'var DELIVERY_PER_100M2 = 75;' +
-'var propertyFloorType = "solid";' +
 'var floors = [];' +
-'var floorCounters = { ground: 0, basement: 0, upper: 0 };' +
+'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 'var bomExpanded = false;' +
 'var expandedSections = {};' +
 'function generateId() {' +
@@ -603,31 +597,42 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    return totalPorts;' +
 '}' +
 'function generateFloorName(type) {' +
-'    if (type === "ground") { floorCounters.ground++; return "Ground Floor " + floorCounters.ground; }' +
-'    if (type === "upper")  { floorCounters.upper++;  return "Upper Floor "  + floorCounters.upper;  }' +
-'    floorCounters.basement++; return "Basement " + floorCounters.basement;' +
+'    if (type === "ground") {' +
+'        floorCounters.ground++;' +
+'        return floorCounters.ground === 1 ? "Ground Floor" : "Ground Floor " + floorCounters.ground;' +
+'    }' +
+'    if (type === "upper") {' +
+'        floorCounters.upper++;' +
+'        return floorCounters.upper === 1 ? "Upper Floor" : "Upper Floor " + floorCounters.upper;' +
+'    }' +
+'    if (type === "lowerground") {' +
+'        floorCounters.lowerground++;' +
+'        return floorCounters.lowerground === 1 ? "Lower Ground Floor" : "Lower Ground Floor " + floorCounters.lowerground;' +
+'    }' +
+'    floorCounters.basement++;' +
+'    return floorCounters.basement === 1 ? "Basement" : "Basement " + floorCounters.basement;' +
 '}' +
 'function defaultFCForFloorType(floorType) {' +
-'    if (FLOOR_CONSTRUCTIONS.length === 0) return "";' +
-'    for (var i = 0; i < FLOOR_CONSTRUCTIONS.length; i++) {' +
-'        if (floorType === "joisted" && FLOOR_CONSTRUCTIONS[i].fcGroup === 3) return FLOOR_CONSTRUCTIONS[i].itemid;' +
-'        if (floorType !== "joisted" && FLOOR_CONSTRUCTIONS[i].fcGroup !== 3) return FLOOR_CONSTRUCTIONS[i].itemid;' +
-'    }' +
-'    return FLOOR_CONSTRUCTIONS[0].itemid;' +
+'    return floorType === "joisted" ? "ND(150)14" : "SC(150)14";' +
 '}' +
 'function applyFloorTypeToManifold(manifold, floorType) {' +
 '    manifold.floorType = floorType;' +
-'    for (var i = 0; i < manifold.areas.length; i++) { manifold.areas[i].floorType = floorType; }' +
+'    for (var i = 0; i < manifold.areas.length; i++) {' +
+'        if (!manifold.areas[i].floorTypeOverridden) {' +
+'            manifold.areas[i].floorType = floorType;' +
+'            manifold.areas[i].floorConstruction = defaultFCForFloorType(floorType);' +
+'        }' +
+'    }' +
 '}' +
 'function applyFloorTypeToFloor(floor, floorType) {' +
 '    floor.floorType = floorType;' +
-'    for (var i = 0; i < floor.manifolds.length; i++) { applyFloorTypeToManifold(floor.manifolds[i], floorType); }' +
+'    for (var i = 0; i < floor.manifolds.length; i++) {' +
+'        if (!floor.manifolds[i].floorTypeOverridden) {' +
+'            applyFloorTypeToManifold(floor.manifolds[i], floorType);' +
+'        }' +
+'    }' +
 '}' +
-'window.applyFloorTypeToProperty = function(floorType) {' +
-'    propertyFloorType = floorType;' +
-'    for (var i = 0; i < floors.length; i++) { applyFloorTypeToFloor(floors[i], floorType); }' +
-'    window.renderFloors();' +
-'};' +
+''
 'window.renderFloors = function() {' +
 '    try {' +
 '    var container = document.getElementById("floorsContainer");' +
@@ -643,8 +648,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        html += "</div>";' +
 '        html += "<div class=\\"floor-controls\\">";' +
 '        html += "<select onchange=\\"window.updateFloorType(\'" + floor.id + "\', this.value)\\">";' +
-'        html += "<option value=\\"solid\\"" + (floor.floorType === "solid" ? " selected" : "") + ">Solid</option>";' +
-'        html += "<option value=\\"joisted\\"" + (floor.floorType === "joisted" ? " selected" : "") + ">Joisted</option>";' +
+'        html += "<option value=\\"solid\\"" + (floor.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
+'        html += "<option value=\\"joisted\\"" + (floor.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
 '        html += "</select>";' +
 '        if (floors.length > 1) {' +
 '            html += "<button type=\\"button\\" class=\\"btn btn-danger\\" onclick=\\"event.stopPropagation(); window.removeFloor(\'" + floor.id + "\')\\">[X]</button>";' +
@@ -663,6 +668,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            html += "</div>";' +
 '            html += "<div class=\\"manifold-info\\">";' +
 '            html += "<span class=\\"port-badge " + (hasError ? "error" : "") + "\\">" + ports + " Ports</span>";' +
+'            html += "<select onclick=\\"event.stopPropagation();\\" onchange=\\"event.stopPropagation(); window.updateManifoldFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', this.value)\\">";' +
+'            html += "<option value=\\"solid\\"" + (manifold.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
+'            html += "<option value=\\"joisted\\"" + (manifold.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
+'            html += "</select>";' +
 '            if (floor.manifolds.length > 1) {' +
 '                html += "<button type=\\"button\\" class=\\"btn btn-danger\\" onclick=\\"event.stopPropagation(); window.removeManifold(\'" + floor.id + "\', \'" + manifold.id + "\')\\">[X]</button>";' +
 '            }' +
@@ -684,6 +693,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "<div class=\\"form-group\\">";' +
 '                html += "<label>Room Name (optional)</label>";' +
 '                html += "<input type=\\"text\\" value=\\"" + (area.roomName || "") + "\\" placeholder=\\"e.g. Kitchen\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'roomName\', this.value); window.renderFloors();\\">";' +
+'                html += "</div>";' +
+'                html += "<div class=\\"form-group\\">";' +
+'                html += "<label>Floor Type</label>";' +
+'                html += "<select onchange=\\"window.updateAreaFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', this.value)\\">";' +
+'                html += "<option value=\\"solid\\"" + (area.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
+'                html += "<option value=\\"joisted\\"" + (area.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
+'                html += "</select>";' +
 '                html += "</div>";' +
 '                html += "<div class=\\"form-group\\">";' +
 '                html += "<label>Floor Construction</label>";' +
@@ -725,18 +741,19 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '};' +
 'window.addFloor = function(type) {' +
+'    var floorType = (type === "upper") ? "joisted" : "solid";' +
 '    var newFloor = {' +
 '        id: generateId(),' +
 '        type: type,' +
 '        name: generateFloorName(type),' +
-'        floorType: propertyFloorType,' +
+'        floorType: floorType,' +
 '        expanded: true,' +
 '        manifolds: [{' +
 '            id: generateId(),' +
 '            name: "Manifold 1",' +
-'            floorType: propertyFloorType,' +
+'            floorType: floorType,' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(propertyFloorType), floorType: propertyFloorType, areaSqm: 20, thermostats: 1, joinZone: false }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1, joinZone: false }]' +
 '        }]' +
 '    };' +
 '    floors.push(newFloor);' +
@@ -756,9 +773,49 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    window.renderFloors();' +
 '};' +
-'window.updateFloorType = function(floorId, newType) {' +
+'window.updateFloorType = function(floorId, floorType) {' +
 '    for (var i = 0; i < floors.length; i++) {' +
-'        if (floors[i].id === floorId) { applyFloorTypeToFloor(floors[i], newType); break; }' +
+'        if (floors[i].id === floorId) {' +
+'            floors[i].floorTypeOverridden = true;' +
+'            applyFloorTypeToFloor(floors[i], floorType);' +
+'            break;' +
+'        }' +
+'    }' +
+'    window.renderFloors();' +
+'};' +
+'window.updateManifoldFloorType = function(floorId, manifoldId, floorType) {' +
+'    for (var i = 0; i < floors.length; i++) {' +
+'        if (floors[i].id === floorId) {' +
+'            for (var j = 0; j < floors[i].manifolds.length; j++) {' +
+'                if (floors[i].manifolds[j].id === manifoldId) {' +
+'                    floors[i].manifolds[j].floorTypeOverridden = true;' +
+'                    applyFloorTypeToManifold(floors[i].manifolds[j], floorType);' +
+'                    break;' +
+'                }' +
+'            }' +
+'            break;' +
+'        }' +
+'    }' +
+'    window.renderFloors();' +
+'};' +
+'window.updateAreaFloorType = function(floorId, manifoldId, areaId, floorType) {' +
+'    for (var i = 0; i < floors.length; i++) {' +
+'        if (floors[i].id === floorId) {' +
+'            for (var j = 0; j < floors[i].manifolds.length; j++) {' +
+'                if (floors[i].manifolds[j].id === manifoldId) {' +
+'                    for (var k = 0; k < floors[i].manifolds[j].areas.length; k++) {' +
+'                        if (floors[i].manifolds[j].areas[k].id === areaId) {' +
+'                            floors[i].manifolds[j].areas[k].floorTypeOverridden = true;' +
+'                            floors[i].manifolds[j].areas[k].floorType = floorType;' +
+'                            floors[i].manifolds[j].areas[k].floorConstruction = defaultFCForFloorType(floorType);' +
+'                            break;' +
+'                        }' +
+'                    }' +
+'                    break;' +
+'                }' +
+'            }' +
+'            break;' +
+'        }' +
 '    }' +
 '    window.renderFloors();' +
 '};' +
@@ -1245,14 +1302,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        id: generateId(),' +
 '        type: "ground",' +
 '        name: generateFloorName("ground"),' +
-'        floorType: propertyFloorType,' +
+'        floorType: "solid",' +
 '        expanded: true,' +
 '        manifolds: [{' +
 '            id: generateId(),' +
 '            name: "Manifold 1",' +
-'            floorType: propertyFloorType,' +
+'            floorType: "solid",' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: "", floorType: propertyFloorType, areaSqm: 20, thermostats: 1, joinZone: false }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType("solid"), floorType: "solid", areaSqm: 20, thermostats: 1, joinZone: false }]' +
 '        }]' +
 '    };' +
 '    floors.push(initFloor);' +
