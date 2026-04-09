@@ -589,10 +589,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    return null;' +
 '}' +
 'function fcPipeSpacing(fc) {' +
-'    return parseFloat(fc.custitem_qdt_pipe_spacing) || 150;' +
+'    return parseFloat(fc.pipeSpacing) || 150;' +
 '}' +
 'function fcPipeDiameter(fc) {' +
-'    return parseInt(fc.custitem_qdt_pipe_diameter, 10) || 14;' +
+'    return parseInt(fc.pipeDiameter, 10) || 14;' +
 '}' +
 'function calculateManifoldPorts(areas, workType) {' +
 '    var totalPorts = 0;' +
@@ -755,7 +755,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable \u2014 please contact support</div>";' +
 '            } else {' +
 '                var allowedFCs = FLOOR_CONSTRUCTIONS.filter(function(fc) {' +
-'                    return scenarioCfg.groups.indexOf(fc.custitem_fc_group) !== -1;' +
+'                    return scenarioCfg.groups.indexOf(fc.fcGroup) !== -1;' +
 '                });' +
 '                if (allowedFCs.length === 0) allowedFCs = FLOOR_CONSTRUCTIONS;' +
 '                html += "<select onchange=\\"window.updateArea(\'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderManifolds();\\">";' +
@@ -1058,7 +1058,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    bomContainer.innerHTML = bomHtml;' +
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
-'}' +
+'};' +
 '// Fetch floor constructions from the RESTlet on page load.' +
 '// Renders manifolds once loaded; shows spinner in FC dropdowns while loading.' +
 '(function fetchFloorConstructions() {' +
@@ -1071,7 +1071,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        return response.json();' +
 '    })' +
 '    .then(function(data) {' +
-'        if (data && data.success && Array.isArray(data.data)) {' +
+'        if (Array.isArray(data)) {' +
+'            FLOOR_CONSTRUCTIONS = data;' +
+'        } else if (data && data.success && Array.isArray(data.data)) {' +
 '            FLOOR_CONSTRUCTIONS = data.data;' +
 '        } else {' +
 '            console.warn("getFloorConstructions: unexpected response", data);' +
