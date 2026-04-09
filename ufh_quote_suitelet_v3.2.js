@@ -849,7 +849,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        for (var aIdx = 0; aIdx < manifold.areas.length; aIdx++) {' +
 '            var area = manifold.areas[aIdx];' +
 '            totalArea += area.areaSqm;' +
-'            // joinZone areas share a thermostat — do not add to thermostat count' +
+'            /* joinZone areas share a thermostat — do not add to thermostat count */' +
 '            if (!area.joinZone) {' +
 '                totalThermostats += area.thermostats;' +
 '            }' +
@@ -935,7 +935,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        if (floorConstructionTotals.hasOwnProperty(fcName)) {' +
 '            var fcData = floorConstructionTotals[fcName];' +
 '            var fcLabel = (fcData.fc.label || fcData.fc.itemid) + " (" + fcData.fc.itemid + ") - " + fcData.area.toFixed(1) + " m2";' +
-'            // Note: FC cost/price not yet fetched from getItemPrices — shown as 0 in this phase' +
+'            /* Note: FC cost/price not yet fetched from getItemPrices — shown as 0 in this phase */' +
 '            lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcData.area), cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
 '        }' +
 '    }' +
@@ -1085,7 +1085,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    .catch(function(err) {' +
 '        console.error("Failed to load floor constructions:", err);' +
 '        FLOOR_CONSTRUCTIONS = [];' +
-'        floorConstructionsLoaded = true;  // allow render with empty list + error message' +
+'        floorConstructionsLoaded = true;' +
+'        /* allow render with empty list + error message */' +
 '        window.renderManifolds();' +
 '    });' +
 '})();' +
