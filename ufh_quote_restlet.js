@@ -134,12 +134,12 @@ define(['N/search', 'N/log'], function(search, log) {
                 var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
 
                 results.push({
-                    itemid:                       result.getValue({ name: 'itemid' }),
-                    internalid:                   result.id,
-                    custitem_fc_group:            groupRaw ? parseInt(groupRaw, 10) : null,
-                    custitem_qdt_pipe_spacing:    result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
-                    custitem_qdt_pipe_diameter:   result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
-                    label:                        displayname || salesDesc || ''
+                    itemid:       result.getValue({ name: 'itemid' }),
+                    internalid:   result.id,
+                    custitem_fc_group: groupRaw ? parseInt(groupRaw, 10) : null,
+                    pipeSpacing:  result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
+                    pipeDiameter: result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
+                    label:        displayname || salesDesc || ''
                 });
             });
         });
