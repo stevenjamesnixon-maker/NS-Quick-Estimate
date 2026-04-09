@@ -697,16 +697,18 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    html += "</select>";' +
 '                }' +
 '                html += "</div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 40px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m\u00b2</label>";' +
 '                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
 '                html += "</div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 64px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Thermostats</label>";' +
 '                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
 '                html += "</div>";' +
 '                if (manifold.areas.length > 1) {' +
 '                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 auto;\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
+'                } else {' +
+'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 auto;opacity:0.3;cursor:not-allowed;\\" disabled onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
 '                }' +
 '                html += "</div>";' +
 '            }' +
