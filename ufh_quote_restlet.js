@@ -133,101 +133,77 @@ define(['N/search', 'N/log'], function(search, log) {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Accepts a comma-separated list of item name/itemid values via the
-     * "itemids" query parameter (e.g. DSSB5-C,OMS06-C,OMDA-C) and returns
-     * price and cost data keyed by itemid.
+     * Accepts a comma-separated list of item codes via "itemids" and a price
+     * level internal ID via "pricelevelid".  Returns price data keyed by itemid.
      *
-     * Fields returned per item:
-     *   itemid
-     *   internalid
-     *   custrecord_price_homeowner   – homeowner price level
-     *   custrecord_price_installer   – installer price level
-     *   cost                         – standard cost
+     * Each found item returns:
+     *   itemid        – the item code
+     *   price         – unit price at the requested price level (parsed as float)
+     *   pricelevelid  – the price level ID that was queried
      *
-     * !! IMPORTANT – PLACEHOLDER FIELD NAMES !!
-     * custrecord_price_homeowner and custrecord_price_installer are
-     * PLACEHOLDER names.  The correct custom field IDs for the two price
-     * levels must be confirmed with the client before going live and
-     * substituted here.
+     * Items not found (no match for the name + price level combination) are
+     * included with { notFound: true } so the front end can identify missing
+     * items without an error being thrown.
      *
-     * Items not found are included with { notFound: true } so the front end
-     * can identify missing items without an error being thrown.
-     *
-     * @param {Object} params - Request parameters; expects params.itemids
-     * @returns {Object} { success: true, data: { [itemid]: {...} } } or { success: false, error: string }
+     * @param {Object} params - expects params.itemids and params.pricelevelid
+     * @returns {string} JSON string: { success: true, data: { [itemid]: {...} } }
      */
     function getItemPrices(params) {
-        var rawIds = params.itemids || '';
+        var rawIds      = params.itemids      || '';
+        var priceLevelId = params.pricelevelid || '';
+
         if (!rawIds) {
-            return { success: false, error: 'No itemids supplied' };
+            return JSON.stringify({ success: false, error: 'No itemids supplied' });
         }
 
         var itemIdList = rawIds.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
         if (itemIdList.length === 0) {
-            return { success: false, error: 'No valid itemids supplied' };
+            return JSON.stringify({ success: false, error: 'No valid itemids supplied' });
         }
 
         var result = {};
 
-        // Initialise all requested items as notFound so anything that doesn't
-        // come back from the search is included with the correct flag.
+        // Initialise all requested items as notFound before the search loop.
         itemIdList.forEach(function(id) {
             result[id] = { notFound: true };
         });
 
-        // Use search.lookupFields for each item — more efficient than loading
-        // the full item record when only a handful of fields are needed.
         itemIdList.forEach(function(itemCode) {
             try {
-                // Find the internal ID by searching on the itemid (name) field
-                var idSearch = search.create({
+                var itemSearch = search.create({
                     type: search.Type.ITEM,
                     filters: [
-                        ['name', search.Operator.IS, itemCode]
+                        ['name', search.Operator.IS, itemCode],
+                        'AND',
+                        ['isinactive', search.Operator.IS, 'F'],
+                        'AND',
+                        ['pricing.pricelevel', search.Operator.ANYOF, [priceLevelId]]
                     ],
                     columns: [
-                        search.createColumn({ name: 'internalid' })
+                        search.createColumn({ name: 'itemid' }),
+                        search.createColumn({ name: 'unitprice', join: 'pricing' }),
+                        search.createColumn({ name: 'pricelevel', join: 'pricing' })
                     ]
                 });
 
-                var idResults = idSearch.run().getRange({ start: 0, end: 1 });
-                if (!idResults || idResults.length === 0) {
-                    // Already initialised as notFound above — nothing to do
+                var rows = itemSearch.run().getRange({ start: 0, end: 1 });
+                if (!rows || rows.length === 0) {
                     return;
                 }
 
-                var internalId = idResults[0].id;
-
-                // !! IMPORTANT — REPLACE PLACEHOLDER FIELD NAMES BELOW !!
-                // custrecord_price_homeowner and custrecord_price_installer
-                // must be replaced with the correct price level field IDs
-                // once confirmed with the client.
-                var fields = search.lookupFields({
-                    type: search.Type.ITEM,
-                    id: internalId,
-                    columns: [
-                        'itemid',
-                        'cost',
-                        'custrecord_price_homeowner',   // ← REPLACE with confirmed field ID
-                        'custrecord_price_installer'    // ← REPLACE with confirmed field ID
-                    ]
-                });
-
+                var row = rows[0];
                 result[itemCode] = {
-                    itemid:                      fields.itemid || itemCode,
-                    internalid:                  internalId,
-                    custrecord_price_homeowner:  fields.custrecord_price_homeowner || null,
-                    custrecord_price_installer:  fields.custrecord_price_installer || null,
-                    cost:                        fields.cost || null
+                    itemid:       row.getValue({ name: 'itemid' }) || itemCode,
+                    price:        parseFloat(row.getValue({ name: 'unitprice', join: 'pricing' })) || 0,
+                    pricelevelid: priceLevelId
                 };
 
             } catch (itemErr) {
                 log.error({ title: 'getItemPrices – error looking up ' + itemCode, details: itemErr });
-                // Leave as notFound rather than aborting the whole request
             }
         });
 
-        return { success: true, data: result };
+        return JSON.stringify({ success: true, data: result });
     }
 
     return { get: get };
