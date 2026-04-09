@@ -194,7 +194,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            flex-direction: row;' +
 '            align-items: flex-end;' +
 '            gap: 12px;' +
-'            flex-wrap: nowrap;' +
+'            flex-wrap: wrap;' +
 '            padding: 8px 0;' +
 '        }' +
 '        .error-message {' +
@@ -672,17 +672,17 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var aIdx = 0; aIdx < manifold.areas.length; aIdx++) {' +
 '                var area = manifold.areas[aIdx];' +
 '                html += "<div class=\\"area-row\\">";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 160px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 150px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Type</label>";' +
 '                html += "<select style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" onchange=\\"window.updateAreaFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', this.value)\\">";' +
 '                html += "<option value=\\"solid\\"" + (area.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
 '                html += "<option value=\\"joisted\\"" + (area.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
 '                html += "</select></div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:1 1 120px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:1 1 100px;min-width:80px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Room Name (optional)</label>";' +
 '                html += "<input type=\\"text\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + (area.roomName || "") + "\\" placeholder=\\"e.g. Kitchen\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'roomName\', this.value); window.renderFloors();\\">";' +
 '                html += "</div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 280px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 240px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Construction</label>";' +
 '                if (!floorConstructionsLoaded) {' +
 '                    html += "<div class=\\"fc-spinner\\">Loading floor constructions\u2026</div>";' +
@@ -697,16 +697,18 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    html += "</select>";' +
 '                }' +
 '                html += "</div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m\u00b2</label>";' +
-'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
 '                html += "</div>";' +
-'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Thermostats</label>";' +
-'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
 '                html += "</div>";' +
 '                if (manifold.areas.length > 1) {' +
-'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 auto;\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
+'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 36px;min-width:36px;width:36px;\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
+'                } else {' +
+'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 36px;min-width:36px;width:36px;opacity:0.3;cursor:not-allowed;\\" disabled onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
 '                }' +
 '                html += "</div>";' +
 '            }' +
