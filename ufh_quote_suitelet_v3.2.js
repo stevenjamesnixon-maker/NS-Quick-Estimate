@@ -449,16 +449,16 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    </div>' +
 '</div>' +
 '<script>' +
-'// RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript.' +
-'// It resolves correctly for whichever NetSuite environment (production / sandbox)' +
-'// the Suitelet is running in — no environment URL is hardcoded here.' +
+'/* RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript. */' +
+'/* It resolves correctly for whichever NetSuite environment (production / sandbox) */' +
+'/* the Suitelet is running in — no environment URL is hardcoded here. */' +
 'var RESTLET_BASE_URL = ' + JSON.stringify(restletUrl) + ';' +
 '' +
-'// ── SCENARIO_FC_MAP ──────────────────────────────────────────────────────────' +
-'// Easy to edit: add new scenarios or change defaults here.' +
-'// Maps scenario key → { groups: [allowed custitem_fc_group IDs], defaultItem: "itemid" }' +
-'// Groups: 1 = solid screed, 2 = joisted/nu-deck, 3 = overlay/low-profile' +
-'// (Groups 4 and 6 are excluded from the RESTlet search)' +
+'/* ── SCENARIO_FC_MAP ────────────────────────────────────────────────────────── */' +
+'/* Easy to edit: add new scenarios or change defaults here. */' +
+'/* Maps scenario key → { groups: [allowed custitem_fc_group IDs], defaultItem: "itemid" } */' +
+'/* Groups: 1 = solid screed, 2 = joisted/nu-deck, 3 = overlay/low-profile */' +
+'/* (Groups 4 and 6 are excluded from the RESTlet search) */' +
 'var SCENARIO_FC_MAP = {' +
 '    newbuild_solid:        { groups: [1, 3], defaultItem: "SSE(150)14" },' +
 '    newbuild_joisted:      { groups: [2, 3], defaultItem: "ND(150)14" },' +
@@ -469,8 +469,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    upper_floor:           { groups: [2, 3], defaultItem: "ND(150)14" }' +
 '};' +
 '' +
-'// Floor constructions — populated at runtime from the RESTlet (action=getFloorConstructions).' +
-'// Do NOT add hardcoded items here; they are loaded dynamically on page load.' +
+'/* Floor constructions — populated at runtime from the RESTlet (action=getFloorConstructions). */' +
+'/* Do NOT add hardcoded items here; they are loaded dynamically on page load. */' +
 'var FLOOR_CONSTRUCTIONS = [];' +
 'var floorConstructionsLoaded = false;' +
 'var BOILER_PUMPS = [' +
@@ -501,15 +501,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    { ports: 12, itemCode: "OMS12-C", description: "12-Port Optiflo control manifolds, stainless steel", cost: 139.18, price: 617.37 }' +
 '];' +
 'var MANIFOLD_CONNECTION = { itemCode: "MCP-A", description: "Isolator pack for Optiflo manifolds", cost: 17.46, price: 55.5 };' +
-'// Thermostats — keyed by Thermostat Type dropdown value.' +
-'// Cost/price for DSSB5-C (Dial) and neoAirWv3-C (Wireless) are placeholders; confirm with client.' +
+'/* Thermostats — keyed by Thermostat Type dropdown value. */' +
+'/* Cost/price for DSSB5-C (Dial) and neoAirWv3-C (Wireless) are placeholders; confirm with client. */' +
 'var THERMOSTATS = {' +
 '    "Dial":               { itemCode: "DSSB5-C",       description: "Dial thermostat",                                                      cost: 0,     price: 0 },' +
 '    "Wired Programmable": { itemCode: "neoStatWv2-C",  description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection",   cost: 36.28, price: 126.37 },' +
 '    "Wireless":           { itemCode: "neoAirWv3-C",   description: "Wireless thermostat",                                                   cost: 0,     price: 0 }' +
 '};' +
-'// Wiring centres — keyed by Thermostat Type dropdown value.' +
-'// Cost/price for UH8RF-C (Wireless) are placeholders; confirm with client.' +
+'/* Wiring centres — keyed by Thermostat Type dropdown value. */' +
+'/* Cost/price for UH8RF-C (Wireless) are placeholders; confirm with client. */' +
 'var WIRING_CENTRES = {' +
 '    "Dial":               { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
 '    "Wired Programmable": { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
@@ -624,11 +624,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'function defaultFCForScenario(scenarioKey) {' +
 '    var scenario = SCENARIO_FC_MAP[scenarioKey];' +
 '    if (!scenario) return "";' +
-'    // Return default item if it exists in loaded data, otherwise return the code string' +
+'    /* Return default item if it exists in loaded data, otherwise return the code string */' +
 '    for (var i = 0; i < FLOOR_CONSTRUCTIONS.length; i++) {' +
 '        if (FLOOR_CONSTRUCTIONS[i].itemid === scenario.defaultItem) return scenario.defaultItem;' +
 '    }' +
-'    // Data not loaded yet — return the code string anyway; will match once loaded' +
+'    /* Data not loaded yet — return the code string anyway; will match once loaded */' +
 '    return scenario.defaultItem;' +
 '}' +
 'window.addManifold = function() {' +
@@ -830,7 +830,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var heatSource = document.getElementById("heatSource").value;' +
 '    var workType = document.getElementById("workType").value;' +
 '    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
-'    // Target margin hardcoded at 55% — configurable in future version' +
+'    /* Target margin hardcoded at 55% — configurable in future version */' +
 '    var targetMargin = 55;' +
 '    var lineItems = [];' +
 '    var errors = [];' +
@@ -902,7 +902,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    if (totalThermostats > 0) {' +
 '        lineItems.push({ section: "Controls", description: selectedThermostat.description + " (" + selectedThermostat.itemCode + ")", quantity: totalThermostats, cost: selectedThermostat.cost, price: selectedThermostat.price, totalCost: selectedThermostat.cost * totalThermostats, totalPrice: selectedThermostat.price * totalThermostats });' +
 '    }' +
-'    // Wiring centre quantity = max(ceil(thermostats/8), number of manifolds)' +
+'    /* Wiring centre quantity = max(ceil(thermostats/8), number of manifolds) */' +
 '    var wiringCentres = Math.max(Math.ceil(totalThermostats / 8), manifolds.length);' +
 '    if (wiringCentres > 0) {' +
 '        lineItems.push({ section: "Controls", description: selectedWiringCentre.description + " (" + selectedWiringCentre.itemCode + ")", quantity: wiringCentres, cost: selectedWiringCentre.cost, price: selectedWiringCentre.price, totalCost: selectedWiringCentre.cost * wiringCentres, totalPrice: selectedWiringCentre.price * wiringCentres });' +
@@ -939,11 +939,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcData.area), cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
 '        }' +
 '    }' +
-'    // Design line: cost and price are both 0 (included in project scope)' +
+'    /* Design line: cost and price are both 0 (included in project scope) */' +
 '    lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
 '    var pallets = Math.max(2, Math.ceil(totalArea / 100) + 1);' +
 '    var deliveryCost = pallets * DELIVERY_PER_100M2;' +
-'    // Delivery price = cost × 1.15' +
+'    /* Delivery price = cost × 1.15 */' +
 '    var deliveryPrice = deliveryCost * 1.15;' +
 '    lineItems.push({ section: "Design and Delivery", description: "Delivery charge (" + pallets + " pallets)", quantity: 1, cost: deliveryCost, price: deliveryPrice, totalCost: deliveryCost, totalPrice: deliveryPrice });' +
 '    var totalCost = 0;' +
@@ -1059,8 +1059,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
 '};' +
-'// Fetch floor constructions from the RESTlet on page load.' +
-'// Renders manifolds once loaded; shows spinner in FC dropdowns while loading.' +
+'/* Fetch floor constructions from the RESTlet on page load. */' +
+'/* Renders manifolds once loaded; shows spinner in FC dropdowns while loading. */' +
 '(function fetchFloorConstructions() {' +
 '    fetch(RESTLET_BASE_URL + "&action=getFloorConstructions", {' +
 '        method: "GET",' +
