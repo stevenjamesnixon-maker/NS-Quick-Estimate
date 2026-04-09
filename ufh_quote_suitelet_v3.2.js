@@ -403,18 +403,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                </select>' +
 '            </div>' +
 '            <div class="form-group">' +
-'                <label>Build Type</label>' +
-'                <select id="buildType">' +
-'                    <option value="New Build">New Build</option>' +
-'                    <option value="Renovation">Renovation</option>' +
-'                </select>' +
-'            </div>' +
-'            <div class="form-group">' +
-'                <label>Target Margin (%)</label>' +
-'                <input type="number" id="targetMargin" value="55" min="0" max="100">' +
-'            </div>' +
-'            <div class="form-group">' +
-'                <label>Work Type</label>' +
+'                <label>Project Type</label>' +
 '                <select id="workType" onchange="window.renderManifolds()">' +
 '                    <option value="New Build" selected>New Build</option>' +
 '                    <option value="Renovation (Back to Brick)">Renovation (Back to Brick)</option>' +
@@ -605,7 +594,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'function fcPipeDiameter(fc) {' +
 '    return parseInt(fc.custitem_qdt_pipe_diameter, 10) || 14;' +
 '}' +
-'function calculateManifoldPorts(areas, buildType) {' +
+'function calculateManifoldPorts(areas, workType) {' +
 '    var totalPorts = 0;' +
 '    for (var i = 0; i < areas.length; i++) {' +
 '        var area = areas[i];' +
@@ -615,7 +604,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            var diameter = fcPipeDiameter(fc);' +
 '            var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '            var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
-'            var maxLength = maxLengthMap ? maxLengthMap[buildType === "New Build" ? "newBuild" : "renovation"] : 100;' +
+'            var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '            totalPorts += Math.ceil(pipeLength / maxLength);' +
 '        }' +
 '    }' +
@@ -643,6 +632,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    return scenario.defaultItem;' +
 '}' +
 'window.addManifold = function() {' +
+'    console.log("addManifold called, current count:", manifoldCounter);' +
 '    manifoldCounter++;' +
 '    var scenarioKey = getScenarioKey(false);' +
 '    var defaultFC = defaultFCForScenario(scenarioKey);' +
@@ -715,12 +705,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '};' +
 'window.renderManifolds = function() {' +
+'    console.log("renderManifolds called, manifolds:", manifolds.length, "FC loaded:", floorConstructionsLoaded, "FC count:", FLOOR_CONSTRUCTIONS.length);' +
+'    try {' +
 '    var container = document.getElementById("manifoldsContainer");' +
-'    var buildType = document.getElementById("buildType").value;' +
+'    var workType = document.getElementById("workType") ? document.getElementById("workType").value : "New Build";' +
 '    var html = "";' +
 '    for (var mIdx = 0; mIdx < manifolds.length; mIdx++) {' +
 '        var manifold = manifolds[mIdx];' +
-'        var ports = calculateManifoldPorts(manifold.areas, buildType);' +
+'        var ports = calculateManifoldPorts(manifold.areas, workType);' +
 '        var hasError = ports > 12;' +
 '        html += "<div class=\\"manifold-card\\">";' +
 '        html += "<div class=\\"manifold-header\\" onclick=\\"window.toggleManifold(\'" + manifold.id + "\')\\">";' +
@@ -791,6 +783,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        html += "</div></div>";' +
 '    }' +
 '    container.innerHTML = html;' +
+'    } catch(renderErr) {' +
+'        console.error("renderManifolds error:", renderErr);' +
+'    }' +
 '};' +
 'function formatCurrency(value) {' +
 '    return "\\u00A3" + value.toFixed(2);' +
@@ -833,9 +828,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'window.calculateQuote = function() {' +
 '    var heatSource = document.getElementById("heatSource").value;' +
-'    var buildType = document.getElementById("buildType").value;' +
+'    var workType = document.getElementById("workType").value;' +
 '    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
-'    var targetMargin = parseFloat(document.getElementById("targetMargin").value) || 0;' +
+'    // Target margin hardcoded at 55% — configurable in future version' +
+'    var targetMargin = 55;' +
 '    var lineItems = [];' +
 '    var errors = [];' +
 '    var totalArea = 0;' +
@@ -845,7 +841,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var pipeDiameterTotals = {};' +
 '    for (var mIdx = 0; mIdx < manifolds.length; mIdx++) {' +
 '        var manifold = manifolds[mIdx];' +
-'        var ports = calculateManifoldPorts(manifold.areas, buildType);' +
+'        var ports = calculateManifoldPorts(manifold.areas, workType);' +
 '        if (ports > 12) {' +
 '            errors.push(manifold.name + " has more than 12 ports (" + ports + "). Please adjust.");' +
 '        }' +
@@ -872,13 +868,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '                pipeDiameterTotals[diameter].length += pipeLength;' +
 '                var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
-'                var maxLength = maxLengthMap ? maxLengthMap[buildType === "New Build" ? "newBuild" : "renovation"] : 100;' +
+'                var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '                pipeDiameterTotals[diameter].ports += Math.ceil(pipeLength / maxLength);' +
 '            }' +
 '        }' +
 '    }' +
 '    var pumpList = heatSource === "Heat Pump" ? HEAT_PUMP_PUMPS : BOILER_PUMPS;' +
-'    var areaKey = buildType === "New Build" ? "newBuildArea" : "renovationArea";' +
+'    var areaKey = workType === "New Build" ? "newBuildArea" : "renovationArea";' +
 '    var selectedPump = pumpList[pumpList.length - 1];' +
 '    for (var pIdx = 0; pIdx < pumpList.length; pIdx++) {' +
 '        var pump = pumpList[pIdx];' +
@@ -890,7 +886,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: 1, cost: selectedPump.cost, price: selectedPump.price, totalCost: selectedPump.cost, totalPrice: selectedPump.price });' +
 '    for (var mIdx2 = 0; mIdx2 < manifolds.length; mIdx2++) {' +
 '        var manifold2 = manifolds[mIdx2];' +
-'        var ports2 = Math.min(12, calculateManifoldPorts(manifold2.areas, buildType));' +
+'        var ports2 = Math.min(12, calculateManifoldPorts(manifold2.areas, workType));' +
 '        var manifoldData = MANIFOLDS[MANIFOLDS.length - 1];' +
 '        for (var manIdx = 0; manIdx < MANIFOLDS.length; manIdx++) {' +
 '            if (MANIFOLDS[manIdx].ports >= ports2) {' +
