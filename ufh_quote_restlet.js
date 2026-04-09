@@ -78,11 +78,39 @@ define(['N/search', 'N/log'], function(search, log) {
         var floorConstructionSearch = search.create({
             type: search.Type.ASSEMBLY_ITEM,
             filters: [
-                ['custitem_prod_type', search.Operator.IS, 'Floor Construction'],
+                ['custitem_prod_type', search.Operator.ANYOF, ['2']],
                 'AND',
                 ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
                 'AND',
-                ['isinactive', search.Operator.IS, false]
+                ['isinactive', search.Operator.IS, 'F'],
+                'AND',
+                [
+                    ['name', search.Operator.IS, 'SC(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'SSE(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LP(150)10'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LPM(150)10'],
+                    'OR',
+                    ['name', search.Operator.IS, 'ND(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TF2+(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'DPJ(133)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TPBA(400)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'OT2(120)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'FF25(150)16'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LB2+(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'DPL(175)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TF2(150)12']
+                ]
             ],
             columns: [
                 search.createColumn({ name: 'itemid' }),
