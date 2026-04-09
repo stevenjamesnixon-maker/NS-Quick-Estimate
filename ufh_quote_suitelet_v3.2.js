@@ -425,6 +425,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    <option value="Wireless">Wireless</option>' +
 '                </select>' +
 '            </div>' +
+'            <div class="form-group">' +
+'                <label>Price Level</label>' +
+'                <select id="priceLevel">' +
+'                    <option value="13" selected>Homeowner</option>' +
+'                    <option value="14">Installer</option>' +
+'                    <option value="15">Developer</option>' +
+'                    <option value="16">Merchant</option>' +
+'                </select>' +
+'            </div>' +
 '        </div>' +
 '    </div>' +
 '    <div class="card">' +
@@ -474,94 +483,92 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'var FLOOR_CONSTRUCTIONS = [];' +
 'var floorConstructionsLoaded = false;' +
 'var BOILER_PUMPS = [' +
-'    { itemCode: "PM1W/2-A", description: "Manifold-mounted pump module for underfloor heating temperature control.", cost: 132.57, price: 460.26, newBuildArea: 215, renovationArea: 125 },' +
-'    { itemCode: "PM2W/3-A", description: "Pump and temperature control module with Wilo variable speed pump and ESBE mixing valve (remote mount)", cost: 248.28, price: 644.83, newBuildArea: 380, renovationArea: 225 },' +
-'    { itemCode: "PM3W/3-A", description: "Pump and temperature control module with Wilo high efficiency pump and ESBE electronically controlled mixing valve", cost: 261.91, price: 1261.45, newBuildArea: 600, renovationArea: 350 },' +
-'    { itemCode: "PM4W/2-A", description: "Pump and temperature control module with Wilo High Flow pump and ESBE electronic mixing valve", cost: 459.29, price: 1445.33, newBuildArea: 1050, renovationArea: 615 },' +
-'    { itemCode: "PM5W/1-A", description: "Wilo Para HF25/10 pump and 1.5in ESBE electronically controlled mixing valve", cost: 406.81, price: 1680.39, newBuildArea: 1500, renovationArea: 905 }' +
+'    { itemCode: "PM1W/2-A", description: "Manifold-mounted pump module for underfloor heating temperature control.", newBuildArea: 215, renovationArea: 125 },' +
+'    { itemCode: "PM2W/3-A", description: "Pump and temperature control module with Wilo variable speed pump and ESBE mixing valve (remote mount)", newBuildArea: 380, renovationArea: 225 },' +
+'    { itemCode: "PM3W/3-A", description: "Pump and temperature control module with Wilo high efficiency pump and ESBE electronically controlled mixing valve", newBuildArea: 600, renovationArea: 350 },' +
+'    { itemCode: "PM4W/2-A", description: "Pump and temperature control module with Wilo High Flow pump and ESBE electronic mixing valve", newBuildArea: 1050, renovationArea: 615 },' +
+'    { itemCode: "PM5W/1-A", description: "Wilo Para HF25/10 pump and 1.5in ESBE electronically controlled mixing valve", newBuildArea: 1500, renovationArea: 905 }' +
 '];' +
 'var HEAT_PUMP_PUMPS = [' +
-'    { itemCode: "W2560SC7-A", description: "Wilo Para SC7 pump (EuP compliant) with valves", cost: 67.01, price: 219.61, newBuildArea: 415, renovationArea: 240 },' +
-'    { itemCode: "W2570HF-A", description: "Wilo 2570 HF pump with pump unions", cost: 220.87, price: 923.46, newBuildArea: 700, renovationArea: 410 },' +
-'    { itemCode: "W2575SC8-A", description: "Wilo Para RS25/7.5SC8 pump (EuP compliant) with pump valves", cost: 80.64, price: 281.33, newBuildArea: 1250, renovationArea: 730 },' +
-'    { itemCode: "W25100HF-A", description: "Wilo 2510 HF pump with fittings", cost: 140.83, price: 934.74, newBuildArea: 1750, renovationArea: 1000 }' +
+'    { itemCode: "W2560SC7-A", description: "Wilo Para SC7 pump (EuP compliant) with valves", newBuildArea: 415, renovationArea: 240 },' +
+'    { itemCode: "W2570HF-A", description: "Wilo 2570 HF pump with pump unions", newBuildArea: 700, renovationArea: 410 },' +
+'    { itemCode: "W2575SC8-A", description: "Wilo Para RS25/7.5SC8 pump (EuP compliant) with pump valves", newBuildArea: 1250, renovationArea: 730 },' +
+'    { itemCode: "W25100HF-A", description: "Wilo 2510 HF pump with fittings", newBuildArea: 1750, renovationArea: 1000 }' +
 '];' +
 'var MANIFOLDS = [' +
-'    { ports: 1, itemCode: "OMS01-C", description: "1-Port Optiflo control manifolds, stainless steel", cost: 40.11, price: 146.73 },' +
-'    { ports: 2, itemCode: "OMS02-C", description: "2-Port Optiflo control manifolds, stainless steel", cost: 46.74, price: 203.41 },' +
-'    { ports: 3, itemCode: "OMS03-C", description: "3-Port Optiflo control manifolds, stainless steel", cost: 55.95, price: 244.8 },' +
-'    { ports: 4, itemCode: "OMS04-C", description: "4-Port Optiflo control manifolds, stainless steel", cost: 65.17, price: 286.19 },' +
-'    { ports: 5, itemCode: "OMS05-C", description: "5-Port Optiflo control manifolds, stainless steel", cost: 74.37, price: 327.59 },' +
-'    { ports: 6, itemCode: "OMS06-C", description: "6-Port Optiflo control manifolds, stainless steel", cost: 83.65, price: 368.99 },' +
-'    { ports: 7, itemCode: "OMS07-C", description: "7-Port Optiflo control manifolds, stainless steel", cost: 92.86, price: 410.37 },' +
-'    { ports: 8, itemCode: "OMS08-C", description: "8-Port Optiflo control manifolds, stainless steel", cost: 102.08, price: 451.79 },' +
-'    { ports: 9, itemCode: "OMS09-C", description: "9-Port Optiflo control manifolds, stainless steel", cost: 111.3, price: 493.16 },' +
-'    { ports: 10, itemCode: "OMS10-C", description: "10-Port Optiflo control manifolds, stainless steel", cost: 120.75, price: 534.58 },' +
-'    { ports: 11, itemCode: "OMS11-C", description: "11-Port Optiflo control manifolds, stainless steel", cost: 129.96, price: 575.98 },' +
-'    { ports: 12, itemCode: "OMS12-C", description: "12-Port Optiflo control manifolds, stainless steel", cost: 139.18, price: 617.37 }' +
+'    { ports: 1,  itemCode: "OMS01-C", description: "1-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 2,  itemCode: "OMS02-C", description: "2-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 3,  itemCode: "OMS03-C", description: "3-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 4,  itemCode: "OMS04-C", description: "4-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 5,  itemCode: "OMS05-C", description: "5-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 6,  itemCode: "OMS06-C", description: "6-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 7,  itemCode: "OMS07-C", description: "7-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 8,  itemCode: "OMS08-C", description: "8-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 9,  itemCode: "OMS09-C", description: "9-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 10, itemCode: "OMS10-C", description: "10-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 11, itemCode: "OMS11-C", description: "11-Port Optiflo control manifolds, stainless steel" },' +
+'    { ports: 12, itemCode: "OMS12-C", description: "12-Port Optiflo control manifolds, stainless steel" }' +
 '];' +
-'var MANIFOLD_CONNECTION = { itemCode: "MCP-A", description: "Isolator pack for Optiflo manifolds", cost: 17.46, price: 55.5 };' +
+'var MANIFOLD_CONNECTION = { itemCode: "MCP-A", description: "Isolator pack for Optiflo manifolds" };' +
 '/* Thermostats — keyed by Thermostat Type dropdown value. */' +
-'/* Cost/price for DSSB5-C (Dial) and neoAirWv3-C (Wireless) are placeholders; confirm with client. */' +
 'var THERMOSTATS = {' +
-'    "Dial":               { itemCode: "DSSB5-C",       description: "Dial thermostat",                                                      cost: 0,     price: 0 },' +
-'    "Wired Programmable": { itemCode: "neoStatWv2-C",  description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection",   cost: 36.28, price: 126.37 },' +
-'    "Wireless":           { itemCode: "neoAirWv3-C",   description: "Wireless thermostat",                                                   cost: 0,     price: 0 }' +
+'    "Dial":               { itemCode: "DSSB5-C",      description: "Dial thermostat" },' +
+'    "Wired Programmable": { itemCode: "neoStatWv2-C", description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection" },' +
+'    "Wireless":           { itemCode: "neoAirWv3-C",  description: "Wireless thermostat" }' +
 '};' +
 '/* Wiring centres — keyed by Thermostat Type dropdown value. */' +
-'/* Cost/price for UH8RF-C (Wireless) are placeholders; confirm with client. */' +
 'var WIRING_CENTRES = {' +
-'    "Dial":               { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
-'    "Wired Programmable": { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre",          cost: 34.16, price: 165.84 },' +
-'    "Wireless":           { itemCode: "UH8RF-C", description: "UH8RF, 8 zone Wireless Wiring Centre",    cost: 0,     price: 0 }' +
+'    "Dial":               { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre" },' +
+'    "Wired Programmable": { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre" },' +
+'    "Wireless":           { itemCode: "UH8RF-C", description: "UH8RF, 8 zone Wireless Wiring Centre" }' +
 '};' +
-'var ACTUATOR = { itemCode: "OMDA-C", description: "Zone valve actuator", cost: 6.29, price: 36.97 };' +
-'var JUNCTION_BOX = { itemCode: "JB12-C", description: "Danfoss connection block", cost: 3.59, price: 12.12 };' +
+'var ACTUATOR = { itemCode: "OMDA-C", description: "Zone valve actuator" };' +
+'var JUNCTION_BOX = { itemCode: "JB12-C", description: "Danfoss connection block" };' +
 'var PIPE_COILS = {' +
 '    10: { coils: [' +
-'        { length: 30, itemCode: "TPER10/30-C", description: "10mm x 30m Fastflo pipe", cost: 10.5, price: 46.61 },' +
-'        { length: 35, itemCode: "TPER10/35-C", description: "10mm x 35m Fastflo pipe", cost: 11.52, price: 56.43 },' +
-'        { length: 40, itemCode: "TPER10/40-C", description: "10mm x 40m Fastflo pipe", cost: 10.67, price: 64.46 },' +
-'        { length: 45, itemCode: "TPER10/45-C", description: "10mm x 45m Fastflo pipe", cost: 12.0, price: 72.52 },' +
-'        { length: 50, itemCode: "TPER10/50-C", description: "10mm x 50m Fastflo pipe", cost: 9.36, price: 80.57 },' +
-'        { length: 55, itemCode: "TPER10/55-C", description: "10mm x 55m Fastflo pipe", cost: 10.3, price: 88.65 },' +
-'        { length: 60, itemCode: "TPER10/60-C", description: "10mm x 60m Fastflo pipe", cost: 11.23, price: 96.67 }' +
+'        { length: 30,  itemCode: "TPER10/30-C",  description: "10mm x 30m Fastflo pipe" },' +
+'        { length: 35,  itemCode: "TPER10/35-C",  description: "10mm x 35m Fastflo pipe" },' +
+'        { length: 40,  itemCode: "TPER10/40-C",  description: "10mm x 40m Fastflo pipe" },' +
+'        { length: 45,  itemCode: "TPER10/45-C",  description: "10mm x 45m Fastflo pipe" },' +
+'        { length: 50,  itemCode: "TPER10/50-C",  description: "10mm x 50m Fastflo pipe" },' +
+'        { length: 55,  itemCode: "TPER10/55-C",  description: "10mm x 55m Fastflo pipe" },' +
+'        { length: 60,  itemCode: "TPER10/60-C",  description: "10mm x 60m Fastflo pipe" }' +
 '    ] },' +
 '    12: { coils: [' +
-'        { length: 40, itemCode: "UP120140-A", description: "12mm OMNIFLO pipe (40m)", cost: 5.73, price: 30.87 },' +
-'        { length: 60, itemCode: "UP120160-A", description: "12mm OMNIFLO pipe (60m)", cost: 8.59, price: 44.1 },' +
-'        { length: 80, itemCode: "UP120180-A", description: "12mm OMNIFLO pipe (80m)", cost: 11.46, price: 58.43 }' +
+'        { length: 40,  itemCode: "UP120140-A",    description: "12mm OMNIFLO pipe (40m)" },' +
+'        { length: 60,  itemCode: "UP120160-A",    description: "12mm OMNIFLO pipe (60m)" },' +
+'        { length: 80,  itemCode: "UP120180-A",    description: "12mm OMNIFLO pipe (80m)" }' +
 '    ] },' +
 '    14: { coils: [' +
-'        { length: 40, itemCode: "WPER14/40-C", description: "14mm x 40m Fastflo pipe", cost: 14.89, price: 73.57 },' +
-'        { length: 50, itemCode: "WPER14/50-C", description: "14mm x 50m Fastflo pipe", cost: 15.79, price: 91.97 },' +
-'        { length: 60, itemCode: "WPER14/60-C", description: "14mm x 60m Fastflo pipe", cost: 18.94, price: 110.32 },' +
-'        { length: 70, itemCode: "WPER14/70-C", description: "14mm x 70m Fastflo pipe", cost: 22.09, price: 128.72 },' +
-'        { length: 80, itemCode: "WPER14/80-C", description: "14mm x 80m Fastflo pipe", cost: 25.26, price: 147.1 },' +
-'        { length: 90, itemCode: "WPER14/90-C", description: "14mm x 90m Fastflo pipe", cost: 28.41, price: 165.51 },' +
-'        { length: 100, itemCode: "WPER14/100-C", description: "14mm x 100m Fastflo pipe", cost: 31.56, price: 183.9 },' +
-'        { length: 110, itemCode: "WPER14/110-C", description: "14mm x 110m Fastflo pipe", cost: 34.71, price: 202.28 },' +
-'        { length: 120, itemCode: "WPER14/120-C", description: "14mm x 120m Fastflo pipe", cost: 37.87, price: 220.65 }' +
+'        { length: 40,  itemCode: "WPER14/40-C",  description: "14mm x 40m Fastflo pipe" },' +
+'        { length: 50,  itemCode: "WPER14/50-C",  description: "14mm x 50m Fastflo pipe" },' +
+'        { length: 60,  itemCode: "WPER14/60-C",  description: "14mm x 60m Fastflo pipe" },' +
+'        { length: 70,  itemCode: "WPER14/70-C",  description: "14mm x 70m Fastflo pipe" },' +
+'        { length: 80,  itemCode: "WPER14/80-C",  description: "14mm x 80m Fastflo pipe" },' +
+'        { length: 90,  itemCode: "WPER14/90-C",  description: "14mm x 90m Fastflo pipe" },' +
+'        { length: 100, itemCode: "WPER14/100-C", description: "14mm x 100m Fastflo pipe" },' +
+'        { length: 110, itemCode: "WPER14/110-C", description: "14mm x 110m Fastflo pipe" },' +
+'        { length: 120, itemCode: "WPER14/120-C", description: "14mm x 120m Fastflo pipe" }' +
 '    ] },' +
 '    16: { coils: [' +
-'        { length: 40,  itemCode: "UP160240-A", description: "16mm OMNIFLO pipe (40m)",  cost: 0, price: 0 },' +
-'        { length: 60,  itemCode: "UP160260-A", description: "16mm OMNIFLO pipe (60m)",  cost: 0, price: 0 },' +
-'        { length: 80,  itemCode: "UP160280-A", description: "16mm OMNIFLO pipe (80m)",  cost: 0, price: 0 },' +
-'        { length: 100, itemCode: "UP160210-A", description: "16mm OMNIFLO pipe (100m)", cost: 0, price: 0 },' +
-'        { length: 120, itemCode: "UP160212-A", description: "16mm OMNIFLO pipe (120m)", cost: 0, price: 0 }' +
+'        { length: 40,  itemCode: "UP160240-A",   description: "16mm OMNIFLO pipe (40m)" },' +
+'        { length: 60,  itemCode: "UP160260-A",   description: "16mm OMNIFLO pipe (60m)" },' +
+'        { length: 80,  itemCode: "UP160280-A",   description: "16mm OMNIFLO pipe (80m)" },' +
+'        { length: 100, itemCode: "UP160210-A",   description: "16mm OMNIFLO pipe (100m)" },' +
+'        { length: 120, itemCode: "UP160212-A",   description: "16mm OMNIFLO pipe (120m)" }' +
 '    ] }' +
 '};' +
 'var PIPE_CONNECTORS = {' +
-'    10: { itemCode: "ALE075/10-C", description: "3/4in x 10mm Eurofitting manifold pipe nut, tail and olive", cost: 0.97, price: 7.04 },' +
-'    12: { itemCode: "UMFP0112-C", description: "12mm pipe connectors", cost: 0.64, price: 3.96 },' +
-'    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive", cost: 1.0, price: 4.43 },' +
-'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder — confirm item code)", cost: 0, price: 0 }' +
+'    10: { itemCode: "ALE075/10-C", description: "3/4in x 10mm Eurofitting manifold pipe nut, tail and olive" },' +
+'    12: { itemCode: "UMFP0112-C",  description: "12mm pipe connectors" },' +
+'    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive" },' +
+'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder — confirm item code)" }' +
 '};' +
 'var GUIDE_CURVES = {' +
-'    10: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe", cost: 0.27, price: 1.34 },' +
-'    12: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe", cost: 0.27, price: 1.34 },' +
-'    14: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe", cost: 0.3, price: 2.04 },' +
-'    16: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe", cost: 0.3, price: 2.04 }' +
+'    10: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe" },' +
+'    12: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe" },' +
+'    14: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe" },' +
+'    16: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe" }' +
 '};' +
 'var MAX_PIPE_LENGTH = {' +
 '    10: { newBuild: 50, renovation: 45 },' +
@@ -570,11 +577,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    16: { newBuild: 110, renovation: 100 }' +
 '};' +
 'var DESIGN_RATE_PER_HOUR = 36;' +
-'var DESIGN_AREA_MULTIPLIER = 0.015;' +
 'var DESIGN_BASE_HOURS = 2;' +
-'var DESIGN_MARGIN = 0.66;' +
 'var DELIVERY_PER_100M2 = 75;' +
-'var DELIVERY_MARGIN = 0.66;' +
 'var manifolds = [];' +
 'var manifoldCounter = 0;' +
 'var bomExpanded = false;' +
@@ -826,13 +830,29 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }, 2000);' +
 '    });' +
 '};' +
+'window.fetchPrices = function(itemCodes, priceLevelId, callback) {' +
+'    var url = RESTLET_BASE_URL + "&action=getItemPrices"' +
+'        + "&itemids=" + encodeURIComponent(itemCodes.join(","))' +
+'        + "&pricelevelid=" + encodeURIComponent(priceLevelId);' +
+'    fetch(url, {' +
+'        method: "GET",' +
+'        headers: { "Content-Type": "application/json" }' +
+'    })' +
+'    .then(function(r) { return r.json(); })' +
+'    .then(function(data) {' +
+'        if (data && data.success) {' +
+'            callback(null, data.data);' +
+'        } else {' +
+'            callback(new Error("getItemPrices failed"), null);' +
+'        }' +
+'    })' +
+'    .catch(function(err) { callback(err, null); });' +
+'};' +
 'window.calculateQuote = function() {' +
 '    var heatSource = document.getElementById("heatSource").value;' +
 '    var workType = document.getElementById("workType").value;' +
 '    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
-'    /* Target margin hardcoded at 55% — configurable in future version */' +
-'    var targetMargin = 55;' +
-'    var lineItems = [];' +
+'    var priceLevelId = document.getElementById("priceLevel").value;' +
 '    var errors = [];' +
 '    var totalArea = 0;' +
 '    var totalThermostats = 0;' +
@@ -877,13 +897,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var areaKey = workType === "New Build" ? "newBuildArea" : "renovationArea";' +
 '    var selectedPump = pumpList[pumpList.length - 1];' +
 '    for (var pIdx = 0; pIdx < pumpList.length; pIdx++) {' +
-'        var pump = pumpList[pIdx];' +
-'        if (totalArea <= pump[areaKey]) {' +
-'            selectedPump = pump;' +
+'        if (totalArea <= pumpList[pIdx][areaKey]) {' +
+'            selectedPump = pumpList[pIdx];' +
 '            break;' +
 '        }' +
 '    }' +
-'    lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: 1, cost: selectedPump.cost, price: selectedPump.price, totalCost: selectedPump.cost, totalPrice: selectedPump.price });' +
+'    var selectedManifoldData = [];' +
 '    for (var mIdx2 = 0; mIdx2 < manifolds.length; mIdx2++) {' +
 '        var manifold2 = manifolds[mIdx2];' +
 '        var ports2 = Math.min(12, calculateManifoldPorts(manifold2.areas, workType));' +
@@ -894,68 +913,120 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                break;' +
 '            }' +
 '        }' +
-'        lineItems.push({ section: "Manifold", description: manifoldData.description + " (" + manifoldData.itemCode + ")", quantity: 1, cost: manifoldData.cost, price: manifoldData.price, totalCost: manifoldData.cost, totalPrice: manifoldData.price });' +
+'        selectedManifoldData.push(manifoldData);' +
 '    }' +
-'    lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: manifolds.length, cost: MANIFOLD_CONNECTION.cost, price: MANIFOLD_CONNECTION.price, totalCost: MANIFOLD_CONNECTION.cost * manifolds.length, totalPrice: MANIFOLD_CONNECTION.price * manifolds.length });' +
 '    var selectedThermostat = THERMOSTATS[thermostatType] || THERMOSTATS["Dial"];' +
 '    var selectedWiringCentre = WIRING_CENTRES[thermostatType] || WIRING_CENTRES["Dial"];' +
-'    if (totalThermostats > 0) {' +
-'        lineItems.push({ section: "Controls", description: selectedThermostat.description + " (" + selectedThermostat.itemCode + ")", quantity: totalThermostats, cost: selectedThermostat.cost, price: selectedThermostat.price, totalCost: selectedThermostat.cost * totalThermostats, totalPrice: selectedThermostat.price * totalThermostats });' +
-'    }' +
 '    /* Wiring centre quantity = max(ceil(thermostats/8), number of manifolds) */' +
 '    var wiringCentres = Math.max(Math.ceil(totalThermostats / 8), manifolds.length);' +
-'    if (wiringCentres > 0) {' +
-'        lineItems.push({ section: "Controls", description: selectedWiringCentre.description + " (" + selectedWiringCentre.itemCode + ")", quantity: wiringCentres, cost: selectedWiringCentre.cost, price: selectedWiringCentre.price, totalCost: selectedWiringCentre.cost * wiringCentres, totalPrice: selectedWiringCentre.price * wiringCentres });' +
-'    }' +
-'    if (totalPorts > 0) {' +
-'        lineItems.push({ section: "Controls", description: ACTUATOR.description + " (" + ACTUATOR.itemCode + ")", quantity: totalPorts, cost: ACTUATOR.cost, price: ACTUATOR.price, totalCost: ACTUATOR.cost * totalPorts, totalPrice: ACTUATOR.price * totalPorts });' +
-'        if (heatSource !== "Heat Pump") {' +
-'            var junctionBoxes = Math.ceil(totalPorts / 12);' +
-'            lineItems.push({ section: "Controls", description: JUNCTION_BOX.description + " (" + JUNCTION_BOX.itemCode + ")", quantity: junctionBoxes, cost: JUNCTION_BOX.cost, price: JUNCTION_BOX.price, totalCost: JUNCTION_BOX.cost * junctionBoxes, totalPrice: JUNCTION_BOX.price * junctionBoxes });' +
-'        }' +
-'    }' +
-'    for (var diameter in pipeDiameterTotals) {' +
-'        if (pipeDiameterTotals.hasOwnProperty(diameter)) {' +
-'            var data = pipeDiameterTotals[diameter];' +
-'            var d = parseInt(diameter);' +
+'    var junctionBoxes = (heatSource !== "Heat Pump" && totalPorts > 0) ? Math.ceil(totalPorts / 12) : 0;' +
+'    var selectedPipeCoils = {};' +
+'    for (var diam in pipeDiameterTotals) {' +
+'        if (pipeDiameterTotals.hasOwnProperty(diam)) {' +
+'            var d = parseInt(diam);' +
 '            var coils = PIPE_COILS[d].coils;' +
-'            var largeCoil = coils[coils.length - 1];' +
-'            var numCoils = Math.ceil(data.length / largeCoil.length);' +
-'            if (numCoils > 0) {' +
-'                lineItems.push({ section: "Pipe", description: largeCoil.description + " (" + largeCoil.itemCode + ")", quantity: numCoils, cost: largeCoil.cost, price: largeCoil.price, totalCost: largeCoil.cost * numCoils, totalPrice: largeCoil.price * numCoils });' +
+'            selectedPipeCoils[d] = coils[coils.length - 1];' +
+'        }' +
+'    }' +
+'    var itemCodesObj = {};' +
+'    itemCodesObj[selectedPump.itemCode] = true;' +
+'    for (var smi = 0; smi < selectedManifoldData.length; smi++) { itemCodesObj[selectedManifoldData[smi].itemCode] = true; }' +
+'    itemCodesObj[MANIFOLD_CONNECTION.itemCode] = true;' +
+'    if (totalThermostats > 0) { itemCodesObj[selectedThermostat.itemCode] = true; }' +
+'    if (wiringCentres > 0) { itemCodesObj[selectedWiringCentre.itemCode] = true; }' +
+'    if (totalPorts > 0) {' +
+'        itemCodesObj[ACTUATOR.itemCode] = true;' +
+'        if (heatSource !== "Heat Pump" && junctionBoxes > 0) { itemCodesObj[JUNCTION_BOX.itemCode] = true; }' +
+'    }' +
+'    for (var diam2 in pipeDiameterTotals) {' +
+'        if (pipeDiameterTotals.hasOwnProperty(diam2)) {' +
+'            var d2 = parseInt(diam2);' +
+'            itemCodesObj[selectedPipeCoils[d2].itemCode] = true;' +
+'            itemCodesObj[PIPE_CONNECTORS[d2].itemCode] = true;' +
+'            itemCodesObj[GUIDE_CURVES[d2].itemCode] = true;' +
+'        }' +
+'    }' +
+'    for (var fcKey2 in floorConstructionTotals) {' +
+'        if (floorConstructionTotals.hasOwnProperty(fcKey2)) { itemCodesObj[fcKey2] = true; }' +
+'    }' +
+'    var itemCodes = Object.keys(itemCodesObj);' +
+'    window.fetchPrices(itemCodes, priceLevelId, function(err, prices) {' +
+'        if (err || !prices) {' +
+'            console.error("fetchPrices error:", err);' +
+'            prices = {};' +
+'        }' +
+'        function getPrice(itemCode) {' +
+'            var p = prices[itemCode];' +
+'            if (p && !p.notFound) { return p.price || 0; }' +
+'            console.warn("Price not found for: " + itemCode);' +
+'            return 0;' +
+'        }' +
+'        var lineItems = [];' +
+'        var pumpPrice = getPrice(selectedPump.itemCode);' +
+'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: 1, price: pumpPrice, totalPrice: pumpPrice });' +
+'        for (var mi = 0; mi < selectedManifoldData.length; mi++) {' +
+'            var md = selectedManifoldData[mi];' +
+'            var mdPrice = getPrice(md.itemCode);' +
+'            lineItems.push({ section: "Manifold", description: md.description + " (" + md.itemCode + ")", quantity: 1, price: mdPrice, totalPrice: mdPrice });' +
+'        }' +
+'        var mcPrice = getPrice(MANIFOLD_CONNECTION.itemCode);' +
+'        lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: manifolds.length, price: mcPrice, totalPrice: mcPrice * manifolds.length });' +
+'        if (totalThermostats > 0) {' +
+'            var thPrice = getPrice(selectedThermostat.itemCode);' +
+'            lineItems.push({ section: "Controls", description: selectedThermostat.description + " (" + selectedThermostat.itemCode + ")", quantity: totalThermostats, price: thPrice, totalPrice: thPrice * totalThermostats });' +
+'        }' +
+'        if (wiringCentres > 0) {' +
+'            var wcPrice = getPrice(selectedWiringCentre.itemCode);' +
+'            lineItems.push({ section: "Controls", description: selectedWiringCentre.description + " (" + selectedWiringCentre.itemCode + ")", quantity: wiringCentres, price: wcPrice, totalPrice: wcPrice * wiringCentres });' +
+'        }' +
+'        if (totalPorts > 0) {' +
+'            var actPrice = getPrice(ACTUATOR.itemCode);' +
+'            lineItems.push({ section: "Controls", description: ACTUATOR.description + " (" + ACTUATOR.itemCode + ")", quantity: totalPorts, price: actPrice, totalPrice: actPrice * totalPorts });' +
+'            if (heatSource !== "Heat Pump" && junctionBoxes > 0) {' +
+'                var jbPrice = getPrice(JUNCTION_BOX.itemCode);' +
+'                lineItems.push({ section: "Controls", description: JUNCTION_BOX.description + " (" + JUNCTION_BOX.itemCode + ")", quantity: junctionBoxes, price: jbPrice, totalPrice: jbPrice * junctionBoxes });' +
 '            }' +
-'            var connectors = data.ports * 2;' +
-'            var connector = PIPE_CONNECTORS[d];' +
-'            lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, cost: connector.cost, price: connector.price, totalCost: connector.cost * connectors, totalPrice: connector.price * connectors });' +
-'            var guideCurve = GUIDE_CURVES[d];' +
-'            lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: data.ports, cost: guideCurve.cost, price: guideCurve.price, totalCost: guideCurve.cost * data.ports, totalPrice: guideCurve.price * data.ports });' +
 '        }' +
-'    }' +
-'    for (var fcName in floorConstructionTotals) {' +
-'        if (floorConstructionTotals.hasOwnProperty(fcName)) {' +
-'            var fcData = floorConstructionTotals[fcName];' +
-'            var fcLabel = (fcData.fc.label || fcData.fc.itemid) + " (" + fcData.fc.itemid + ") - " + fcData.area.toFixed(1) + " m2";' +
-'            /* Note: FC cost/price not yet fetched from getItemPrices — shown as 0 in this phase */' +
-'            lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcData.area), cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
+'        for (var diam3 in pipeDiameterTotals) {' +
+'            if (pipeDiameterTotals.hasOwnProperty(diam3)) {' +
+'                var diamData = pipeDiameterTotals[diam3];' +
+'                var d3 = parseInt(diam3);' +
+'                var coil = selectedPipeCoils[d3];' +
+'                var numCoils = Math.ceil(diamData.length / coil.length);' +
+'                if (numCoils > 0) {' +
+'                    var coilPrice = getPrice(coil.itemCode);' +
+'                    lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: numCoils, price: coilPrice, totalPrice: coilPrice * numCoils });' +
+'                }' +
+'                var connectors = diamData.ports * 2;' +
+'                var connector = PIPE_CONNECTORS[d3];' +
+'                var connPrice = getPrice(connector.itemCode);' +
+'                lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, price: connPrice, totalPrice: connPrice * connectors });' +
+'                var guideCurve = GUIDE_CURVES[d3];' +
+'                var gcPrice = getPrice(guideCurve.itemCode);' +
+'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: diamData.ports, price: gcPrice, totalPrice: gcPrice * diamData.ports });' +
+'            }' +
 '        }' +
-'    }' +
-'    /* Design line: cost and price are both 0 (included in project scope) */' +
-'    lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, cost: 0, price: 0, totalCost: 0, totalPrice: 0 });' +
-'    var pallets = Math.max(2, Math.ceil(totalArea / 100) + 1);' +
-'    var deliveryCost = pallets * DELIVERY_PER_100M2;' +
-'    /* Delivery price = cost × 1.15 */' +
-'    var deliveryPrice = deliveryCost * 1.15;' +
-'    lineItems.push({ section: "Design and Delivery", description: "Delivery charge (" + pallets + " pallets)", quantity: 1, cost: deliveryCost, price: deliveryPrice, totalCost: deliveryCost, totalPrice: deliveryPrice });' +
-'    var totalCost = 0;' +
-'    var totalListPrice = 0;' +
-'    for (var liIdx = 0; liIdx < lineItems.length; liIdx++) {' +
-'        totalCost += lineItems[liIdx].totalCost;' +
-'        totalListPrice += lineItems[liIdx].totalPrice;' +
-'    }' +
-'    var finalQuotePrice = totalCost / (1 - targetMargin / 100);' +
-'    renderResults(lineItems, errors, totalCost, totalListPrice, finalQuotePrice, targetMargin);' +
+'        for (var fcN in floorConstructionTotals) {' +
+'            if (floorConstructionTotals.hasOwnProperty(fcN)) {' +
+'                var fcDat = floorConstructionTotals[fcN];' +
+'                var fcLabel = (fcDat.fc.label || fcDat.fc.itemid) + " (" + fcDat.fc.itemid + ") - " + fcDat.area.toFixed(1) + " m2";' +
+'                var fcPrice = getPrice(fcN);' +
+'                lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcDat.area), price: fcPrice, totalPrice: fcPrice * Math.ceil(fcDat.area) });' +
+'            }' +
+'        }' +
+'        /* Design line — included in project scope, price 0 */' +
+'        lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, price: 0, totalPrice: 0 });' +
+'        var pallets = Math.max(2, Math.ceil(totalArea / 100) + 1);' +
+'        var deliveryCost = pallets * DELIVERY_PER_100M2;' +
+'        /* Delivery price = cost × 1.15 */' +
+'        var deliveryPrice = deliveryCost * 1.15;' +
+'        lineItems.push({ section: "Design and Delivery", description: "Delivery charge (" + pallets + " pallets)", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice });' +
+'        var totalPrice = 0;' +
+'        for (var liIdx = 0; liIdx < lineItems.length; liIdx++) { totalPrice += lineItems[liIdx].totalPrice; }' +
+'        renderResults(lineItems, errors, totalPrice);' +
+'    });' +
 '};' +
-'function renderResults(lineItems, errors, totalCost, totalListPrice, finalQuotePrice, targetMargin) {' +
+'function renderResults(lineItems, errors, totalPrice) {' +
 '    var resultsSection = document.getElementById("resultsSection");' +
 '    var errorsContainer = document.getElementById("errorsContainer");' +
 '    var summaryContainer = document.getElementById("summaryContainer");' +
@@ -973,9 +1044,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        errorsContainer.innerHTML = "";' +
 '    }' +
 '    var summaryHtml = "<div class=\\"summary-grid\\">";' +
-'    summaryHtml += "<div class=\\"summary-box\\"><p class=\\"label\\">Total Cost</p><p class=\\"value\\">" + formatCurrency(totalCost) + "</p></div>";' +
-'    summaryHtml += "<div class=\\"summary-box\\"><p class=\\"label\\">List Price Total</p><p class=\\"value\\">" + formatCurrency(totalListPrice) + "</p></div>";' +
-'    summaryHtml += "<div class=\\"summary-box highlight\\"><p class=\\"label\\">Quote Price (" + targetMargin + "% margin)</p><p class=\\"value\\">" + formatCurrency(finalQuotePrice) + "</p></div>";' +
+'    summaryHtml += "<div class=\\"summary-box highlight\\"><p class=\\"label\\">Total Price</p><p class=\\"value\\">" + formatCurrency(totalPrice) + "</p></div>";' +
 '    summaryHtml += "</div>";' +
 '    summaryContainer.innerHTML = summaryHtml;' +
 '    var descLines = [];' +
@@ -998,7 +1067,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    descLines.push("");' +
 '    descLines.push("--------------------------------");' +
-'    descLines.push("Estimated Price: " + formatCurrency(finalQuotePrice));' +
+'    descLines.push("Estimated Price: " + formatCurrency(totalPrice));' +
 '    descLines.push("--------------------------------");' +
 '    descLines.push("");' +
 '    descLines.push("This quote includes all materials, design, and delivery.");' +
@@ -1022,7 +1091,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            descHtml += "<div style=\\"margin-left:8px;\\">\\u2022 " + roomLabel2 + area2.floorConstruction + ", " + area2.areaSqm + "m\\u00B2</div>";' +
 '        }' +
 '    }' +
-'    descHtml += "<div class=\\"price-line\\">Estimated Price: " + formatCurrency(finalQuotePrice) + "</div>";' +
+'    descHtml += "<div class=\\"price-line\\">Estimated Price: " + formatCurrency(totalPrice) + "</div>";' +
 '    descHtml += "<div class=\\"disclaimer\\">This is a quick estimate. For a detailed quote, please provide us with a set of floor plans.</div>";' +
 '    descHtml += "</div></div>";' +
 '    quoteDescriptionContainer.innerHTML = descHtml;' +

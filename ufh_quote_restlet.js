@@ -19,9 +19,6 @@
  *    - Go to the Deployments subtab on the Script record
  *    - Set Status to "Released"
  *    - Set Audience as appropriate (e.g. specific role or all employees)
- *    // IMPORTANT: On the Deployment record, set the "Response Content Type" to "TEXT"
- *    // — this allows the RESTlet to return a JSON string which the front-end will
- *    // parse with JSON.parse()
  * 6. Copy the generated External URL from the deployment record
  *    and update the RESTLET_URL constant in ufh_quote_suitelet_v3.2.js
  * ============================================================
@@ -41,18 +38,18 @@ define(['N/search', 'N/log'], function(search, log) {
 
         try {
             if (action === 'getFloorConstructions') {
-                return JSON.stringify(getFloorConstructions());
+                return getFloorConstructions();
             }
 
             if (action === 'getItemPrices') {
-                return JSON.stringify(getItemPrices(params));
+                return getItemPrices(params);
             }
 
-            return JSON.stringify({ success: false, error: 'Unknown action: ' + action });
+            return { success: false, error: 'Unknown action: ' + action };
 
         } catch (e) {
-            log.error('UFH RESTlet GET error', JSON.stringify({ name: e.name, message: e.message, stack: e.stack }));
-            return JSON.stringify({ success: false, error: e.message || String(e) });
+            log.error({ title: 'UFH RESTlet GET error', details: e });
+            return { success: false, error: e.message || String(e) };
         }
     }
 
@@ -78,120 +75,86 @@ define(['N/search', 'N/log'], function(search, log) {
      * @returns {Object} { success: true, data: Array } or { success: false, error: string }
      */
     function getFloorConstructions() {
-        try {
-            log.debug('getFloorConstructions', 'Function started');
-
-            var floorConstructionSearch = search.create({
-                type: search.Type.ASSEMBLY_ITEM,
-                filters: [
-                    ['custitem_prod_type', search.Operator.ANYOF, ['2']],
-                    'AND',
-                    ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
-                    'AND',
-                    ['isinactive', search.Operator.IS, 'F'],
-                    'AND',
-                    // Allowlist — add new floor construction item IDs here inside this array using the same OR pattern
-                    [
-                        ['name', search.Operator.IS, 'SC(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'SSE(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LP(150)10'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LPM(150)10'],
-                        'OR',
-                        ['name', search.Operator.IS, 'ND(150)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TF2+(150)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'DPJ(133)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TPBA(400)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'OT2(120)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'FF25(150)16'],
-                        'OR',
-                        ['name', search.Operator.IS, 'LB2+(150)12'],
-                        'OR',
-                        ['name', search.Operator.IS, 'DPL(175)14'],
-                        'OR',
-                        ['name', search.Operator.IS, 'TF2(150)12']
-                    ]
-                ],
-                columns: [
-                    search.createColumn({ name: 'itemid' }),
-                    search.createColumn({ name: 'internalid' }),
-                    search.createColumn({ name: 'custitem_fc_group' }),
-                    search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
-                    search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
-                    search.createColumn({ name: 'displayname' }),
-                    search.createColumn({ name: 'salesdescription' })
+        var floorConstructionSearch = search.create({
+            type: search.Type.ASSEMBLY_ITEM,
+            filters: [
+                ['custitem_prod_type', search.Operator.ANYOF, ['2']],
+                'AND',
+                ['custitem_fc_group', search.Operator.ANYOF, ['1', '2', '3']],
+                'AND',
+                ['isinactive', search.Operator.IS, 'F'],
+                'AND',
+                [
+                    ['name', search.Operator.IS, 'SC(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'SSE(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LP(150)10'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LPM(150)10'],
+                    'OR',
+                    ['name', search.Operator.IS, 'ND(150)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TF2+(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'DPJ(133)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TPBA(400)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'OT2(120)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'FF25(150)16'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LB2+(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'DPL(175)14'],
+                    'OR',
+                    ['name', search.Operator.IS, 'TF2(150)12']
                 ]
-            });
+            ],
+            columns: [
+                search.createColumn({ name: 'itemid' }),
+                search.createColumn({ name: 'internalid' }),
+                search.createColumn({ name: 'custitem_fc_group' }),
+                search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
+                search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
+                search.createColumn({ name: 'displayname' }),
+                search.createColumn({ name: 'salesdescription' })
+            ]
+        });
 
-            log.debug('getFloorConstructions', 'Search created');
+        var results = [];
+        var pageData = floorConstructionSearch.runPaged({ pageSize: 1000 });
 
-            var results = [];
-            var pageData = floorConstructionSearch.runPaged({ pageSize: 100 });
+        pageData.pageRanges.forEach(function(pageRange) {
+            var page = pageData.fetch({ index: pageRange.index });
+            page.data.forEach(function(result) {
+                var displayname   = result.getValue({ name: 'displayname' });
+                var salesDesc     = result.getValue({ name: 'salesdescription' });
+                var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
+                var groupValue    = (groupRaw && typeof groupRaw === 'object') ? groupRaw.value : groupRaw;
 
-            pageData.pageRanges.forEach(function(pageRange) {
-                var page = pageData.fetch({ index: pageRange.index });
-                page.data.forEach(function(result) {
-                    results.push(result);
+                results.push({
+                    itemid:       result.getValue({ name: 'itemid' }),
+                    internalid:   result.id,
+                    fcGroup:      groupValue ? parseInt(groupValue, 10) : null,
+                    pipeSpacing:  result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
+                    pipeDiameter: result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
+                    label:        displayname || salesDesc || ''
                 });
             });
+        });
 
-            log.debug('getFloorConstructions', 'Result count: ' + results.length);
+        // Sort by group ID (ascending), then by itemid (alphabetical)
+        results.sort(function(a, b) {
+            var groupDiff = (a.fcGroup || 0) - (b.fcGroup || 0);
+            if (groupDiff !== 0) return groupDiff;
+            if (a.itemid < b.itemid) return -1;
+            if (a.itemid > b.itemid) return 1;
+            return 0;
+        });
 
-            var output = [];
-            for (var i = 0; i < results.length; i++) {
-                try {
-                    var result = results[i];
-
-                    var fcGroupRaw = result.getValue({ name: 'custitem_fc_group' });
-                    var fcGroup = (fcGroupRaw && typeof fcGroupRaw === 'object') ? fcGroupRaw.value : fcGroupRaw;
-
-                    var pipeSpacing = result.getValue({ name: 'custitem_qdt_pipe_spacing' }) || null;
-                    var pipeDiameter = result.getValue({ name: 'custitem_qdt_pipe_diameter' }) || null;
-
-                    var displayName = result.getValue({ name: 'displayname' });
-                    var salesDesc = result.getValue({ name: 'salesdescription' });
-                    var label = (displayName && displayName !== '') ? displayName : (salesDesc && salesDesc !== '') ? salesDesc : result.getValue({ name: 'itemid' });
-
-                    output.push({
-                        itemid: result.getValue({ name: 'itemid' }),
-                        internalid: result.id,
-                        fcGroup: String(fcGroup),
-                        pipeSpacing: pipeSpacing,
-                        pipeDiameter: pipeDiameter,
-                        label: label
-                    });
-                } catch (itemErr) {
-                    log.error('Result processing error at index ' + i, JSON.stringify({
-                        name: itemErr.name,
-                        message: itemErr.message
-                    }));
-                }
-            }
-
-            output.sort(function(a, b) {
-                if (a.fcGroup !== b.fcGroup) return parseInt(a.fcGroup) - parseInt(b.fcGroup);
-                return a.itemid < b.itemid ? -1 : 1;
-            });
-
-            log.debug('getFloorConstructions', 'Returning ' + output.length + ' items');
-
-            return output;
-
-        } catch (e) {
-            log.error('getFloorConstructions error', JSON.stringify({
-                name: e.name,
-                message: e.message,
-                stack: e.stack
-            }));
-            return { success: false, error: e.message };
-        }
+        return { success: true, data: results };
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -199,101 +162,77 @@ define(['N/search', 'N/log'], function(search, log) {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Accepts a comma-separated list of item name/itemid values via the
-     * "itemids" query parameter (e.g. DSSB5-C,OMS06-C,OMDA-C) and returns
-     * price and cost data keyed by itemid.
+     * Accepts a comma-separated list of item codes via "itemids" and a price
+     * level internal ID via "pricelevelid".  Returns price data keyed by itemid.
      *
-     * Fields returned per item:
-     *   itemid
-     *   internalid
-     *   custrecord_price_homeowner   – homeowner price level
-     *   custrecord_price_installer   – installer price level
-     *   cost                         – standard cost
+     * Each found item returns:
+     *   itemid        – the item code
+     *   price         – unit price at the requested price level (parsed as float)
+     *   pricelevelid  – the price level ID that was queried
      *
-     * !! IMPORTANT – PLACEHOLDER FIELD NAMES !!
-     * custrecord_price_homeowner and custrecord_price_installer are
-     * PLACEHOLDER names.  The correct custom field IDs for the two price
-     * levels must be confirmed with the client before going live and
-     * substituted here.
+     * Items not found (no match for the name + price level combination) are
+     * included with { notFound: true } so the front end can identify missing
+     * items without an error being thrown.
      *
-     * Items not found are included with { notFound: true } so the front end
-     * can identify missing items without an error being thrown.
-     *
-     * @param {Object} params - Request parameters; expects params.itemids
-     * @returns {Object} { success: true, data: { [itemid]: {...} } } or { success: false, error: string }
+     * @param {Object} params - expects params.itemids and params.pricelevelid
+     * @returns {string} JSON string: { success: true, data: { [itemid]: {...} } }
      */
     function getItemPrices(params) {
-        var rawIds = params.itemids || '';
+        var rawIds      = params.itemids      || '';
+        var priceLevelId = params.pricelevelid || '';
+
         if (!rawIds) {
-            return { success: false, error: 'No itemids supplied' };
+            return JSON.stringify({ success: false, error: 'No itemids supplied' });
         }
 
         var itemIdList = rawIds.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
         if (itemIdList.length === 0) {
-            return { success: false, error: 'No valid itemids supplied' };
+            return JSON.stringify({ success: false, error: 'No valid itemids supplied' });
         }
 
         var result = {};
 
-        // Initialise all requested items as notFound so anything that doesn't
-        // come back from the search is included with the correct flag.
+        // Initialise all requested items as notFound before the search loop.
         itemIdList.forEach(function(id) {
             result[id] = { notFound: true };
         });
 
-        // Use search.lookupFields for each item — more efficient than loading
-        // the full item record when only a handful of fields are needed.
         itemIdList.forEach(function(itemCode) {
             try {
-                // Find the internal ID by searching on the itemid (name) field
-                var idSearch = search.create({
+                var itemSearch = search.create({
                     type: search.Type.ITEM,
                     filters: [
-                        ['name', search.Operator.IS, itemCode]
+                        ['name', search.Operator.IS, itemCode],
+                        'AND',
+                        ['isinactive', search.Operator.IS, 'F'],
+                        'AND',
+                        ['pricing.pricelevel', search.Operator.ANYOF, [priceLevelId]]
                     ],
                     columns: [
-                        search.createColumn({ name: 'internalid' })
+                        search.createColumn({ name: 'itemid' }),
+                        search.createColumn({ name: 'unitprice', join: 'pricing' }),
+                        search.createColumn({ name: 'pricelevel', join: 'pricing' })
                     ]
                 });
 
-                var idResults = idSearch.run().getRange({ start: 0, end: 1 });
-                if (!idResults || idResults.length === 0) {
-                    // Already initialised as notFound above — nothing to do
+                var rows = itemSearch.run().getRange({ start: 0, end: 1 });
+                if (!rows || rows.length === 0) {
                     return;
                 }
 
-                var internalId = idResults[0].id;
-
-                // !! IMPORTANT — REPLACE PLACEHOLDER FIELD NAMES BELOW !!
-                // custrecord_price_homeowner and custrecord_price_installer
-                // must be replaced with the correct price level field IDs
-                // once confirmed with the client.
-                var fields = search.lookupFields({
-                    type: search.Type.ITEM,
-                    id: internalId,
-                    columns: [
-                        'itemid',
-                        'cost',
-                        'custrecord_price_homeowner',   // ← REPLACE with confirmed field ID
-                        'custrecord_price_installer'    // ← REPLACE with confirmed field ID
-                    ]
-                });
-
+                var row = rows[0];
                 result[itemCode] = {
-                    itemid:                      fields.itemid || itemCode,
-                    internalid:                  internalId,
-                    custrecord_price_homeowner:  fields.custrecord_price_homeowner || null,
-                    custrecord_price_installer:  fields.custrecord_price_installer || null,
-                    cost:                        fields.cost || null
+                    itemid:       row.getValue({ name: 'itemid' }) || itemCode,
+                    price:        parseFloat(row.getValue({ name: 'unitprice', join: 'pricing' })) || 0,
+                    pricelevelid: priceLevelId
                 };
 
             } catch (itemErr) {
                 log.error({ title: 'getItemPrices – error looking up ' + itemCode, details: itemErr });
-                // Leave as notFound rather than aborting the whole request
             }
         });
 
-        return { success: true, data: result };
+        return JSON.stringify({ success: true, data: result });
     }
 
     return { get: get };
