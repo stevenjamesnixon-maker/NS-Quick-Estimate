@@ -136,7 +136,7 @@ define(['N/search', 'N/log'], function(search, log) {
                 results.push({
                     itemid:       result.getValue({ name: 'itemid' }),
                     internalid:   result.id,
-                    custitem_fc_group: groupRaw ? parseInt(groupRaw, 10) : null,
+                    fcGroup:      groupRaw ? parseInt(groupRaw, 10) : null,
                     pipeSpacing:  result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
                     pipeDiameter: result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
                     label:        displayname || salesDesc || ''
@@ -146,7 +146,7 @@ define(['N/search', 'N/log'], function(search, log) {
 
         // Sort by group ID (ascending), then by itemid (alphabetical)
         results.sort(function(a, b) {
-            var groupDiff = (a.custitem_fc_group || 0) - (b.custitem_fc_group || 0);
+            var groupDiff = (a.fcGroup || 0) - (b.fcGroup || 0);
             if (groupDiff !== 0) return groupDiff;
             if (a.itemid < b.itemid) return -1;
             if (a.itemid > b.itemid) return 1;
