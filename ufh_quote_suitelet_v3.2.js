@@ -190,25 +190,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .manifold-content { padding: 16px; display: none; }' +
 '        .manifold-content.expanded { display: block; }' +
 '        .area-row {' +
-'            background: #f8fafc;' +
-'            border-radius: 8px;' +
-'            padding: 12px;' +
-'            margin-bottom: 12px;' +
-'        }' +
-'        .area-header {' +
 '            display: flex;' +
-'            justify-content: space-between;' +
-'            align-items: center;' +
-'            margin-bottom: 12px;' +
-'        }' +
-'        .area-header span { font-size: 13px; font-weight: 500; color: #475569; }' +
-'        .area-inputs {' +
-'            display: grid;' +
-'            grid-template-columns: repeat(4, 1fr);' +
+'            flex-direction: row;' +
+'            align-items: flex-end;' +
 '            gap: 12px;' +
-'        }' +
-'        @media (max-width: 768px) {' +
-'            .area-inputs { grid-template-columns: 1fr 1fr; }' +
+'            flex-wrap: nowrap;' +
+'            padding: 8px 0;' +
 '        }' +
 '        .error-message {' +
 '            background: #fef2f2;' +
@@ -382,8 +369,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border: 1px solid #fecaca; border-radius: 8px; background: #fef2f2;' +
 '        }' +
 '        @keyframes spin { to { transform: rotate(360deg); } }' +
-'        .join-zone-label { font-size: 12px; color: #475569; display: flex; align-items: center; gap: 6px; margin-top: 4px; cursor: pointer; }' +
-'        .join-zone-label input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--nuheat-green); }' +
+'        .floor-card { border-left: 4px solid #2d6a2d; background: #f0f4f0; padding: 16px; margin-bottom: 16px; border-radius: 8px; }' +
+'        .floor-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 700; cursor: pointer; }' +
+'        .floor-title { display: flex; align-items: center; gap: 8px; }' +
+'        .floor-content { display: none; padding-top: 12px; }' +
+'        .floor-content.expanded { display: block; }' +
+'        .floor-controls { display: flex; align-items: center; gap: 8px; }' +
 '    </style>' +
 '</head>' +
 '<body>' +
@@ -433,9 +424,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="card-title">Floors and Manifolds</div>' +
 '        <div id="floorsContainer"></div>' +
 '        <div class="floor-add-buttons">' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'ground\')">+ Add Ground Floor</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'lowerground\')">+ Add Lower Ground</button>' +
 '            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'basement\')">+ Add Basement</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'lowerground\')">+ Add Lower Ground</button>' +
+'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'ground\')">+ Add Ground Floor</button>' +
 '            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'upper\')">+ Add Upper Floor</button>' +
 '        </div>' +
 '    </div>' +
@@ -681,32 +672,24 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var aIdx = 0; aIdx < manifold.areas.length; aIdx++) {' +
 '                var area = manifold.areas[aIdx];' +
 '                html += "<div class=\\"area-row\\">";' +
-'                html += "<div class=\\"area-header\\">";' +
-'                html += "<span>Area " + (aIdx + 1) + (area.roomName ? " - " + area.roomName : "") + "</span>";' +
-'                if (manifold.areas.length > 1) {' +
-'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
-'                }' +
-'                html += "</div>";' +
-'                html += "<div class=\\"area-inputs\\">";' +
-'                html += "<div class=\\"form-group\\">";' +
-'                html += "<label>Room Name (optional)</label>";' +
-'                html += "<input type=\\"text\\" value=\\"" + (area.roomName || "") + "\\" placeholder=\\"e.g. Kitchen\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'roomName\', this.value); window.renderFloors();\\">";' +
-'                html += "</div>";' +
-'                html += "<div class=\\"form-group\\">";' +
-'                html += "<label>Floor Type</label>";' +
-'                html += "<select onchange=\\"window.updateAreaFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', this.value)\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 160px;\\">";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Type</label>";' +
+'                html += "<select style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" onchange=\\"window.updateAreaFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', this.value)\\">";' +
 '                html += "<option value=\\"solid\\"" + (area.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
 '                html += "<option value=\\"joisted\\"" + (area.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
-'                html += "</select>";' +
+'                html += "</select></div>";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:1 1 120px;\\">";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Room Name (optional)</label>";' +
+'                html += "<input type=\\"text\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + (area.roomName || "") + "\\" placeholder=\\"e.g. Kitchen\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'roomName\', this.value); window.renderFloors();\\">";' +
 '                html += "</div>";' +
-'                html += "<div class=\\"form-group\\">";' +
-'                html += "<label>Floor Construction</label>";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 280px;\\">";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Construction</label>";' +
 '                if (!floorConstructionsLoaded) {' +
 '                    html += "<div class=\\"fc-spinner\\">Loading floor constructions\u2026</div>";' +
 '                } else if (FLOOR_CONSTRUCTIONS.length === 0) {' +
 '                    html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable \u2014 please contact support</div>";' +
 '                } else {' +
-'                    html += "<select onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderFloors();\\">";' +
+'                    html += "<select style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderFloors();\\">";' +
 '                    for (var fcIdx = 0; fcIdx < FLOOR_CONSTRUCTIONS.length; fcIdx++) {' +
 '                        var fc = FLOOR_CONSTRUCTIONS[fcIdx];' +
 '                        html += "<option value=\\"" + fc.itemid + "\\"" + (area.floorConstruction === fc.itemid ? " selected" : "") + ">" + (fc.label || fc.itemid) + " (" + fc.itemid + ")</option>";' +
@@ -714,18 +697,18 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    html += "</select>";' +
 '                }' +
 '                html += "</div>";' +
-'                html += "<div class=\\"form-group\\">";' +
-'                html += "<label>Area (m2)</label>";' +
-'                html += "<input type=\\"number\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m\u00b2</label>";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
 '                html += "</div>";' +
-'                html += "<div class=\\"form-group\\">";' +
-'                html += "<label>Thermostats</label>";' +
-'                html += "<input type=\\"number\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
-'                html += "<label class=\\"join-zone-label\\" style=\\"margin-top:6px;\\">" +' +
-'                    "<input type=\\"checkbox\\"" + (area.joinZone ? " checked" : "") + " onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'joinZone\', this.checked);\\">" +' +
-'                    " Join to adjacent zone (shared thermostat)</label>";' +
+'                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 80px;\\">";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Thermostats</label>";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
 '                html += "</div>";' +
-'                html += "</div></div>";' +
+'                if (manifold.areas.length > 1) {' +
+'                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 auto;\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
+'                }' +
+'                html += "</div>";' +
 '            }' +
 '            html += "<button type=\\"button\\" class=\\"btn btn-secondary\\" onclick=\\"window.addArea(\'" + floor.id + "\', \'" + manifold.id + "\')\\">[+] Add Area</button>";' +
 '            html += "</div></div>";' +
@@ -751,7 +734,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            name: "Manifold 1",' +
 '            floorType: floorType,' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1, joinZone: false }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
 '    floors.push(newFloor);' +
@@ -826,7 +809,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                name: "Manifold " + mCount,' +
 '                floorType: floors[i].floorType,' +
 '                expanded: true,' +
-'                areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floors[i].floorType), floorType: floors[i].floorType, areaSqm: 20, thermostats: 1, joinZone: false }]' +
+'                areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floors[i].floorType), floorType: floors[i].floorType, areaSqm: 20, thermostats: 1 }]' +
 '            });' +
 '            break;' +
 '        }' +
@@ -866,7 +849,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var j = 0; j < floors[i].manifolds.length; j++) {' +
 '                if (floors[i].manifolds[j].id === manifoldId) {' +
 '                    var ft = floors[i].manifolds[j].floorType;' +
-'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(ft), floorType: ft, areaSqm: 20, thermostats: 1, joinZone: false });' +
+'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(ft), floorType: ft, areaSqm: 20, thermostats: 1 });' +
 '                    break;' +
 '                }' +
 '            }' +
@@ -993,10 +976,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var aIdx = 0; aIdx < manifold.areas.length; aIdx++) {' +
 '                var area = manifold.areas[aIdx];' +
 '                totalArea += area.areaSqm;' +
-'                /* joinZone areas share a thermostat — do not add to thermostat count */' +
-'                if (!area.joinZone) {' +
-'                    totalThermostats += area.thermostats;' +
-'                }' +
+'                totalThermostats += area.thermostats;' +
 '                var fc = findFC(area.floorConstruction);' +
 '                if (fc) {' +
 '                    var fcKey = fc.itemid;' +
@@ -1307,7 +1287,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            name: "Manifold 1",' +
 '            floorType: "solid",' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType("solid"), floorType: "solid", areaSqm: 20, thermostats: 1, joinZone: false }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType("solid"), floorType: "solid", areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
 '    floors.push(initFloor);' +
