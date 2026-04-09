@@ -42,8 +42,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
             // The Deployment ID is on the Deployment record
             // (same Script record > Deployments subtab > open the deployment > ID field).
             var restletUrl = url.resolveScript({
-                scriptId: 'customscript_ufh_quote_restlet',
-                deploymentId: 'customdeploy_ufh_quote_restlet',
+                scriptId: 'customscript_quick_quote_rl',
+                deploymentId: 'customdeploy_quick_quote_rl',
                 returnExternalUrl: false
             });
 
