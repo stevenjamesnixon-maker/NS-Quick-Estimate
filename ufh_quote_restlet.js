@@ -132,11 +132,12 @@ define(['N/search', 'N/log'], function(search, log) {
                 var displayname   = result.getValue({ name: 'displayname' });
                 var salesDesc     = result.getValue({ name: 'salesdescription' });
                 var groupRaw      = result.getValue({ name: 'custitem_fc_group' });
+                var groupValue    = (groupRaw && typeof groupRaw === 'object') ? groupRaw.value : groupRaw;
 
                 results.push({
                     itemid:       result.getValue({ name: 'itemid' }),
                     internalid:   result.id,
-                    fcGroup:      groupRaw ? parseInt(groupRaw, 10) : null,
+                    fcGroup:      groupValue ? parseInt(groupValue, 10) : null,
                     pipeSpacing:  result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
                     pipeDiameter: result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
                     label:        displayname || salesDesc || ''
