@@ -410,7 +410,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    <option value="Renovation (Light Touch)">Renovation (Light Touch)</option>' +
 '                </select>' +
 '            </div>' +
-''
 '            <div class="form-group">' +
 '                <label>Thermostat Type</label>' +
 '                <select id="thermostatType">' +
@@ -632,7 +631,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '    }' +
 '}' +
-''
 'window.renderFloors = function() {' +
 '    try {' +
 '    var container = document.getElementById("floorsContainer");' +
