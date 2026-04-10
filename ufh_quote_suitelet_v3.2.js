@@ -435,7 +435,29 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            <div class="nh-section-body">' +
 '                <div class="nh-config-section">' +
 '                    <div class="nh-config-label">' +
-'                        <div class="nh-config-label-title">Property Type</div>' +
+'                        <div class="nh-config-label-title">1. Project Type</div>' +
+'                        <div class="nh-config-label-hint">Select the type of project you are quoting for</div>' +
+'                    </div>' +
+'                    <div class="nh-config-cards">' +
+'                        <div class="nh-card-grid" id="projectTypeGrid">' +
+'                            <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
+'                                <div class="nh-card-label">New Build</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
+'                                <div class="nh-card-label">Renovation (Back to Brick)</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
+'                                <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
+'                            </div>' +
+'                        </div>' +
+'                    </div>' +
+'                </div>' +
+'                <div class="nh-config-section">' +
+'                    <div class="nh-config-label">' +
+'                        <div class="nh-config-label-title">2. Property Type</div>' +
 '                        <div class="nh-config-label-hint">Select one property type to get started</div>' +
 '                    </div>' +
 '                    <div class="nh-config-cards">' +
@@ -461,29 +483,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                </div>' +
 '                <div class="nh-config-section">' +
 '                    <div class="nh-config-label">' +
-'                        <div class="nh-config-label-title">Project Type</div>' +
-'                        <div class="nh-config-label-hint">Select the type of project you are quoting for</div>' +
-'                    </div>' +
-'                    <div class="nh-config-cards">' +
-'                        <div class="nh-card-grid" id="projectTypeGrid">' +
-'                            <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
-'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
-'                                <div class="nh-card-label">New Build</div>' +
-'                            </div>' +
-'                            <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
-'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
-'                                <div class="nh-card-label">Renovation (Back to Brick)</div>' +
-'                            </div>' +
-'                            <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
-'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
-'                                <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
-'                            </div>' +
-'                        </div>' +
-'                    </div>' +
-'                </div>' +
-'                <div class="nh-config-section">' +
-'                    <div class="nh-config-label">' +
-'                        <div class="nh-config-label-title">Heating System</div>' +
+'                        <div class="nh-config-label-title">3. Heating System</div>' +
 '                        <div class="nh-config-label-hint">Select the heat source for this installation</div>' +
 '                    </div>' +
 '                    <div class="nh-config-cards">' +
@@ -501,7 +501,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                </div>' +
 '                <div class="nh-config-section">' +
 '                    <div class="nh-config-label">' +
-'                        <div class="nh-config-label-title">Thermostat Package</div>' +
+'                        <div class="nh-config-label-title">4. Thermostat Package</div>' +
 '                        <div class="nh-config-label-hint">Select the thermostat type for this installation</div>' +
 '                    </div>' +
 '                    <div class="nh-config-cards">' +
@@ -918,6 +918,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'window.addFloor = function(type) {' +
 '    var floorType = (type === "upper") ? "joisted" : "solid";' +
+'    /* Default floor construction based on project type and floor type */' +
+'    var defaultFC;' +
+'    if (selectedProjectType === "Renovation (Light Touch)") {' +
+'        defaultFC = (floorType === "joisted") ? "OT2(120)12" : "LPM(150)10";' +
+'    } else {' +
+'        defaultFC = (floorType === "joisted") ? "ND(150)14" : "SC(150)14";' +
+'    }' +
 '    var newFloor = {' +
 '        id: generateId(),' +
 '        type: type,' +
@@ -929,7 +936,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            name: "Manifold 1",' +
 '            floorType: floorType,' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFC, floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
 '    /* Insert floor at correct sorted position based on FLOOR_ORDER */' +
@@ -1055,7 +1062,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var j = 0; j < floors[i].manifolds.length; j++) {' +
 '                if (floors[i].manifolds[j].id === manifoldId) {' +
 '                    var ft = floors[i].manifolds[j].floorType;' +
-'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(ft), floorType: ft, areaSqm: 20, thermostats: 1 });' +
+'                    /* Default floor construction based on project type and floor type */' +
+'                    var defaultFC;' +
+'                    if (selectedProjectType === "Renovation (Light Touch)") {' +
+'                        defaultFC = (ft === "joisted") ? "OT2(120)12" : "LPM(150)10";' +
+'                    } else {' +
+'                        defaultFC = (ft === "joisted") ? "ND(150)14" : "SC(150)14";' +
+'                    }' +
+'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFC, floorType: ft, areaSqm: 20, thermostats: 1 });' +
 '                    break;' +
 '                }' +
 '            }' +
@@ -1204,13 +1218,33 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            }' +
 '        }' +
 '    }' +
-'    var pumpList = heatSource === "Heat Pump" ? HEAT_PUMP_PUMPS : BOILER_PUMPS;' +
 '    var areaKey = workType === "New Build" ? "newBuildArea" : "renovationArea";' +
-'    var selectedPump = pumpList[pumpList.length - 1];' +
-'    for (var pIdx = 0; pIdx < pumpList.length; pIdx++) {' +
-'        if (totalArea <= pumpList[pIdx][areaKey]) {' +
-'            selectedPump = pumpList[pIdx];' +
-'            break;' +
+'    var selectedPump;' +
+'    var pumpQuantity = 1;' +
+'    if (heatSource === "Boiler") {' +
+'        /* Option C: use PM1W/2-A per manifold if area-per-manifold fits, else single larger pump */' +
+'        var areaPerManifold = totalManifolds > 0 ? totalArea / totalManifolds : totalArea;' +
+'        var pm1Pump = BOILER_PUMPS[0];' +
+'        if (areaPerManifold <= pm1Pump[areaKey]) {' +
+'            selectedPump = pm1Pump;' +
+'            pumpQuantity = totalManifolds;' +
+'        } else {' +
+'            selectedPump = BOILER_PUMPS[BOILER_PUMPS.length - 1];' +
+'            for (var pIdx = 0; pIdx < BOILER_PUMPS.length; pIdx++) {' +
+'                if (totalArea <= BOILER_PUMPS[pIdx][areaKey]) {' +
+'                    selectedPump = BOILER_PUMPS[pIdx];' +
+'                    break;' +
+'                }' +
+'            }' +
+'        }' +
+'    } else {' +
+'        /* Heat Pump: select smallest pump that fits total area */' +
+'        selectedPump = HEAT_PUMP_PUMPS[HEAT_PUMP_PUMPS.length - 1];' +
+'        for (var pIdx = 0; pIdx < HEAT_PUMP_PUMPS.length; pIdx++) {' +
+'            if (totalArea <= HEAT_PUMP_PUMPS[pIdx][areaKey]) {' +
+'                selectedPump = HEAT_PUMP_PUMPS[pIdx];' +
+'                break;' +
+'            }' +
 '        }' +
 '    }' +
 '    var selectedManifoldData = [];' +
@@ -1291,7 +1325,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        var lineItems = [];' +
 '        var pumpPrice = getPrice(selectedPump.itemCode);' +
-'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: 1, price: pumpPrice, totalPrice: pumpPrice });' +
+'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: pumpQuantity, price: pumpPrice, totalPrice: pumpPrice * pumpQuantity });' +
 '        for (var mi = 0; mi < selectedManifoldData.length; mi++) {' +
 '            var md = selectedManifoldData[mi];' +
 '            var mdPrice = getPrice(md.itemCode);' +
