@@ -1032,8 +1032,22 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    for (var diam in pipeDiameterTotals) {' +
 '        if (pipeDiameterTotals.hasOwnProperty(diam)) {' +
 '            var d = parseInt(diam);' +
-'            var coils = PIPE_COILS[d].coils;' +
-'            selectedPipeCoils[d] = coils[coils.length - 1];' +
+'            var diamPre = pipeDiameterTotals[diam];' +
+'            if (diamPre.ports === 0) { continue; }' +
+'            var coilList = PIPE_COILS[d].coils;' +
+'            var lengthPerCircuit = diamPre.length / diamPre.ports;' +
+'            var selectedCoil = null;' +
+'            for (var ci = 0; ci < coilList.length; ci++) {' +
+'                if (coilList[ci].length >= lengthPerCircuit) {' +
+'                    selectedCoil = coilList[ci];' +
+'                    break;' +
+'                }' +
+'            }' +
+'            if (!selectedCoil) {' +
+'                selectedCoil = coilList[coilList.length - 1];' +
+'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used \u2014 manual review required.");' +
+'            }' +
+'            selectedPipeCoils[d] = selectedCoil;' +
 '        }' +
 '    }' +
 '    var itemCodesObj = {};' +
@@ -1101,11 +1115,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                var diamData = pipeDiameterTotals[diam3];' +
 '                var d3 = parseInt(diam3);' +
 '                var coil = selectedPipeCoils[d3];' +
-'                var numCoils = Math.ceil(diamData.length / coil.length);' +
-'                if (numCoils > 0) {' +
-'                    var coilPrice = getPrice(coil.itemCode);' +
-'                    lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: numCoils, price: coilPrice, totalPrice: coilPrice * numCoils });' +
-'                }' +
+'                if (!coil || diamData.ports === 0) { continue; }' +
+'                var coilPrice = getPrice(coil.itemCode);' +
+'                lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: diamData.ports, price: coilPrice, totalPrice: coilPrice * diamData.ports, cost: 0, totalCost: 0 });' +
 '                var connectors = diamData.ports * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
 '                var connPrice = getPrice(connector.itemCode);' +
