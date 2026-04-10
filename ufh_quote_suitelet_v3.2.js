@@ -87,9 +87,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* === Header === */' +
 '        .nh-header {' +
 '            background: var(--nh-teal);' +
-'            padding: 16px 32px;' +
-'            display: flex;' +
-'            align-items: center;' +
+'            padding: 10px 32px;' +
+'            min-height: 8px;' +
 '        }' +
 '        .nh-header-logo {' +
 '            color: var(--nh-white);' +
@@ -160,6 +159,17 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        .nh-section-body { padding: 24px 20px; }' +
 '        .nh-section-header h2 { font-size: inherit; font-weight: inherit; margin: 0; }' +
+'        .nh-config-grid { display: flex; flex-direction: column; gap: 20px; }' +
+'        .nh-config-row { display: flex; gap: 24px; align-items: flex-start; }' +
+'        .nh-config-group { flex: 1; }' +
+'        .nh-config-group-label {' +
+'            font-size: 11px;' +
+'            font-weight: 700;' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.8px;' +
+'            color: var(--nh-teal);' +
+'            margin-bottom: 10px;' +
+'        }' +
 '        /* === Collapsible panel === */' +
 '        .nh-collapsible-toggle {' +
 '            display: flex;' +
@@ -198,7 +208,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            user-select: none;' +
 '        }' +
 '        .nh-card:hover { border-color: var(--nh-teal); box-shadow: 0 2px 8px rgba(0,133,125,0.12); }' +
-'        .nh-card.selected { border-color: var(--nh-yellow); background: var(--nh-yellow-light); box-shadow: 0 2px 10px rgba(255,181,0,0.2); }' +
+'        .nh-card.selected { border-color: var(--nh-teal); background: #e8f4f3; box-shadow: 0 2px 10px rgba(0,133,125,0.18); }' +
+'        .nh-card.selected .nh-card-label { color: var(--nh-teal-dark); }' +
 '        .nh-card-icon { margin-bottom: 6px; display: flex; justify-content: center; align-items: center; height: 32px; }' +
 '        .nh-card-icon svg {' +
 '            width: 26px; height: 26px;' +
@@ -206,7 +217,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;' +
 '            transition: stroke 0.15s;' +
 '        }' +
-'        .nh-card.selected .nh-card-icon svg { stroke: var(--nh-teal-dark); }' +
+'        .nh-card.selected .nh-card-icon svg { stroke: var(--nh-teal); }' +
 '        .nh-card-label { font-size: 11px; font-weight: 700; color: var(--nh-text-dark); line-height: 1.3; }' +
 '        /* === Recommended badge === */' +
 '        .nh-badge-recommended {' +
@@ -228,29 +239,29 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            overflow: hidden;' +
 '        }' +
 '        .floor-card-header {' +
-'            background: var(--nh-purple);' +
-'            color: var(--nh-white);' +
+'            background: #e9e9e7;' +
+'            color: var(--nh-text-dark);' +
 '            padding: 8px 14px;' +
 '            display: flex;' +
 '            align-items: center;' +
 '            justify-content: space-between;' +
 '            gap: 12px;' +
+'            border-bottom: 1px solid var(--nh-grey-border);' +
 '        }' +
-'        .floor-card-header .floor-title { font-weight: 700; font-size: 13px; white-space: nowrap; }' +
+'        .floor-card-header .floor-title { font-weight: 700; font-size: 13px; white-space: nowrap; color: var(--nh-text-dark); }' +
 '        .floor-card-header .floor-type-select {' +
 '            flex: 1;' +
 '            max-width: 220px;' +
 '            padding: 4px 8px;' +
 '            font-size: 12px;' +
-'            border: 1px solid rgba(255,255,255,0.4);' +
+'            border: 1px solid var(--nh-grey-border);' +
 '            border-radius: 4px;' +
-'            background: rgba(255,255,255,0.15);' +
-'            color: var(--nh-white);' +
+'            background: var(--nh-white);' +
+'            color: var(--nh-text-dark);' +
 '            font-family: \'Raleway\', sans-serif;' +
 '        }' +
-'        .floor-card-header .floor-type-select option { color: var(--nh-text-dark); background: var(--nh-white); }' +
-'        .floor-card-header .btn-danger { border-color: rgba(255,255,255,0.5); color: var(--nh-white); padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
-'        .floor-card-header .btn-danger:hover { background: rgba(255,255,255,0.15); }' +
+'        .floor-card-header .btn-danger { border-color: #bbb; color: #c0392b; padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
+'        .floor-card-header .btn-danger:hover { background: #fdf2f2; }' +
 '        .floor-card-body { padding: 16px; }' +
 '        /* === Manifold card === */' +
 '        .manifold-card {' +
@@ -261,17 +272,17 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            overflow: hidden;' +
 '        }' +
 '        .manifold-card-header {' +
-'            background: #e8f4f3;' +
-'            padding: 7px 12px;' +
+'            background: var(--nh-white);' +
+'            padding: 10px 14px;' +
 '            display: flex;' +
 '            align-items: center;' +
 '            justify-content: space-between;' +
 '            gap: 10px;' +
-'            border-bottom: 1px solid var(--nh-grey-border);' +
+'            border-bottom: 2px solid var(--nh-grey-border);' +
 '        }' +
-'        .manifold-card-header .manifold-title { font-weight: 600; font-size: 12px; color: var(--nh-teal-dark); white-space: nowrap; }' +
-'        .manifold-card-header .manifold-ports { font-size: 11px; color: var(--nh-text); white-space: nowrap; }' +
-'        .manifold-card-header .btn-danger { padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
+'        .manifold-card-header .manifold-title { font-weight: 700; font-size: 14px; color: var(--nh-text-dark); white-space: nowrap; }' +
+'        .manifold-card-header .manifold-ports { font-size: 13px; font-weight: 700; color: var(--nh-text); white-space: nowrap; }' +
+'        .manifold-card-header .btn-danger { padding: 4px 10px; font-size: 12px; font-weight: 700; flex-shrink: 0; }' +
 '        .manifold-card-body { padding: 12px 14px; }' +
 '        /* === Area rows === */' +
 '        .area-row {' +
@@ -362,7 +373,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .bom-section-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #fafafa; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--nh-text-dark); border-bottom: 1px solid var(--nh-grey-border); }' +
 '        .bom-section-header:hover { background: #f0f0ee; }' +
 '        /* .bom-content and .bom-section-content visibility is controlled by JS style.display only */' +
-'        .results-table { width: 100%; border-collapse: collapse; font-size: 13px; }' +
+'        .results-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }' +
+'        .results-table col.col-desc { width: 55%; }' +
+'        .results-table col.col-qty { width: 10%; }' +
+'        .results-table col.col-unit { width: 17%; }' +
+'        .results-table col.col-total { width: 18%; }' +
 '        .results-table th { background: var(--nh-grey-light); padding: 8px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--nh-text); border-bottom: 1px solid var(--nh-grey-border); }' +
 '        .results-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; color: var(--nh-text-dark); }' +
 '        .results-table tr:last-child td { border-bottom: none; }' +
@@ -395,9 +410,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    </style>' +
 '</head>' +
 '<body>' +
-'<div class="nh-header">' +
-'    <div class="nh-header-logo">N\u00fc-Heat <span>Feel the difference</span></div>' +
-'</div>' +
+'<div class="nh-header"></div>' +
 '<div class="nh-hero">' +
 '    <h1>Instant Estimate Builder</h1>' +
 '    <p>Configure your underfloor heating system and get an instant materials estimate.</p>' +
@@ -410,73 +423,79 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        </div>' +
 '        <div class="nh-collapsible-body" id="propertyInfoBody">' +
 '            <div class="nh-section-body">' +
-'                <div style="margin-bottom:20px;">' +
-'                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--nh-teal);margin-bottom:10px;">1. Property Type</div>' +
-'                    <div class="nh-card-grid" id="propertyTypeGrid">' +
-'                        <div class="nh-card" id="pt-house" onclick="window.selectPropertyType(\'house\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>' +
-'                            <div class="nh-card-label">House</div>' +
+'                <div class="nh-config-grid">' +
+'                    <div class="nh-config-row">' +
+'                        <div class="nh-config-group">' +
+'                            <div class="nh-config-group-label">1. Property Type</div>' +
+'                            <div class="nh-card-grid" id="propertyTypeGrid">' +
+'                                <div class="nh-card" id="pt-house" onclick="window.selectPropertyType(\'house\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>' +
+'                                    <div class="nh-card-label">House</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="pt-bungalow" onclick="window.selectPropertyType(\'bungalow\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7v8a1 1 0 01-1 1H4a1 1 0 01-1-1v-8z"/><path d="M9 21v-6h6v6"/></svg></div>' +
+'                                    <div class="nh-card-label">Bungalow</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="pt-flat" onclick="window.selectPropertyType(\'flat\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>' +
+'                                    <div class="nh-card-label">Flat / Apartment</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="pt-maisonette" onclick="window.selectPropertyType(\'maisonette\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V10.5z"/><path d="M9 21v-5h6v5"/><path d="M3 13h18"/></svg></div>' +
+'                                    <div class="nh-card-label">Maisonette</div>' +
+'                                </div>' +
+'                            </div>' +
 '                        </div>' +
-'                        <div class="nh-card" id="pt-bungalow" onclick="window.selectPropertyType(\'bungalow\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7v8a1 1 0 01-1 1H4a1 1 0 01-1-1v-8z"/><path d="M9 21v-6h6v6"/></svg></div>' +
-'                            <div class="nh-card-label">Bungalow</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="pt-flat" onclick="window.selectPropertyType(\'flat\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>' +
-'                            <div class="nh-card-label">Flat / Apartment</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="pt-maisonette" onclick="window.selectPropertyType(\'maisonette\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V10.5z"/><path d="M9 21v-5h6v5"/><path d="M3 13h18"/></svg></div>' +
-'                            <div class="nh-card-label">Maisonette</div>' +
-'                        </div>' +
-'                    </div>' +
-'                </div>' +
-'                <div style="margin-bottom:20px;">' +
-'                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--nh-teal);margin-bottom:10px;">2. Project Type</div>' +
-'                    <div class="nh-card-grid" id="projectTypeGrid">' +
-'                        <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
-'                            <div class="nh-card-label">New Build</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
-'                            <div class="nh-card-label">Renovation (Back to Brick)</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
-'                            <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
-'                        </div>' +
-'                    </div>' +
-'                </div>' +
-'                <div style="margin-bottom:20px;">' +
-'                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--nh-teal);margin-bottom:10px;">3. Heating System</div>' +
-'                    <div class="nh-card-grid" id="heatSourceGrid">' +
-'                        <div class="nh-card" id="hs-boiler" onclick="window.selectHeatSource(\'Boiler\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 7v2M12 15v2M7 12h2M15 12h2"/></svg></div>' +
-'                            <div class="nh-card-label">UFH &amp; Boiler</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="hs-heatpump" onclick="window.selectHeatSource(\'Heat Pump\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h4M14 14h4"/></svg></div>' +
-'                            <div class="nh-card-label">UFH &amp; Heat Pump</div>' +
+'                        <div class="nh-config-group">' +
+'                            <div class="nh-config-group-label">2. Project Type</div>' +
+'                            <div class="nh-card-grid" id="projectTypeGrid">' +
+'                                <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
+'                                    <div class="nh-card-label">New Build</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
+'                                    <div class="nh-card-label">Renovation (Back to Brick)</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
+'                                    <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
+'                                </div>' +
+'                            </div>' +
 '                        </div>' +
 '                    </div>' +
-'                </div>' +
-'                <div>' +
-'                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--nh-teal);margin-bottom:10px;">4. Thermostat Package</div>' +
-'                    <div class="nh-card-grid" id="thermostatGrid">' +
-'                        <div class="nh-card" id="th-dial" onclick="window.selectThermostat(\'Dial\')">' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 7v1M12 16v1M7 12h1M16 12h1"/></svg></div>' +
-'                            <div class="nh-card-label">Dial</div>' +
+'                    <div class="nh-config-row">' +
+'                        <div class="nh-config-group">' +
+'                            <div class="nh-config-group-label">3. Heating System</div>' +
+'                            <div class="nh-card-grid" id="heatSourceGrid">' +
+'                                <div class="nh-card" id="hs-boiler" onclick="window.selectHeatSource(\'Boiler\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 7v2M12 15v2M7 12h2M15 12h2"/></svg></div>' +
+'                                    <div class="nh-card-label">UFH &amp; Boiler</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="hs-heatpump" onclick="window.selectHeatSource(\'Heat Pump\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h4M14 14h4"/></svg></div>' +
+'                                    <div class="nh-card-label">UFH &amp; Heat Pump</div>' +
+'                                </div>' +
+'                            </div>' +
 '                        </div>' +
-'                        <div class="nh-card" id="th-wired" onclick="window.selectThermostat(\'Wired Programmable\')">' +
-'                            <span class="nh-badge-recommended" id="badge-wired" style="display:none">Recommended</span>' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>' +
-'                            <div class="nh-card-label">Wired Programmable</div>' +
-'                        </div>' +
-'                        <div class="nh-card" id="th-wireless" onclick="window.selectThermostat(\'Wireless\')">' +
-'                            <span class="nh-badge-recommended" id="badge-wireless" style="display:none">Recommended</span>' +
-'                            <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9.5 9.5 0 0114 0"/><path d="M8 16a5 5 0 018 0"/><circle cx="12" cy="19" r="1"/></svg></div>' +
-'                            <div class="nh-card-label">Wireless</div>' +
+'                        <div class="nh-config-group">' +
+'                            <div class="nh-config-group-label">4. Thermostat Package</div>' +
+'                            <div class="nh-card-grid" id="thermostatGrid">' +
+'                                <div class="nh-card" id="th-dial" onclick="window.selectThermostat(\'Dial\')">' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 7v1M12 16v1M7 12h1M16 12h1"/></svg></div>' +
+'                                    <div class="nh-card-label">Dial</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="th-wired" onclick="window.selectThermostat(\'Wired Programmable\')">' +
+'                                    <span class="nh-badge-recommended" id="badge-wired" style="display:none">Recommended</span>' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>' +
+'                                    <div class="nh-card-label">Wired Programmable</div>' +
+'                                </div>' +
+'                                <div class="nh-card" id="th-wireless" onclick="window.selectThermostat(\'Wireless\')">' +
+'                                    <span class="nh-badge-recommended" id="badge-wireless" style="display:none">Recommended</span>' +
+'                                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9.5 9.5 0 0114 0"/><path d="M8 16a5 5 0 018 0"/><circle cx="12" cy="19" r="1"/></svg></div>' +
+'                                    <div class="nh-card-label">Wireless</div>' +
+'                                </div>' +
+'                            </div>' +
 '                        </div>' +
 '                    </div>' +
 '                </div>' +
@@ -1420,7 +1439,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            bomHtml += "<div class=\\"bom-section\\">";' +
 '            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">▶</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
 '            bomHtml += "<div id=\\"bomSection_" + sectionId + "\\" class=\\"bom-section-content\\">";' +
-'            bomHtml += "<table class=\\"results-table\\"><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
+'            bomHtml += "<table class=\\"results-table\\"><colgroup><col class=\\"col-desc\\"><col class=\\"col-qty\\"><col class=\\"col-unit\\"><col class=\\"col-total\\"></colgroup><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
 '            for (var iIdx = 0; iIdx < items.length; iIdx++) {' +
 '                var item = items[iIdx];' +
 '                bomHtml += "<tr><td>" + item.description + "</td><td style=\\"text-align:center\\">" + item.quantity + "</td><td style=\\"text-align:right\\">" + formatCurrency(item.price) + "</td><td style=\\"text-align:right\\">" + formatCurrency(item.totalPrice) + "</td></tr>";' +
