@@ -918,6 +918,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'window.addFloor = function(type) {' +
 '    var floorType = (type === "upper") ? "joisted" : "solid";' +
+'    /* Default floor construction based on project type and floor type */' +
+'    var defaultFC;' +
+'    if (selectedProjectType === "Renovation (Light Touch)") {' +
+'        defaultFC = "LP(150)10";' +
+'    } else {' +
+'        defaultFC = (floorType === "joisted") ? "ND(150)14" : "SC(150)14";' +
+'    }' +
 '    var newFloor = {' +
 '        id: generateId(),' +
 '        type: type,' +
@@ -929,7 +936,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            name: "Manifold 1",' +
 '            floorType: floorType,' +
 '            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
+'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFC, floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
 '    /* Insert floor at correct sorted position based on FLOOR_ORDER */' +
@@ -1055,7 +1062,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            for (var j = 0; j < floors[i].manifolds.length; j++) {' +
 '                if (floors[i].manifolds[j].id === manifoldId) {' +
 '                    var ft = floors[i].manifolds[j].floorType;' +
-'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(ft), floorType: ft, areaSqm: 20, thermostats: 1 });' +
+'                    /* Default floor construction based on project type and floor type */' +
+'                    var defaultFC;' +
+'                    if (selectedProjectType === "Renovation (Light Touch)") {' +
+'                        defaultFC = "LP(150)10";' +
+'                    } else {' +
+'                        defaultFC = (ft === "joisted") ? "ND(150)14" : "SC(150)14";' +
+'                    }' +
+'                    floors[i].manifolds[j].areas.push({ id: generateId(), roomName: "", floorConstruction: defaultFC, floorType: ft, areaSqm: 20, thermostats: 1 });' +
 '                    break;' +
 '                }' +
 '            }' +
@@ -1204,13 +1218,33 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            }' +
 '        }' +
 '    }' +
-'    var pumpList = heatSource === "Heat Pump" ? HEAT_PUMP_PUMPS : BOILER_PUMPS;' +
 '    var areaKey = workType === "New Build" ? "newBuildArea" : "renovationArea";' +
-'    var selectedPump = pumpList[pumpList.length - 1];' +
-'    for (var pIdx = 0; pIdx < pumpList.length; pIdx++) {' +
-'        if (totalArea <= pumpList[pIdx][areaKey]) {' +
-'            selectedPump = pumpList[pIdx];' +
-'            break;' +
+'    var selectedPump;' +
+'    var pumpQuantity = 1;' +
+'    if (heatSource === "Boiler") {' +
+'        /* Option C: use PM1W/2-A per manifold if area-per-manifold fits, else single larger pump */' +
+'        var areaPerManifold = totalManifolds > 0 ? totalArea / totalManifolds : totalArea;' +
+'        var pm1Pump = BOILER_PUMPS[0];' +
+'        if (areaPerManifold <= pm1Pump[areaKey]) {' +
+'            selectedPump = pm1Pump;' +
+'            pumpQuantity = totalManifolds;' +
+'        } else {' +
+'            selectedPump = BOILER_PUMPS[BOILER_PUMPS.length - 1];' +
+'            for (var pIdx = 0; pIdx < BOILER_PUMPS.length; pIdx++) {' +
+'                if (totalArea <= BOILER_PUMPS[pIdx][areaKey]) {' +
+'                    selectedPump = BOILER_PUMPS[pIdx];' +
+'                    break;' +
+'                }' +
+'            }' +
+'        }' +
+'    } else {' +
+'        /* Heat Pump: select smallest pump that fits total area */' +
+'        selectedPump = HEAT_PUMP_PUMPS[HEAT_PUMP_PUMPS.length - 1];' +
+'        for (var pIdx = 0; pIdx < HEAT_PUMP_PUMPS.length; pIdx++) {' +
+'            if (totalArea <= HEAT_PUMP_PUMPS[pIdx][areaKey]) {' +
+'                selectedPump = HEAT_PUMP_PUMPS[pIdx];' +
+'                break;' +
+'            }' +
 '        }' +
 '    }' +
 '    var selectedManifoldData = [];' +
@@ -1291,7 +1325,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        var lineItems = [];' +
 '        var pumpPrice = getPrice(selectedPump.itemCode);' +
-'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: 1, price: pumpPrice, totalPrice: pumpPrice });' +
+'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: pumpQuantity, price: pumpPrice, totalPrice: pumpPrice * pumpQuantity });' +
 '        for (var mi = 0; mi < selectedManifoldData.length; mi++) {' +
 '            var md = selectedManifoldData[mi];' +
 '            var mdPrice = getPrice(md.itemCode);' +
