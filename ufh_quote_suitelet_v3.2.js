@@ -370,19 +370,19 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="nh-section-header"><span class="nh-step-num">1</span> Property Type</div>' +
 '        <div class="nh-section-body">' +
 '            <div class="nh-card-grid" id="propertyTypeGrid">' +
-'                <div class="nh-card" id="card-property-house" onclick="window.selectPropertyType(\'house\')">' +
+'                <div class="nh-card" id="pt-house" onclick="window.selectPropertyType(\'house\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>' +
 '                    <div class="nh-card-label">House</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-property-bungalow" onclick="window.selectPropertyType(\'bungalow\')">' +
+'                <div class="nh-card" id="pt-bungalow" onclick="window.selectPropertyType(\'bungalow\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7v8a1 1 0 01-1 1H4a1 1 0 01-1-1v-8z"/><path d="M9 21v-6h6v6"/></svg></div>' +
 '                    <div class="nh-card-label">Bungalow</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-property-flat" onclick="window.selectPropertyType(\'flat\')">' +
+'                <div class="nh-card" id="pt-flat" onclick="window.selectPropertyType(\'flat\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>' +
 '                    <div class="nh-card-label">Flat / Apartment</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-property-maisonette" onclick="window.selectPropertyType(\'maisonette\')">' +
+'                <div class="nh-card" id="pt-maisonette" onclick="window.selectPropertyType(\'maisonette\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V10.5z"/><path d="M9 21v-5h6v5"/><path d="M3 13h18"/></svg></div>' +
 '                    <div class="nh-card-label">Maisonette</div>' +
 '                </div>' +
@@ -393,15 +393,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="nh-section-header"><span class="nh-step-num">2</span> Project Type</div>' +
 '        <div class="nh-section-body">' +
 '            <div class="nh-card-grid" id="projectTypeGrid">' +
-'                <div class="nh-card" id="card-project-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
+'                <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
 '                    <div class="nh-card-label">New Build</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-project-backtobrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
+'                <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
 '                    <div class="nh-card-label">Renovation (Back to Brick)</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-project-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
+'                <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
 '                    <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
 '                </div>' +
@@ -412,11 +412,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="nh-section-header"><span class="nh-step-num">3</span> Heating System</div>' +
 '        <div class="nh-section-body">' +
 '            <div class="nh-card-grid" id="heatSourceGrid">' +
-'                <div class="nh-card" id="card-heat-boiler" onclick="window.selectHeatSource(\'Boiler\')">' +
+'                <div class="nh-card" id="hs-boiler" onclick="window.selectHeatSource(\'Boiler\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 7v2M12 15v2M7 12h2M15 12h2"/></svg></div>' +
 '                    <div class="nh-card-label">UFH &amp; Boiler</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-heat-heatpump" onclick="window.selectHeatSource(\'Heat Pump\')">' +
+'                <div class="nh-card" id="hs-heatpump" onclick="window.selectHeatSource(\'Heat Pump\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h4M14 14h4"/></svg></div>' +
 '                    <div class="nh-card-label">UFH &amp; Heat Pump</div>' +
 '                </div>' +
@@ -427,16 +427,16 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        <div class="nh-section-header"><span class="nh-step-num">4</span> Thermostat Package</div>' +
 '        <div class="nh-section-body">' +
 '            <div class="nh-card-grid" id="thermostatGrid">' +
-'                <div class="nh-card" id="card-thermo-dial" onclick="window.selectThermostat(\'Dial\')">' +
+'                <div class="nh-card" id="th-dial" onclick="window.selectThermostat(\'Dial\')">' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 7v1M12 16v1M7 12h1M16 12h1"/></svg></div>' +
 '                    <div class="nh-card-label">Dial</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-thermo-wired" onclick="window.selectThermostat(\'Wired Programmable\')">' +
+'                <div class="nh-card" id="th-wired" onclick="window.selectThermostat(\'Wired Programmable\')">' +
 '                    <span class="nh-badge-recommended" id="badge-wired" style="display:none">Recommended</span>' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>' +
 '                    <div class="nh-card-label">Wired Programmable</div>' +
 '                </div>' +
-'                <div class="nh-card" id="card-thermo-wireless" onclick="window.selectThermostat(\'Wireless\')">' +
+'                <div class="nh-card" id="th-wireless" onclick="window.selectThermostat(\'Wireless\')">' +
 '                    <span class="nh-badge-recommended" id="badge-wireless" style="display:none">Recommended</span>' +
 '                    <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9.5 9.5 0 0114 0"/><path d="M8 16a5 5 0 018 0"/><circle cx="12" cy="19" r="1"/></svg></div>' +
 '                    <div class="nh-card-label">Wireless</div>' +
@@ -587,6 +587,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'var DESIGN_RATE_PER_HOUR = 36;' +
 'var DESIGN_BASE_HOURS = 2;' +
+'var selectedPropertyType = null;' +
+'var selectedProjectType = null;' +
+'var selectedHeatSource = null;' +
+'var selectedThermostat = null;' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 'var bomExpanded = false;' +
@@ -658,10 +662,85 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '    }' +
 '}' +
+'window.selectPropertyType = function(type) {' +
+'    selectedPropertyType = type;' +
+'    var cards = document.querySelectorAll(\'#propertyTypeGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    document.getElementById(\'pt-\' + type).classList.add(\'selected\');' +
+'    window.applyPropertyTypeFloors(type);' +
+'};' +
+'window.applyPropertyTypeFloors = function(type) {' +
+'    floors = [];' +
+'    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'    if (type === \'house\') {' +
+'        window.addFloor(\'ground\');' +
+'        window.addFloor(\'upper\');' +
+'    } else if (type === \'bungalow\') {' +
+'        window.addFloor(\'ground\');' +
+'    } else if (type === \'flat\') {' +
+'        window.addFloor(\'ground\');' +
+'    } else if (type === \'maisonette\') {' +
+'        window.addFloor(\'ground\');' +
+'        window.addFloor(\'upper\');' +
+'    }' +
+'    window.renderFloors();' +
+'};' +
+'window.selectProjectType = function(type) {' +
+'    selectedProjectType = type;' +
+'    var cards = document.querySelectorAll(\'#projectTypeGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = {' +
+'        \'New Build\': \'proj-newbuild\',' +
+'        \'Renovation (Back to Brick)\': \'proj-backbrick\',' +
+'        \'Renovation (Light Touch)\': \'proj-lighttouch\'' +
+'    };' +
+'    document.getElementById(idMap[type]).classList.add(\'selected\');' +
+'    window.updateRecommendedBadge();' +
+'};' +
+'window.selectHeatSource = function(src) {' +
+'    selectedHeatSource = src;' +
+'    var cards = document.querySelectorAll(\'#heatSourceGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = { \'Boiler\': \'hs-boiler\', \'Heat Pump\': \'hs-heatpump\' };' +
+'    document.getElementById(idMap[src]).classList.add(\'selected\');' +
+'};' +
+'window.selectThermostat = function(type) {' +
+'    selectedThermostat = type;' +
+'    var cards = document.querySelectorAll(\'#thermostatGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = {' +
+'        \'Dial\': \'th-dial\',' +
+'        \'Wired Programmable\': \'th-wired\',' +
+'        \'Wireless\': \'th-wireless\'' +
+'    };' +
+'    document.getElementById(idMap[type]).classList.add(\'selected\');' +
+'};' +
+'window.updateRecommendedBadge = function() {' +
+'    var wired = document.getElementById(\'badge-wired\');' +
+'    var wireless = document.getElementById(\'badge-wireless\');' +
+'    if (selectedProjectType === \'New Build\' || selectedProjectType === \'Renovation (Back to Brick)\') {' +
+'        wired.style.display = \'\';' +
+'        wireless.style.display = \'none\';' +
+'    } else if (selectedProjectType === \'Renovation (Light Touch)\') {' +
+'        wired.style.display = \'none\';' +
+'        wireless.style.display = \'\';' +
+'    } else {' +
+'        wired.style.display = \'none\';' +
+'        wireless.style.display = \'none\';' +
+'    }' +
+'};' +
 'window.renderFloors = function() {' +
 '    try {' +
 '    var container = document.getElementById("floorList");' +
-'    var workType = document.getElementById("workType") ? document.getElementById("workType").value : "New Build";' +
+'    var workType = selectedProjectType || "New Build";' +
 '    var html = "";' +
 '    for (var fIdx = 0; fIdx < floors.length; fIdx++) {' +
 '        var floor = floors[fIdx];' +
@@ -990,9 +1069,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    .catch(function(err) { callback(err, null); });' +
 '};' +
 'window.calculateQuote = function() {' +
-'    var heatSource = document.getElementById("heatSource").value;' +
-'    var workType = document.getElementById("workType").value;' +
-'    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
+'    var heatSource = selectedHeatSource || "Boiler";' +
+'    var workType = selectedProjectType || "New Build";' +
+'    var thermostatType = selectedThermostat || "Dial";' +
+'    var targetMargin = 0;' +
 '    var priceLevelId = document.getElementById("priceLevel").value;' +
 '    var errors = [];' +
 '    var totalArea = 0;' +
@@ -1340,22 +1420,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    });' +
 '})();' +
 '(function() {' +
-'    /* Initialise with one ground floor, one manifold, one area */' +
-'    var initFloor = {' +
-'        id: generateId(),' +
-'        type: "ground",' +
-'        name: generateFloorName("ground"),' +
-'        floorType: "solid",' +
-'        expanded: true,' +
-'        manifolds: [{' +
-'            id: generateId(),' +
-'            name: "Manifold 1",' +
-'            floorType: "solid",' +
-'            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType("solid"), floorType: "solid", areaSqm: 20, thermostats: 1 }]' +
-'        }]' +
-'    };' +
-'    floors.push(initFloor);' +
+'    /* Floors start empty; property type selection populates them */' +
+'    window.renderFloors();' +
+'    window.selectProjectType(\'New Build\');' +
+'    window.selectHeatSource(\'Boiler\');' +
+'    window.selectThermostat(\'Wired Programmable\');' +
 '})();' +
 '</script>' +
 '</body>' +
