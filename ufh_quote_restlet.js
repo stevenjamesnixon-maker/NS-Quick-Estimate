@@ -109,7 +109,11 @@ define(['N/search', 'N/log'], function(search, log) {
                     'OR',
                     ['name', search.Operator.IS, 'DPL(175)14'],
                     'OR',
-                    ['name', search.Operator.IS, 'TF2(150)12']
+                    ['name', search.Operator.IS, 'TF2(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'LB2(150)12'],
+                    'OR',
+                    ['name', search.Operator.IS, 'UL2(150)12']
                 ]
             ],
             columns: [
