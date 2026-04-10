@@ -1168,7 +1168,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'window.calculateQuote = function() {' +
 '    var heatSource = selectedHeatSource || "Boiler";' +
 '    var workType = selectedProjectType || "New Build";' +
-'    var thermostatType = selectedThermostat || "Dial";' +
 '    var targetMargin = 0;' +
 '    var priceLevelId = document.getElementById("priceLevel").value;' +
 '    var errors = [];' +
