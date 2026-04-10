@@ -601,18 +601,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    { ports: 12, itemCode: "OMS12-C", description: "12-Port Optiflo control manifolds, stainless steel" }' +
 '];' +
 'var MANIFOLD_CONNECTION = { itemCode: "MCP-A", description: "Isolator pack for Optiflo manifolds" };' +
-'/* Thermostats — keyed by Thermostat Type dropdown value. */' +
-'var THERMOSTATS = {' +
-'    "Dial":               { itemCode: "DSSB5-C",      description: "Dial thermostat" },' +
-'    "Wired Programmable": { itemCode: "neoStatWv2-C", description: "White neoStat V2 thermostat, Mains Voltage (240V) wired connection" },' +
-'    "Wireless":           { itemCode: "neoAirWv3-C",  description: "Wireless thermostat" }' +
-'};' +
-'/* Wiring centres — keyed by Thermostat Type dropdown value. */' +
-'var WIRING_CENTRES = {' +
-'    "Dial":               { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre" },' +
-'    "Wired Programmable": { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre" },' +
-'    "Wireless":           { itemCode: "UH8RF-C", description: "UH8RF, 8 zone Wireless Wiring Centre" }' +
-'};' +
+'/* Thermostats */' +
+'var THERMOSTAT_DIAL     = { itemCode: "DSSB5-C",      description: "Dial stat thermostat", cost: 0, price: 0 };' +
+'var THERMOSTAT_WIRED    = { itemCode: "neoStatWv3-C", description: "White neoStat V3 thermostat, Mains Voltage (240V) wired connection", cost: 0, price: 0 };' +
+'var THERMOSTAT_WIRELESS = { itemCode: "neoAirWv3-C",  description: "neoAir V3 wireless thermostat", cost: 0, price: 0 };' +
+'/* Wiring centres */' +
+'var WIRING_CENTRE_WIRED    = { itemCode: "UH8-C",   description: "UH8, 8 zone 230V Wiring Centre", cost: 0, price: 0 };' +
+'var WIRING_CENTRE_WIRELESS = { itemCode: "UH8RF-C", description: "UH8-RF, 8 zone wireless wiring centre", cost: 0, price: 0 };' +
 'var ACTUATOR = { itemCode: "OMDA-C", description: "Zone valve actuator" };' +
 'var JUNCTION_BOX = { itemCode: "JB12-C", description: "Danfoss connection block" };' +
 'var PIPE_COILS = {' +
@@ -1262,8 +1257,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            selectedManifoldData.push(manifoldData);' +
 '        }' +
 '    }' +
-'    var selectedThermostat = THERMOSTATS[thermostatType] || THERMOSTATS["Dial"];' +
-'    var selectedWiringCentre = WIRING_CENTRES[thermostatType] || WIRING_CENTRES["Dial"];' +
+'    var activeThermostat = selectedThermostat === "Dial" ? THERMOSTAT_DIAL : (selectedThermostat === "Wireless" ? THERMOSTAT_WIRELESS : THERMOSTAT_WIRED);' +
+'    var activeWiringCentre = selectedThermostat === "Wireless" ? WIRING_CENTRE_WIRELESS : WIRING_CENTRE_WIRED;' +
 '    /* Wiring centre quantity = max(ceil(thermostats/8), number of manifolds) */' +
 '    var wiringCentres = Math.max(Math.ceil(totalThermostats / 8), totalManifolds);' +
 '    var junctionBoxes = (heatSource !== "Heat Pump" && totalPorts > 0) ? Math.ceil(totalPorts / 12) : 0;' +
@@ -1293,8 +1288,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    itemCodesObj[selectedPump.itemCode] = true;' +
 '    for (var smi = 0; smi < selectedManifoldData.length; smi++) { itemCodesObj[selectedManifoldData[smi].itemCode] = true; }' +
 '    itemCodesObj[MANIFOLD_CONNECTION.itemCode] = true;' +
-'    if (totalThermostats > 0) { itemCodesObj[selectedThermostat.itemCode] = true; }' +
-'    if (wiringCentres > 0) { itemCodesObj[selectedWiringCentre.itemCode] = true; }' +
+'    itemCodesObj[THERMOSTAT_DIAL.itemCode] = true;' +
+'    itemCodesObj[THERMOSTAT_WIRED.itemCode] = true;' +
+'    itemCodesObj[THERMOSTAT_WIRELESS.itemCode] = true;' +
+'    itemCodesObj[WIRING_CENTRE_WIRED.itemCode] = true;' +
+'    itemCodesObj[WIRING_CENTRE_WIRELESS.itemCode] = true;' +
 '    if (totalPorts > 0) {' +
 '        itemCodesObj[ACTUATOR.itemCode] = true;' +
 '        if (heatSource !== "Heat Pump" && junctionBoxes > 0) { itemCodesObj[JUNCTION_BOX.itemCode] = true; }' +
@@ -1334,12 +1332,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        var mcPrice = getPrice(MANIFOLD_CONNECTION.itemCode);' +
 '        lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: totalManifolds, price: mcPrice, totalPrice: mcPrice * totalManifolds });' +
 '        if (totalThermostats > 0) {' +
-'            var thPrice = getPrice(selectedThermostat.itemCode);' +
-'            lineItems.push({ section: "Controls", description: selectedThermostat.description + " (" + selectedThermostat.itemCode + ")", quantity: totalThermostats, price: thPrice, totalPrice: thPrice * totalThermostats });' +
+'            var thPrice = getPrice(activeThermostat.itemCode);' +
+'            lineItems.push({ section: "Controls", description: activeThermostat.description + " (" + activeThermostat.itemCode + ")", quantity: totalThermostats, price: thPrice, totalPrice: thPrice * totalThermostats });' +
 '        }' +
 '        if (wiringCentres > 0) {' +
-'            var wcPrice = getPrice(selectedWiringCentre.itemCode);' +
-'            lineItems.push({ section: "Controls", description: selectedWiringCentre.description + " (" + selectedWiringCentre.itemCode + ")", quantity: wiringCentres, price: wcPrice, totalPrice: wcPrice * wiringCentres });' +
+'            var wcPrice = getPrice(activeWiringCentre.itemCode);' +
+'            lineItems.push({ section: "Controls", description: activeWiringCentre.description + " (" + activeWiringCentre.itemCode + ")", quantity: wiringCentres, price: wcPrice, totalPrice: wcPrice * wiringCentres });' +
 '        }' +
 '        if (totalPorts > 0) {' +
 '            var actPrice = getPrice(ACTUATOR.itemCode);' +
