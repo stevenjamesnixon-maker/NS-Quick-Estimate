@@ -270,17 +270,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border-bottom: 1px solid var(--nh-grey-border);' +
 '        }' +
 '        .manifold-card-header .manifold-title { font-weight: 600; font-size: 12px; color: var(--nh-teal-dark); white-space: nowrap; }' +
-'        .manifold-card-header .manifold-type-select {' +
-'            flex: 1;' +
-'            max-width: 200px;' +
-'            padding: 3px 7px;' +
-'            font-size: 12px;' +
-'            border: 1px solid var(--nh-grey-border);' +
-'            border-radius: 4px;' +
-'            background: var(--nh-white);' +
-'            color: var(--nh-text-dark);' +
-'            font-family: \'Raleway\', sans-serif;' +
-'        }' +
 '        .manifold-card-header .manifold-ports { font-size: 11px; color: var(--nh-text); white-space: nowrap; }' +
 '        .manifold-card-header .btn-danger { padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
 '        .manifold-card-body { padding: 12px 14px; }' +
@@ -372,8 +361,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .bom-header:hover { background: #eeeeec; }' +
 '        .bom-section-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #fafafa; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--nh-text-dark); border-bottom: 1px solid var(--nh-grey-border); }' +
 '        .bom-section-header:hover { background: #f0f0ee; }' +
-'        .bom-section-content { display: none; }' +
-'        .bom-content { display: none; }' +
+'        /* .bom-content and .bom-section-content visibility is controlled by JS style.display only */' +
 '        .results-table { width: 100%; border-collapse: collapse; font-size: 13px; }' +
 '        .results-table th { background: var(--nh-grey-light); padding: 8px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--nh-text); border-bottom: 1px solid var(--nh-grey-border); }' +
 '        .results-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; color: var(--nh-text-dark); }' +
@@ -825,10 +813,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            html += "<div class=\\"manifold-card-header\\">";' +
 '            html += "<span class=\\"manifold-title\\">" + manifold.name + "</span>";' +
 '            html += "<span class=\\"manifold-ports" + (hasError ? " error" : "") + "\\">" + ports + " Ports</span>";' +
-'            html += "<select class=\\"manifold-type-select\\" onchange=\\"window.updateManifoldFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', this.value)\\">";' +
-'            html += "<option value=\\"solid\\"" + (manifold.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
-'            html += "<option value=\\"joisted\\"" + (manifold.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
-'            html += "</select>";' +
 '            html += "<button class=\\"btn btn-danger\\" onclick=\\"window.removeManifold(\'" + floor.id + "\', \'" + manifold.id + "\')\\">" + (floor.manifolds.length <= 1 ? "<span style=\\"opacity:0.4;\\">Remove</span>" : "Remove") + "</button>";' +
 '            html += "</div>";' +
 '            html += "<div class=\\"manifold-card-body\\">";' +
@@ -1077,27 +1061,26 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    return "\\u00A3" + value.toFixed(2);' +
 '}' +
 'window.toggleBom = function() {' +
-'    bomExpanded = !bomExpanded;' +
 '    var content = document.getElementById("bomContent");' +
 '    var chevron = document.getElementById("bomChevron");' +
-'    if (bomExpanded) {' +
-'        content.classList.add("expanded");' +
-'        chevron.classList.add("down");' +
+'    if (content.style.display === "block") {' +
+'        content.style.display = "none";' +
+'        chevron.textContent = "\u25B6";' +
 '    } else {' +
-'        content.classList.remove("expanded");' +
-'        chevron.classList.remove("down");' +
+'        content.style.display = "block";' +
+'        chevron.textContent = "\u25BC";' +
 '    }' +
 '};' +
 'window.toggleBomSection = function(section) {' +
-'    expandedSections[section] = !expandedSections[section];' +
-'    var content = document.getElementById("bomSection_" + section.replace(/ /g, "_"));' +
-'    var chevron = document.getElementById("bomSectionChevron_" + section.replace(/ /g, "_"));' +
-'    if (expandedSections[section]) {' +
-'        content.classList.add("expanded");' +
-'        chevron.classList.add("down");' +
+'    var sectionId = section.replace(/ /g, "_");' +
+'    var content = document.getElementById("bomSection_" + sectionId);' +
+'    var chevron = document.getElementById("bomSectionChevron_" + sectionId);' +
+'    if (content.style.display === "block") {' +
+'        content.style.display = "none";' +
+'        chevron.textContent = "\u25B6";' +
 '    } else {' +
-'        content.classList.remove("expanded");' +
-'        chevron.classList.remove("down");' +
+'        content.style.display = "block";' +
+'        chevron.textContent = "\u25BC";' +
 '    }' +
 '};' +
 'window.copyQuoteDescription = function() {' +
