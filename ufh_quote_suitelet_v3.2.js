@@ -644,6 +644,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'var selectedThermostat = null;' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'var FLOOR_ORDER = { basement: 1, lowerground: 2, ground: 3, upper: 4 };' +
 'var bomExpanded = false;' +
 'var expandedSections = {};' +
 'function generateId() {' +
@@ -904,7 +905,18 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
-'    floors.push(newFloor);' +
+'    /* Insert floor at correct sorted position based on FLOOR_ORDER */' +
+'    var inserted = false;' +
+'    for (var fi = 0; fi < floors.length; fi++) {' +
+'        if (FLOOR_ORDER[floors[fi].type] > FLOOR_ORDER[newFloor.type]) {' +
+'            floors.splice(fi, 0, newFloor);' +
+'            inserted = true;' +
+'            break;' +
+'        }' +
+'    }' +
+'    if (!inserted) {' +
+'        floors.push(newFloor);' +
+'    }' +
 '    window.renderFloors();' +
 '};' +
 'window.removeFloor = function(floorId) {' +
