@@ -59,384 +59,503 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    <meta charset="UTF-8">' +
 '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' +
 '    <style>' +
+'        @import url(\'https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap\');' +
+'        /* === Nu-Heat Brand Tokens === */' +
 '        :root {' +
-'            --nuheat-green: #2E7D32;' +
-'            --nuheat-green-light: #4CAF50;' +
-'            --nuheat-green-dark: #1B5E20;' +
+'            --nh-teal: #00857D;' +
+'            --nh-teal-dark: #006b64;' +
+'            --nh-yellow: #FFB500;' +
+'            --nh-yellow-light: #fff8e1;' +
+'            --nh-magenta: #AA0061;' +
+'            --nh-purple: #59315F;' +
+'            --nh-text: #53565A;' +
+'            --nh-text-dark: #2d2d2d;' +
+'            --nh-grey-light: #f5f5f5;' +
+'            --nh-grey-border: #ddd;' +
+'            --nh-white: #ffffff;' +
+'            --nh-bg: #f7f7f5;' +
 '        }' +
-'        .quote-container {' +
-'            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;' +
-'            max-width: 1200px;' +
-'            margin: 0 auto;' +
-'            padding: 20px;' +
-'            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);' +
-'            min-height: 100vh;' +
+'        /* === Base === */' +
+'        * { box-sizing: border-box; margin: 0; padding: 0; }' +
+'        body {' +
+'            font-family: \'Raleway\', sans-serif;' +
+'            background: var(--nh-bg);' +
+'            color: var(--nh-text);' +
+'            font-size: 15px;' +
+'            line-height: 1.6;' +
 '        }' +
-'        .header { text-align: center; margin-bottom: 30px; }' +
-'        .header h1 { color: var(--nuheat-green); font-size: 28px; margin-bottom: 8px; }' +
-'        .header p { color: #64748b; font-size: 14px; }' +
-'        .card {' +
-'            background: white;' +
-'            border-radius: 12px;' +
-'            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);' +
-'            padding: 24px;' +
-'            margin-bottom: 20px;' +
+'        /* === Header === */' +
+'        .nh-header {' +
+'            background: var(--nh-teal);' +
+'            padding: 10px 32px;' +
+'            min-height: 8px;' +
 '        }' +
-'        .card-title {' +
+'        .nh-header-logo {' +
+'            color: var(--nh-white);' +
+'            font-size: 22px;' +
+'            font-weight: 800;' +
+'            letter-spacing: -0.5px;' +
+'        }' +
+'        .nh-header-logo span { font-weight: 300; }' +
+'        /* === Hero === */' +
+'        .nh-hero {' +
+'            background: var(--nh-white);' +
+'            text-align: center;' +
+'            padding: 36px 32px 28px;' +
+'            border-bottom: 1px solid var(--nh-grey-border);' +
+'        }' +
+'        .nh-hero h1 {' +
+'            font-size: 36px;' +
+'            font-weight: 800;' +
+'            color: var(--nh-purple);' +
+'            margin-bottom: 12px;' +
+'            letter-spacing: -0.5px;' +
+'        }' +
+'        .nh-hero p {' +
 '            font-size: 16px;' +
-'            font-weight: 600;' +
-'            color: #1e293b;' +
-'            margin-bottom: 16px;' +
+'            color: var(--nh-text);' +
+'            max-width: 720px;' +
+'            margin: 0 auto;' +
+'            font-weight: 400;' +
+'            line-height: 1.7;' +
+'        }' +
+'        /* === Page wrapper === */' +
+'        .nh-page {' +
+'            max-width: 1400px;' +
+'            margin: 0 auto;' +
+'            padding: 24px 32px 64px;' +
+'        }' +
+'        /* === Section === */' +
+'        .nh-section {' +
+'            margin-bottom: 36px;' +
+'            background: var(--nh-white);' +
+'            border-radius: 8px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            overflow: hidden;' +
+'        }' +
+'        .nh-section-header {' +
+'            background: var(--nh-teal);' +
+'            padding: 12px 20px;' +
+'            color: var(--nh-white);' +
+'            font-size: 14px;' +
+'            font-weight: 700;' +
+'            letter-spacing: 1px;' +
+'            text-transform: uppercase;' +
 '            display: flex;' +
 '            align-items: center;' +
-'            gap: 8px;' +
+'            gap: 10px;' +
 '        }' +
-'        .top-inputs {' +
-'            display: grid;' +
-'            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));' +
-'            gap: 16px;' +
-'        }' +
-'        .form-group { display: flex; flex-direction: column; }' +
-'        .form-group label {' +
-'            font-size: 12px;' +
-'            color: #64748b;' +
-'            margin-bottom: 6px;' +
-'            font-weight: 500;' +
-'        }' +
-'        .form-group input, .form-group select {' +
-'            padding: 10px 12px;' +
-'            border: 1px solid #e2e8f0;' +
-'            border-radius: 8px;' +
-'            font-size: 14px;' +
-'            transition: all 0.2s;' +
-'        }' +
-'        .form-group input:focus, .form-group select:focus {' +
-'            outline: none;' +
-'            border-color: var(--nuheat-green);' +
-'            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);' +
-'        }' +
-'        .btn {' +
-'            padding: 10px 20px;' +
-'            border-radius: 8px;' +
-'            font-size: 14px;' +
-'            font-weight: 500;' +
-'            cursor: pointer;' +
-'            transition: all 0.2s;' +
+'        .nh-step-num {' +
 '            display: inline-flex;' +
 '            align-items: center;' +
-'            gap: 8px;' +
-'        }' +
-'        .btn-primary {' +
-'            background: var(--nuheat-green);' +
-'            color: white;' +
-'            border: none;' +
-'        }' +
-'        .btn-primary:hover { background: var(--nuheat-green-dark); }' +
-'        .btn-secondary {' +
-'            background: white;' +
-'            color: var(--nuheat-green);' +
-'            border: 1px solid var(--nuheat-green);' +
-'        }' +
-'        .btn-secondary:hover { background: rgba(46, 125, 50, 0.05); }' +
-'        .btn-danger {' +
-'            background: #fee2e2;' +
-'            color: #dc2626;' +
-'            border: none;' +
-'            padding: 6px 10px;' +
-'        }' +
-'        .btn-danger:hover { background: #fecaca; }' +
-'        .btn-copy {' +
-'            background: var(--nuheat-green);' +
-'            color: white;' +
-'            border: none;' +
-'            padding: 8px 16px;' +
-'            font-size: 13px;' +
-'        }' +
-'        .btn-copy:hover { background: var(--nuheat-green-dark); }' +
-'        .btn-copy.copied { background: #22c55e; }' +
-'        .manifold-card {' +
-'            border: 1px solid #e2e8f0;' +
-'            border-radius: 10px;' +
-'            margin-bottom: 16px;' +
-'            overflow: hidden;' +
-'        }' +
-'        .manifold-header {' +
-'            background: #f8fafc;' +
-'            padding: 12px 16px;' +
-'            display: flex;' +
-'            justify-content: space-between;' +
-'            align-items: center;' +
-'            cursor: pointer;' +
-'            border-bottom: 1px solid #e2e8f0;' +
-'        }' +
-'        .manifold-header:hover { background: #f1f5f9; }' +
-'        .manifold-title {' +
-'            font-weight: 600;' +
-'            color: #1e293b;' +
-'            display: flex;' +
-'            align-items: center;' +
-'            gap: 8px;' +
-'        }' +
-'        .manifold-info { display: flex; align-items: center; gap: 16px; }' +
-'        .port-badge {' +
-'            background: var(--nuheat-green);' +
-'            color: white;' +
-'            padding: 4px 12px;' +
-'            border-radius: 20px;' +
+'            justify-content: center;' +
+'            width: 22px;' +
+'            height: 22px;' +
+'            border-radius: 50%;' +
+'            background: rgba(255,255,255,0.25);' +
 '            font-size: 12px;' +
-'            font-weight: 500;' +
+'            font-weight: 800;' +
+'            flex-shrink: 0;' +
 '        }' +
-'        .port-badge.error { background: #dc2626; }' +
-'        .manifold-content { padding: 16px; display: none; }' +
-'        .manifold-content.expanded { display: block; }' +
-'        .area-row {' +
+'        .nh-section-body { padding: 24px 20px; }' +
+'        .nh-section-header h2 { font-size: inherit; font-weight: inherit; margin: 0; }' +
+'        /* === Config sections === */' +
+'        .nh-config-section {' +
 '            display: flex;' +
-'            flex-direction: row;' +
-'            align-items: flex-end;' +
-'            gap: 12px;' +
-'            flex-wrap: wrap;' +
-'            padding: 8px 0;' +
-'        }' +
-'        .error-message {' +
-'            background: #fef2f2;' +
-'            border: 1px solid #fecaca;' +
-'            color: #dc2626;' +
-'            padding: 12px 16px;' +
-'            border-radius: 8px;' +
-'            margin-top: 12px;' +
-'            font-size: 13px;' +
-'        }' +
-'        .results-section { margin-top: 30px; }' +
-'        .summary-grid {' +
-'            display: grid;' +
-'            grid-template-columns: repeat(3, 1fr);' +
-'            gap: 16px;' +
-'            margin-bottom: 20px;' +
-'        }' +
-'        @media (max-width: 768px) {' +
-'            .summary-grid { grid-template-columns: 1fr; }' +
-'        }' +
-'        .summary-box {' +
-'            background: #f8fafc;' +
-'            border-radius: 8px;' +
-'            padding: 16px;' +
-'        }' +
-'        .summary-box.highlight {' +
-'            background: #E8F5E9;' +
-'        }' +
-'        .summary-box p.label {' +
-'            font-size: 12px;' +
-'            color: #64748b;' +
-'            margin: 0 0 4px 0;' +
-'        }' +
-'        .summary-box.highlight p.label {' +
-'            color: var(--nuheat-green);' +
-'        }' +
-'        .summary-box p.value {' +
-'            font-size: 20px;' +
-'            font-weight: 700;' +
-'            color: #374151;' +
-'            margin: 0;' +
-'        }' +
-'        .summary-box.highlight p.value {' +
-'            font-size: 24px;' +
-'            color: var(--nuheat-green);' +
-'        }' +
-'        .quote-description-box {' +
-'            border: 1px solid #e2e8f0;' +
-'            border-radius: 8px;' +
-'            margin-bottom: 20px;' +
-'            overflow: hidden;' +
-'        }' +
-'        .quote-description-header {' +
-'            background: #E8F5E9;' +
-'            padding: 12px 16px;' +
-'            display: flex;' +
-'            justify-content: space-between;' +
-'            align-items: center;' +
-'        }' +
-'        .quote-description-header h4 {' +
-'            font-size: 14px;' +
-'            font-weight: 600;' +
-'            color: var(--nuheat-green);' +
-'            margin: 0;' +
-'        }' +
-'        .quote-description-content {' +
-'            padding: 16px;' +
-'            background: white;' +
-'            font-family: monospace;' +
-'            font-size: 13px;' +
-'            line-height: 1.6;' +
-'            color: #374151;' +
-'        }' +
-'        .quote-description-content .title {' +
-'            font-weight: 600;' +
-'            color: #1f2937;' +
-'            margin-bottom: 8px;' +
-'        }' +
-'        .quote-description-content .price-line {' +
-'            border-top: 1px solid #e2e8f0;' +
-'            margin-top: 12px;' +
-'            padding-top: 12px;' +
-'            font-weight: 600;' +
-'            font-size: 16px;' +
-'            color: var(--nuheat-green);' +
-'        }' +
-'        .quote-description-content .disclaimer {' +
-'            font-size: 11px;' +
-'            color: #6b7280;' +
-'            margin-top: 8px;' +
-'        }' +
-'        .bom-collapsible {' +
-'            border: 1px solid #e2e8f0;' +
-'            border-radius: 8px;' +
-'            overflow: hidden;' +
-'        }' +
-'        .bom-header {' +
-'            background: #f8fafc;' +
-'            padding: 12px 16px;' +
-'            display: flex;' +
-'            justify-content: space-between;' +
-'            align-items: center;' +
-'            cursor: pointer;' +
-'        }' +
-'        .bom-header:hover { background: #f1f5f9; }' +
-'        .bom-header h3 {' +
-'            font-size: 16px;' +
-'            font-weight: 600;' +
-'            color: #1e293b;' +
-'            margin: 0;' +
-'        }' +
-'        .bom-header .item-count {' +
-'            font-size: 13px;' +
-'            color: #64748b;' +
-'            margin-right: 8px;' +
-'        }' +
-'        .bom-content { display: none; padding: 16px; }' +
-'        .bom-content.expanded { display: block; }' +
-'        .bom-section {' +
-'            border: 1px solid #f1f5f9;' +
+'            align-items: flex-start;' +
+'            gap: 24px;' +
+'            padding: 16px 20px;' +
+'            background: #f0f0ee;' +
 '            border-radius: 6px;' +
+'            margin-bottom: 12px;' +
+'        }' +
+'        .nh-config-section:last-child { margin-bottom: 0; }' +
+'        .nh-config-label {' +
+'            flex-shrink: 0;' +
+'            width: 160px;' +
+'            padding-top: 6px;' +
+'        }' +
+'        .nh-config-label-title { font-size: 13px; font-weight: 700; color: var(--nh-text-dark); margin-bottom: 4px; }' +
+'        .nh-config-label-hint { font-size: 11px; font-weight: 400; color: var(--nh-text); line-height: 1.4; }' +
+'        .nh-config-cards { flex: 1; }' +
+'        /* === Collapsible panel === */' +
+'        .nh-collapsible-toggle {' +
+'            display: flex;' +
+'            justify-content: space-between;' +
+'            align-items: center;' +
+'            cursor: pointer;' +
+'            padding: 0;' +
+'            background: none;' +
+'            border: none;' +
+'            width: 100%;' +
+'        }' +
+'        .nh-collapsible-toggle:hover .nh-section-header { background: var(--nh-teal-dark); }' +
+'        .nh-collapsible-body { overflow: hidden; transition: max-height 0.25s ease; }' +
+'        .nh-collapsible-body.collapsed { display: none; }' +
+'        .nh-collapse-chevron {' +
+'            color: var(--nh-white);' +
+'            font-size: 13px;' +
+'            margin-left: 12px;' +
+'            transition: transform 0.2s;' +
+'            flex-shrink: 0;' +
+'        }' +
+'        .nh-collapse-chevron.open { transform: rotate(180deg); }' +
+'        /* === Card grid === */' +
+'        .nh-card-grid { display: flex; flex-wrap: wrap; gap: 12px; }' +
+'        .nh-card {' +
+'            flex: 0 0 120px;' +
+'            width: 120px;' +
+'            max-width: 120px;' +
+'            min-height: 90px;' +
+'            border: 2px solid var(--nh-grey-border);' +
+'            border-radius: 8px;' +
+'            padding: 12px 10px 10px;' +
+'            text-align: center;' +
+'            cursor: pointer;' +
+'            background: var(--nh-white);' +
+'            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;' +
+'            position: relative;' +
+'            user-select: none;' +
+'        }' +
+'        .nh-card:hover { border-color: var(--nh-teal); box-shadow: 0 2px 8px rgba(0,133,125,0.12); }' +
+'        .nh-card.selected { border-color: var(--nh-teal); background: #e8f4f3; box-shadow: 0 2px 10px rgba(0,133,125,0.18); }' +
+'        .nh-card.selected .nh-card-label { color: var(--nh-teal-dark); }' +
+'        .nh-card-icon { margin-bottom: 6px; display: flex; justify-content: center; align-items: center; height: 32px; }' +
+'        .nh-card-icon svg {' +
+'            width: 26px; height: 26px;' +
+'            stroke: var(--nh-teal); fill: none;' +
+'            stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;' +
+'            transition: stroke 0.15s;' +
+'        }' +
+'        .nh-card.selected .nh-card-icon svg { stroke: var(--nh-teal); }' +
+'        .nh-card-label { font-size: 11px; font-weight: 700; color: var(--nh-text-dark); line-height: 1.3; }' +
+'        /* === Recommended badge === */' +
+'        .nh-badge-recommended {' +
+'            position: absolute; top: -1px; right: -1px;' +
+'            background: var(--nh-magenta); color: var(--nh-white);' +
+'            font-size: 9px; font-weight: 700; letter-spacing: 0.5px;' +
+'            text-transform: uppercase; padding: 3px 7px;' +
+'            border-radius: 0 6px 0 6px;' +
+'        }' +
+'        /* === Floors section === */' +
+'        .nh-floors-actions-top { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }' +
+'        .nh-floors-actions-bottom { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }' +
+'        /* === Floor card === */' +
+'        .floor-card {' +
+'            background: var(--nh-grey-light);' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 8px;' +
 '            margin-bottom: 12px;' +
 '            overflow: hidden;' +
 '        }' +
-'        .bom-section-header {' +
-'            background: #f8fafc;' +
-'            padding: 8px 12px;' +
+'        .floor-card-header {' +
+'            background: #e9e9e7;' +
+'            color: var(--nh-text-dark);' +
+'            padding: 8px 14px;' +
 '            display: flex;' +
-'            justify-content: space-between;' +
 '            align-items: center;' +
-'            cursor: pointer;' +
+'            justify-content: space-between;' +
+'            gap: 12px;' +
+'            border-bottom: 1px solid var(--nh-grey-border);' +
+'        }' +
+'        .floor-card-header .floor-title { font-weight: 700; font-size: 13px; white-space: nowrap; color: var(--nh-text-dark); }' +
+'        .floor-card-header .floor-type-select {' +
+'            flex: 1;' +
+'            max-width: 220px;' +
+'            padding: 4px 8px;' +
+'            font-size: 12px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 4px;' +
+'            background: var(--nh-white);' +
+'            color: var(--nh-text-dark);' +
+'            font-family: \'Raleway\', sans-serif;' +
+'        }' +
+'        .floor-card-header .btn-danger { border-color: #bbb; color: #c0392b; padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
+'        .floor-card-header .btn-danger:hover { background: #fdf2f2; }' +
+'        .floor-card-body { padding: 16px; }' +
+'        /* === Manifold card === */' +
+'        .manifold-card {' +
+'            background: var(--nh-white);' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 6px;' +
+'            margin-bottom: 10px;' +
+'            overflow: hidden;' +
+'        }' +
+'        .manifold-card-header {' +
+'            background: var(--nh-white);' +
+'            padding: 10px 14px;' +
+'            display: flex;' +
+'            align-items: center;' +
+'            justify-content: space-between;' +
+'            gap: 10px;' +
+'            border-bottom: 2px solid var(--nh-grey-border);' +
+'        }' +
+'        .manifold-card-header .manifold-title { font-weight: 700; font-size: 14px; color: var(--nh-text-dark); white-space: nowrap; }' +
+'        .manifold-card-header .manifold-ports { font-size: 13px; font-weight: 700; color: var(--nh-text); white-space: nowrap; }' +
+'        .manifold-card-header .btn-danger { padding: 4px 10px; font-size: 12px; font-weight: 700; flex-shrink: 0; }' +
+'        .manifold-card-body { padding: 12px 14px; }' +
+'        /* === Area rows === */' +
+'        .area-row {' +
+'            display: flex;' +
+'            flex-wrap: wrap;' +
+'            gap: 8px;' +
+'            align-items: center;' +
+'            padding: 8px 0;' +
+'            border-bottom: 1px solid var(--nh-grey-border);' +
+'        }' +
+'        .area-row:last-child { border-bottom: none; }' +
+'        /* === Form elements === */' +
+'        label {' +
+'            font-size: 12px;' +
+'            font-weight: 600;' +
+'            color: var(--nh-text);' +
+'            display: block;' +
+'            margin-bottom: 4px;' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.4px;' +
+'        }' +
+'        input[type="number"], input[type="text"], select {' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 4px;' +
+'            padding: 7px 10px;' +
+'            font-family: \'Raleway\', sans-serif;' +
 '            font-size: 14px;' +
-'            font-weight: 500;' +
-'            color: #374151;' +
+'            color: var(--nh-text-dark);' +
+'            background: var(--nh-white);' +
+'            width: 100%;' +
+'            transition: border-color 0.15s;' +
 '        }' +
-'        .bom-section-header:hover { background: #f1f5f9; }' +
-'        .bom-section-content { display: none; }' +
-'        .bom-section-content.expanded { display: block; }' +
-'        .results-table { width: 100%; border-collapse: collapse; font-size: 14px; }' +
-'        .results-table th {' +
-'            text-align: left;' +
-'            padding: 12px;' +
-'            background: #f8fafc;' +
-'            color: #64748b;' +
-'            font-weight: 500;' +
-'            border-bottom: 2px solid #e2e8f0;' +
+'        input[type="number"]:focus, input[type="text"]:focus, select:focus {' +
+'            outline: none;' +
+'            border-color: var(--nh-teal);' +
 '        }' +
-'        .results-table th:last-child,' +
-'        .results-table th:nth-child(3),' +
-'        .results-table th:nth-child(4) { text-align: right; }' +
-'        .results-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }' +
-'        .results-table td:last-child,' +
-'        .results-table td:nth-child(3),' +
-'        .results-table td:nth-child(4) { text-align: right; }' +
-'        .hidden { display: none; }' +
-'        .actions { display: flex; gap: 12px; margin-top: 20px; }' +
-'        .chevron { transition: transform 0.2s; }' +
-'        .chevron.down { transform: rotate(90deg); }' +
-'        .fc-spinner {' +
-'            display: flex; align-items: center; gap: 8px;' +
-'            font-size: 13px; color: #64748b; padding: 10px 12px;' +
-'            border: 1px solid #e2e8f0; border-radius: 8px;' +
+'        /* === Buttons === */' +
+'        .btn {' +
+'            display: inline-flex;' +
+'            align-items: center;' +
+'            gap: 6px;' +
+'            padding: 9px 18px;' +
+'            border-radius: 4px;' +
+'            font-family: \'Raleway\', sans-serif;' +
+'            font-size: 13px;' +
+'            font-weight: 700;' +
+'            cursor: pointer;' +
+'            border: none;' +
+'            transition: background 0.15s, box-shadow 0.15s;' +
+'            letter-spacing: 0.3px;' +
 '        }' +
-'        .fc-spinner::before {' +
-'            content: ""; width: 14px; height: 14px;' +
-'            border: 2px solid #e2e8f0; border-top-color: var(--nuheat-green);' +
-'            border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;' +
+'        .btn-primary { background: var(--nh-teal); color: var(--nh-white); }' +
+'        .btn-primary:hover { background: var(--nh-teal-dark); box-shadow: 0 2px 8px rgba(0,133,125,0.25); }' +
+'        .btn-secondary { background: var(--nh-white); color: var(--nh-teal); border: 1px solid var(--nh-teal); }' +
+'        .btn-secondary:hover { background: #e8f4f3; }' +
+'        .btn-danger { background: transparent; color: #c0392b; border: 1px solid #c0392b; padding: 5px 10px; font-size: 12px; }' +
+'        .btn-danger:hover { background: #fdf2f2; }' +
+'        .btn-sm { padding: 6px 12px; font-size: 12px; }' +
+'        /* === Calculate row === */' +
+'        .nh-calculate-row {' +
+'            display: flex;' +
+'            align-items: flex-end;' +
+'            gap: 16px;' +
+'            flex-wrap: wrap;' +
+'            background: var(--nh-white);' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 8px;' +
+'            padding: 20px;' +
+'            margin-bottom: 24px;' +
 '        }' +
-'        .fc-error-inline {' +
-'            font-size: 12px; color: #dc2626; padding: 6px 10px;' +
-'            border: 1px solid #fecaca; border-radius: 8px; background: #fef2f2;' +
-'        }' +
+'        .nh-calculate-row .price-level-group { flex: 1; min-width: 180px; max-width: 260px; }' +
+'        .nh-calculate-row .calc-btn-group { flex-shrink: 0; }' +
+'        /* === Results === */' +
+'        .nh-results { background: var(--nh-white); border: 1px solid var(--nh-grey-border); border-radius: 8px; overflow: hidden; }' +
+'        .nh-results-header { background: var(--nh-teal); padding: 12px 20px; }' +
+'        .nh-results-header h2 { color: var(--nh-white); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }' +
+'        .nh-results-body { padding: 24px 20px; }' +
+'        .summary-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }' +
+'        .summary-box { flex: 1; min-width: 160px; border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 14px 16px; text-align: center; }' +
+'        .summary-box.highlight { border-color: var(--nh-teal); background: #e8f4f3; }' +
+'        .summary-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--nh-text); margin-bottom: 6px; }' +
+'        .summary-box .value { font-size: 22px; font-weight: 800; color: var(--nh-purple); }' +
+'        .summary-box.highlight .value { color: var(--nh-teal-dark); }' +
+'        /* === BOM === */' +
+'        .bom-collapsible { border: 1px solid var(--nh-grey-border); border-radius: 6px; overflow: hidden; }' +
+'        .bom-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--nh-grey-light); cursor: pointer; font-weight: 700; font-size: 14px; color: var(--nh-text-dark); }' +
+'        .bom-header:hover { background: #eeeeec; }' +
+'        .bom-section-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #fafafa; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--nh-text-dark); border-bottom: 1px solid var(--nh-grey-border); }' +
+'        .bom-section-header:hover { background: #f0f0ee; }' +
+'        /* .bom-content and .bom-section-content visibility is controlled by JS style.display only */' +
+'        .results-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }' +
+'        .results-table col.col-desc { width: 55%; }' +
+'        .results-table col.col-qty { width: 10%; }' +
+'        .results-table col.col-unit { width: 17%; }' +
+'        .results-table col.col-total { width: 18%; }' +
+'        .results-table th { background: var(--nh-grey-light); padding: 8px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--nh-text); border-bottom: 1px solid var(--nh-grey-border); }' +
+'        .results-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; color: var(--nh-text-dark); }' +
+'        .results-table tr:last-child td { border-bottom: none; }' +
+'        .item-count { font-size: 12px; color: var(--nh-text); margin-right: 8px; font-weight: 400; }' +
+'        .chevron { font-size: 11px; color: var(--nh-teal); }' +
+'        /* === Spinner / FC error === */' +
+'        .fc-spinner { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--nh-text); padding: 7px 10px; border: 1px solid var(--nh-grey-border); border-radius: 4px; }' +
+'        .fc-spinner::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--nh-grey-border); border-top-color: var(--nh-teal); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }' +
+'        .fc-error-inline { font-size: 12px; color: #c0392b; padding: 6px 10px; border: 1px solid #f5c6cb; border-radius: 4px; background: #fdf2f2; }' +
 '        @keyframes spin { to { transform: rotate(360deg); } }' +
-'        .floor-card { border-left: 4px solid #2d6a2d; background: #f0f4f0; padding: 16px; margin-bottom: 16px; border-radius: 8px; }' +
-'        .floor-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 700; cursor: pointer; }' +
-'        .floor-title { display: flex; align-items: center; gap: 8px; }' +
-'        .floor-content { display: none; padding-top: 12px; }' +
-'        .floor-content.expanded { display: block; }' +
-'        .floor-controls { display: flex; align-items: center; gap: 8px; }' +
+'        /* === Error messages === */' +
+'        .error-message { background: #fdf2f2; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: #721c24; }' +
+'        /* === Quote description === */' +
+'        .quote-description { background: var(--nh-grey-light); border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }' +
+'        .price-line { font-size: 18px; font-weight: 800; color: var(--nh-teal-dark); margin-top: 12px; }' +
+'        .disclaimer { font-size: 12px; color: var(--nh-text); margin-top: 8px; font-style: italic; }' +
+'        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: 4px; font-family: \'Raleway\', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }' +
+'        .copy-btn.copied { background: var(--nh-teal); color: var(--nh-white); }' +
+'        /* === Utility === */' +
+'        .hidden { display: none !important; }' +
+'        .mt-8 { margin-top: 8px; }' +
+'        .mt-12 { margin-top: 12px; }' +
+'        /* === Responsive === */' +
+'        @media (max-width: 600px) {' +
+'            .nh-hero h1 { font-size: 26px; }' +
+'            .nh-card { flex: 1 1 120px; }' +
+'            .nh-calculate-row { flex-direction: column; align-items: stretch; }' +
+'            .summary-box { min-width: 100%; }' +
+'        }' +
 '    </style>' +
 '</head>' +
 '<body>' +
-'<div class="quote-container">' +
-'    <div class="header">' +
-'        <h1>Nu-Heat UFH Quick Quote</h1>' +
-'        <p>Underfloor Heating Estimate Calculator - v5.3</p>' +
-'    </div>' +
-'    <div class="card">' +
-'        <div class="card-title">Configuration</div>' +
-'        <div class="top-inputs">' +
-'            <div class="form-group">' +
-'                <label>Heat Source</label>' +
-'                <select id="heatSource">' +
-'                    <option value="Boiler">Boiler</option>' +
-'                    <option value="Heat Pump">Heat Pump</option>' +
-'                </select>' +
-'            </div>' +
-'            <div class="form-group">' +
-'                <label>Project Type</label>' +
-'                <select id="workType" onchange="window.renderFloors()">' +
-'                    <option value="New Build" selected>New Build</option>' +
-'                    <option value="Renovation (Back to Brick)">Renovation (Back to Brick)</option>' +
-'                    <option value="Renovation (Light Touch)">Renovation (Light Touch)</option>' +
-'                </select>' +
-'            </div>' +
-'            <div class="form-group">' +
-'                <label>Thermostat Type</label>' +
-'                <select id="thermostatType">' +
-'                    <option value="Dial" selected>Dial</option>' +
-'                    <option value="Wired Programmable">Wired Programmable</option>' +
-'                    <option value="Wireless">Wireless</option>' +
-'                </select>' +
-'            </div>' +
-'            <div class="form-group">' +
-'                <label>Price Level</label>' +
-'                <select id="priceLevel">' +
-'                    <option value="13" selected>Homeowner</option>' +
-'                    <option value="14">Installer</option>' +
-'                    <option value="15">Developer</option>' +
-'                    <option value="16">Merchant</option>' +
-'                </select>' +
+'<div class="nh-header"></div>' +
+'<div class="nh-hero">' +
+'    <h1>Instant Estimate Builder</h1>' +
+'    <p>Configure your underfloor heating system and get an instant materials estimate.</p>' +
+'</div>' +
+'<div class="nh-page">' +
+'    <div class="nh-section" id="propertyInfoPanel">' +
+'        <div class="nh-section-header" onclick="window.togglePropertyInfo()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">' +
+'            <h2>Property &amp; System Configuration</h2>' +
+'            <span class="nh-collapse-chevron open" id="propertyInfoChevron">&#9660;</span>' +
+'        </div>' +
+'        <div class="nh-collapsible-body" id="propertyInfoBody">' +
+'            <div class="nh-section-body">' +
+'                <div class="nh-config-section">' +
+'                    <div class="nh-config-label">' +
+'                        <div class="nh-config-label-title">Property Type</div>' +
+'                        <div class="nh-config-label-hint">Select one property type to get started</div>' +
+'                    </div>' +
+'                    <div class="nh-config-cards">' +
+'                        <div class="nh-card-grid" id="propertyTypeGrid">' +
+'                            <div class="nh-card" id="pt-house" onclick="window.selectPropertyType(\'house\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>' +
+'                                <div class="nh-card-label">House</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="pt-bungalow" onclick="window.selectPropertyType(\'bungalow\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7v8a1 1 0 01-1 1H4a1 1 0 01-1-1v-8z"/><path d="M9 21v-6h6v6"/></svg></div>' +
+'                                <div class="nh-card-label">Bungalow</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="pt-flat" onclick="window.selectPropertyType(\'flat\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>' +
+'                                <div class="nh-card-label">Flat / Apartment</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="pt-maisonette" onclick="window.selectPropertyType(\'maisonette\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V10.5z"/><path d="M9 21v-5h6v5"/><path d="M3 13h18"/></svg></div>' +
+'                                <div class="nh-card-label">Maisonette</div>' +
+'                            </div>' +
+'                        </div>' +
+'                    </div>' +
+'                </div>' +
+'                <div class="nh-config-section">' +
+'                    <div class="nh-config-label">' +
+'                        <div class="nh-config-label-title">Project Type</div>' +
+'                        <div class="nh-config-label-hint">Select the type of project you are quoting for</div>' +
+'                    </div>' +
+'                    <div class="nh-config-cards">' +
+'                        <div class="nh-card-grid" id="projectTypeGrid">' +
+'                            <div class="nh-card" id="proj-newbuild" onclick="window.selectProjectType(\'New Build\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg></div>' +
+'                                <div class="nh-card-label">New Build</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="proj-backbrick" onclick="window.selectProjectType(\'Renovation (Back to Brick)\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg></div>' +
+'                                <div class="nh-card-label">Renovation (Back to Brick)</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="proj-lighttouch" onclick="window.selectProjectType(\'Renovation (Light Touch)\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-7 7c0 3 1.5 5 4 6.5V17h6v-1.5C17.5 14 19 12 19 9a7 7 0 00-7-7z"/><path d="M9 17v1a3 3 0 006 0v-1"/></svg></div>' +
+'                                <div class="nh-card-label">Renovation (Lighter Touch)</div>' +
+'                            </div>' +
+'                        </div>' +
+'                    </div>' +
+'                </div>' +
+'                <div class="nh-config-section">' +
+'                    <div class="nh-config-label">' +
+'                        <div class="nh-config-label-title">Heating System</div>' +
+'                        <div class="nh-config-label-hint">Select the heat source for this installation</div>' +
+'                    </div>' +
+'                    <div class="nh-config-cards">' +
+'                        <div class="nh-card-grid" id="heatSourceGrid">' +
+'                            <div class="nh-card" id="hs-boiler" onclick="window.selectHeatSource(\'Boiler\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 7v2M12 15v2M7 12h2M15 12h2"/></svg></div>' +
+'                                <div class="nh-card-label">UFH &amp; Boiler</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="hs-heatpump" onclick="window.selectHeatSource(\'Heat Pump\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h4M14 14h4"/></svg></div>' +
+'                                <div class="nh-card-label">UFH &amp; Heat Pump</div>' +
+'                            </div>' +
+'                        </div>' +
+'                    </div>' +
+'                </div>' +
+'                <div class="nh-config-section">' +
+'                    <div class="nh-config-label">' +
+'                        <div class="nh-config-label-title">Thermostat Package</div>' +
+'                        <div class="nh-config-label-hint">Select the thermostat type for this installation</div>' +
+'                    </div>' +
+'                    <div class="nh-config-cards">' +
+'                        <div class="nh-card-grid" id="thermostatGrid">' +
+'                            <div class="nh-card" id="th-dial" onclick="window.selectThermostat(\'Dial\')">' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 7v1M12 16v1M7 12h1M16 12h1"/></svg></div>' +
+'                                <div class="nh-card-label">Dial</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="th-wired" onclick="window.selectThermostat(\'Wired Programmable\')">' +
+'                                <span class="nh-badge-recommended" id="badge-wired" style="display:none">Recommended</span>' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>' +
+'                                <div class="nh-card-label">Wired Programmable</div>' +
+'                            </div>' +
+'                            <div class="nh-card" id="th-wireless" onclick="window.selectThermostat(\'Wireless\')">' +
+'                                <span class="nh-badge-recommended" id="badge-wireless" style="display:none">Recommended</span>' +
+'                                <div class="nh-card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9.5 9.5 0 0114 0"/><path d="M8 16a5 5 0 018 0"/><circle cx="12" cy="19" r="1"/></svg></div>' +
+'                                <div class="nh-card-label">Wireless</div>' +
+'                            </div>' +
+'                        </div>' +
+'                    </div>' +
+'                </div>' +
 '            </div>' +
 '        </div>' +
 '    </div>' +
-'    <div class="card">' +
-'        <div class="card-title">Floors and Manifolds</div>' +
-'        <div id="floorsContainer"></div>' +
-'        <div class="floor-add-buttons">' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'basement\')">+ Add Basement</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'lowerground\')">+ Add Lower Ground</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'ground\')">+ Add Ground Floor</button>' +
-'            <button type="button" class="btn btn-secondary" onclick="window.addFloor(\'upper\')">+ Add Upper Floor</button>' +
+'    <div class="nh-section">' +
+'        <div class="nh-section-header"><span class="nh-step-num">5</span> Floors &amp; Manifolds</div>' +
+'        <div class="nh-section-body">' +
+'            <div class="nh-floors-actions-top">' +
+'                <button type="button" class="btn btn-secondary btn-sm" onclick="window.addFloor(\'basement\')">+ Add Basement</button>' +
+'                <button type="button" class="btn btn-secondary btn-sm" onclick="window.addFloor(\'lowerground\')">+ Add Lower Ground</button>' +
+'            </div>' +
+'            <div id="floorList"></div>' +
+'            <div class="nh-floors-actions-bottom">' +
+'                <button type="button" class="btn btn-secondary btn-sm" onclick="window.addFloor(\'upper\')">+ Add Upper Floor</button>' +
+'            </div>' +
 '        </div>' +
 '    </div>' +
-'    <div class="actions">' +
-'        <button type="button" class="btn btn-primary" onclick="window.calculateQuote()">' +
-'            Calculate Quote' +
-'        </button>' +
+'    <div class="nh-calculate-row">' +
+'        <div class="price-level-group">' +
+'            <label for="priceLevel">Price Level</label>' +
+'            <select id="priceLevel">' +
+'                <option value="13" selected>Homeowner</option>' +
+'                <option value="14">Installer</option>' +
+'                <option value="15">Developer</option>' +
+'                <option value="16">Merchant</option>' +
+'            </select>' +
+'        </div>' +
+'        <div class="calc-btn-group">' +
+'            <button type="button" class="btn btn-primary" onclick="window.calculateQuote()">Calculate Estimate</button>' +
+'        </div>' +
 '    </div>' +
-'    <div id="resultsSection" class="results-section hidden">' +
-'        <div class="card">' +
+'    <div id="resultsSection" class="nh-results hidden">' +
+'        <div class="nh-results-header"><h2>Estimate Results</h2></div>' +
+'        <div class="nh-results-body">' +
 '            <div id="errorsContainer"></div>' +
 '            <div id="summaryContainer"></div>' +
 '            <div id="quoteDescriptionContainer"></div>' +
@@ -550,8 +669,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'var DESIGN_RATE_PER_HOUR = 36;' +
 'var DESIGN_BASE_HOURS = 2;' +
+'var selectedPropertyType = null;' +
+'var selectedProjectType = null;' +
+'var selectedHeatSource = null;' +
+'var selectedThermostat = null;' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'var FLOOR_ORDER = { basement: 1, lowerground: 2, ground: 3, upper: 4 };' +
 'var bomExpanded = false;' +
 'var expandedSections = {};' +
 'function generateId() {' +
@@ -621,50 +745,120 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '    }' +
 '}' +
+'window.togglePropertyInfo = function() {' +
+'    var body = document.getElementById(\'propertyInfoBody\');' +
+'    var chevron = document.getElementById(\'propertyInfoChevron\');' +
+'    if (body.classList.contains(\'collapsed\')) {' +
+'        body.classList.remove(\'collapsed\');' +
+'        chevron.classList.add(\'open\');' +
+'    } else {' +
+'        body.classList.add(\'collapsed\');' +
+'        chevron.classList.remove(\'open\');' +
+'    }' +
+'};' +
+'window.selectPropertyType = function(type) {' +
+'    selectedPropertyType = type;' +
+'    var cards = document.querySelectorAll(\'#propertyTypeGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    document.getElementById(\'pt-\' + type).classList.add(\'selected\');' +
+'    window.applyPropertyTypeFloors(type);' +
+'};' +
+'window.applyPropertyTypeFloors = function(type) {' +
+'    floors = [];' +
+'    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'    if (type === \'house\') {' +
+'        window.addFloor(\'ground\');' +
+'        window.addFloor(\'upper\');' +
+'    } else if (type === \'bungalow\') {' +
+'        window.addFloor(\'ground\');' +
+'    } else if (type === \'flat\') {' +
+'        window.addFloor(\'ground\');' +
+'    } else if (type === \'maisonette\') {' +
+'        window.addFloor(\'ground\');' +
+'        window.addFloor(\'upper\');' +
+'    }' +
+'    window.renderFloors();' +
+'};' +
+'window.selectProjectType = function(type) {' +
+'    selectedProjectType = type;' +
+'    var cards = document.querySelectorAll(\'#projectTypeGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = {' +
+'        \'New Build\': \'proj-newbuild\',' +
+'        \'Renovation (Back to Brick)\': \'proj-backbrick\',' +
+'        \'Renovation (Light Touch)\': \'proj-lighttouch\'' +
+'    };' +
+'    document.getElementById(idMap[type]).classList.add(\'selected\');' +
+'    window.updateRecommendedBadge();' +
+'};' +
+'window.selectHeatSource = function(src) {' +
+'    selectedHeatSource = src;' +
+'    var cards = document.querySelectorAll(\'#heatSourceGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = { \'Boiler\': \'hs-boiler\', \'Heat Pump\': \'hs-heatpump\' };' +
+'    document.getElementById(idMap[src]).classList.add(\'selected\');' +
+'};' +
+'window.selectThermostat = function(type) {' +
+'    selectedThermostat = type;' +
+'    var cards = document.querySelectorAll(\'#thermostatGrid .nh-card\');' +
+'    for (var i = 0; i < cards.length; i++) {' +
+'        cards[i].classList.remove(\'selected\');' +
+'    }' +
+'    var idMap = {' +
+'        \'Dial\': \'th-dial\',' +
+'        \'Wired Programmable\': \'th-wired\',' +
+'        \'Wireless\': \'th-wireless\'' +
+'    };' +
+'    document.getElementById(idMap[type]).classList.add(\'selected\');' +
+'};' +
+'window.updateRecommendedBadge = function() {' +
+'    var wired = document.getElementById(\'badge-wired\');' +
+'    var wireless = document.getElementById(\'badge-wireless\');' +
+'    if (selectedProjectType === \'New Build\' || selectedProjectType === \'Renovation (Back to Brick)\') {' +
+'        wired.style.display = \'\';' +
+'        wireless.style.display = \'none\';' +
+'    } else if (selectedProjectType === \'Renovation (Light Touch)\') {' +
+'        wired.style.display = \'none\';' +
+'        wireless.style.display = \'\';' +
+'    } else {' +
+'        wired.style.display = \'none\';' +
+'        wireless.style.display = \'none\';' +
+'    }' +
+'};' +
 'window.renderFloors = function() {' +
 '    try {' +
-'    var container = document.getElementById("floorsContainer");' +
-'    var workType = document.getElementById("workType") ? document.getElementById("workType").value : "New Build";' +
+'    var container = document.getElementById("floorList");' +
+'    var workType = selectedProjectType || "New Build";' +
 '    var html = "";' +
 '    for (var fIdx = 0; fIdx < floors.length; fIdx++) {' +
 '        var floor = floors[fIdx];' +
 '        html += "<div class=\\"floor-card\\">";' +
-'        html += "<div class=\\"floor-header\\">";' +
-'        html += "<div class=\\"floor-title\\" onclick=\\"window.toggleFloor(\'" + floor.id + "\')\\">";' +
-'        html += "<span class=\\"chevron " + (floor.expanded ? "down" : "") + "\\">▶</span>";' +
-'        html += "<span>" + floor.name + "</span>";' +
-'        html += "</div>";' +
-'        html += "<div class=\\"floor-controls\\">";' +
-'        html += "<select onchange=\\"window.updateFloorType(\'" + floor.id + "\', this.value)\\">";' +
+'        html += "<div class=\\"floor-card-header\\">";' +
+'        html += "<span class=\\"floor-title\\">" + floor.name + "</span>";' +
+'        html += "<select class=\\"floor-type-select\\" onchange=\\"window.updateFloorType(\'" + floor.id + "\', this.value)\\">";' +
 '        html += "<option value=\\"solid\\"" + (floor.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
 '        html += "<option value=\\"joisted\\"" + (floor.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
 '        html += "</select>";' +
-'        if (floors.length > 1) {' +
-'            html += "<button type=\\"button\\" class=\\"btn btn-danger\\" onclick=\\"event.stopPropagation(); window.removeFloor(\'" + floor.id + "\')\\">[X]</button>";' +
-'        }' +
-'        html += "</div></div>";' +
-'        html += "<div class=\\"floor-content " + (floor.expanded ? "expanded" : "") + "\\">";' +
+'        html += "<button class=\\"btn btn-danger\\" onclick=\\"window.removeFloor(\'" + floor.id + "\')\\">" + (floors.length <= 1 ? "<span style=\\"opacity:0.4;\\">Remove</span>" : "Remove") + "</button>";' +
+'        html += "</div>";' +
+'        html += "<div class=\\"floor-card-body\\">";' +
 '        for (var mIdx = 0; mIdx < floor.manifolds.length; mIdx++) {' +
 '            var manifold = floor.manifolds[mIdx];' +
 '            var ports = calculateManifoldPorts(manifold.areas, workType);' +
 '            var hasError = ports > 12;' +
 '            html += "<div class=\\"manifold-card\\">";' +
-'            html += "<div class=\\"manifold-header\\" onclick=\\"window.toggleManifold(\'" + floor.id + "\', \'" + manifold.id + "\')\\">";' +
-'            html += "<div class=\\"manifold-title\\">";' +
-'            html += "<span class=\\"chevron " + (manifold.expanded ? "down" : "") + "\\">▶</span>";' +
-'            html += "<span>" + manifold.name + "</span>";' +
+'            html += "<div class=\\"manifold-card-header\\">";' +
+'            html += "<span class=\\"manifold-title\\">" + manifold.name + "</span>";' +
+'            html += "<span class=\\"manifold-ports" + (hasError ? " error" : "") + "\\">" + ports + " Ports</span>";' +
+'            html += "<button class=\\"btn btn-danger\\" onclick=\\"window.removeManifold(\'" + floor.id + "\', \'" + manifold.id + "\')\\">" + (floor.manifolds.length <= 1 ? "<span style=\\"opacity:0.4;\\">Remove</span>" : "Remove") + "</button>";' +
 '            html += "</div>";' +
-'            html += "<div class=\\"manifold-info\\">";' +
-'            html += "<span class=\\"port-badge " + (hasError ? "error" : "") + "\\">" + ports + " Ports</span>";' +
-'            html += "<select onclick=\\"event.stopPropagation();\\" onchange=\\"event.stopPropagation(); window.updateManifoldFloorType(\'" + floor.id + "\', \'" + manifold.id + "\', this.value)\\">";' +
-'            html += "<option value=\\"solid\\"" + (manifold.floorType === "solid" ? " selected" : "") + ">Solid (concrete)</option>";' +
-'            html += "<option value=\\"joisted\\"" + (manifold.floorType === "joisted" ? " selected" : "") + ">Joisted (suspended timber)</option>";' +
-'            html += "</select>";' +
-'            if (floor.manifolds.length > 1) {' +
-'                html += "<button type=\\"button\\" class=\\"btn btn-danger\\" onclick=\\"event.stopPropagation(); window.removeManifold(\'" + floor.id + "\', \'" + manifold.id + "\')\\">[X]</button>";' +
-'            }' +
-'            html += "</div></div>";' +
-'            html += "<div class=\\"manifold-content " + (manifold.expanded ? "expanded" : "") + "\\">";' +
+'            html += "<div class=\\"manifold-card-body\\">";' +
 '            if (hasError) {' +
 '                html += "<div class=\\"error-message\\">Warning: More than 12 ports are being used on this manifold - please adjust</div>";' +
 '            }' +
@@ -738,7 +932,18 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType(floorType), floorType: floorType, areaSqm: 20, thermostats: 1 }]' +
 '        }]' +
 '    };' +
-'    floors.push(newFloor);' +
+'    /* Insert floor at correct sorted position based on FLOOR_ORDER */' +
+'    var inserted = false;' +
+'    for (var fi = 0; fi < floors.length; fi++) {' +
+'        if (FLOOR_ORDER[floors[fi].type] > FLOOR_ORDER[newFloor.type]) {' +
+'            floors.splice(fi, 0, newFloor);' +
+'            inserted = true;' +
+'            break;' +
+'        }' +
+'    }' +
+'    if (!inserted) {' +
+'        floors.push(newFloor);' +
+'    }' +
 '    window.renderFloors();' +
 '};' +
 'window.removeFloor = function(floorId) {' +
@@ -899,27 +1104,26 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    return "\\u00A3" + value.toFixed(2);' +
 '}' +
 'window.toggleBom = function() {' +
-'    bomExpanded = !bomExpanded;' +
 '    var content = document.getElementById("bomContent");' +
 '    var chevron = document.getElementById("bomChevron");' +
-'    if (bomExpanded) {' +
-'        content.classList.add("expanded");' +
-'        chevron.classList.add("down");' +
+'    if (content.style.display === "block") {' +
+'        content.style.display = "none";' +
+'        chevron.textContent = "\u25B6";' +
 '    } else {' +
-'        content.classList.remove("expanded");' +
-'        chevron.classList.remove("down");' +
+'        content.style.display = "block";' +
+'        chevron.textContent = "\u25BC";' +
 '    }' +
 '};' +
 'window.toggleBomSection = function(section) {' +
-'    expandedSections[section] = !expandedSections[section];' +
-'    var content = document.getElementById("bomSection_" + section.replace(/ /g, "_"));' +
-'    var chevron = document.getElementById("bomSectionChevron_" + section.replace(/ /g, "_"));' +
-'    if (expandedSections[section]) {' +
-'        content.classList.add("expanded");' +
-'        chevron.classList.add("down");' +
+'    var sectionId = section.replace(/ /g, "_");' +
+'    var content = document.getElementById("bomSection_" + sectionId);' +
+'    var chevron = document.getElementById("bomSectionChevron_" + sectionId);' +
+'    if (content.style.display === "block") {' +
+'        content.style.display = "none";' +
+'        chevron.textContent = "\u25B6";' +
 '    } else {' +
-'        content.classList.remove("expanded");' +
-'        chevron.classList.remove("down");' +
+'        content.style.display = "block";' +
+'        chevron.textContent = "\u25BC";' +
 '    }' +
 '};' +
 'window.copyQuoteDescription = function() {' +
@@ -953,9 +1157,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    .catch(function(err) { callback(err, null); });' +
 '};' +
 'window.calculateQuote = function() {' +
-'    var heatSource = document.getElementById("heatSource").value;' +
-'    var workType = document.getElementById("workType").value;' +
-'    var thermostatType = document.getElementById("thermostatType") ? document.getElementById("thermostatType").value : "Dial";' +
+'    var heatSource = selectedHeatSource || "Boiler";' +
+'    var workType = selectedProjectType || "New Build";' +
+'    var thermostatType = selectedThermostat || "Dial";' +
+'    var targetMargin = 0;' +
 '    var priceLevelId = document.getElementById("priceLevel").value;' +
 '    var errors = [];' +
 '    var totalArea = 0;' +
@@ -1258,7 +1463,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            bomHtml += "<div class=\\"bom-section\\">";' +
 '            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">▶</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
 '            bomHtml += "<div id=\\"bomSection_" + sectionId + "\\" class=\\"bom-section-content\\">";' +
-'            bomHtml += "<table class=\\"results-table\\"><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
+'            bomHtml += "<table class=\\"results-table\\"><colgroup><col class=\\"col-desc\\"><col class=\\"col-qty\\"><col class=\\"col-unit\\"><col class=\\"col-total\\"></colgroup><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
 '            for (var iIdx = 0; iIdx < items.length; iIdx++) {' +
 '                var item = items[iIdx];' +
 '                bomHtml += "<tr><td>" + item.description + "</td><td style=\\"text-align:center\\">" + item.quantity + "</td><td style=\\"text-align:right\\">" + formatCurrency(item.price) + "</td><td style=\\"text-align:right\\">" + formatCurrency(item.totalPrice) + "</td></tr>";' +
@@ -1303,22 +1508,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    });' +
 '})();' +
 '(function() {' +
-'    /* Initialise with one ground floor, one manifold, one area */' +
-'    var initFloor = {' +
-'        id: generateId(),' +
-'        type: "ground",' +
-'        name: generateFloorName("ground"),' +
-'        floorType: "solid",' +
-'        expanded: true,' +
-'        manifolds: [{' +
-'            id: generateId(),' +
-'            name: "Manifold 1",' +
-'            floorType: "solid",' +
-'            expanded: true,' +
-'            areas: [{ id: generateId(), roomName: "", floorConstruction: defaultFCForFloorType("solid"), floorType: "solid", areaSqm: 20, thermostats: 1 }]' +
-'        }]' +
-'    };' +
-'    floors.push(initFloor);' +
+'    /* Floors start empty; property type selection populates them */' +
+'    window.renderFloors();' +
+'    window.selectProjectType(\'New Build\');' +
+'    window.selectHeatSource(\'Boiler\');' +
+'    window.selectThermostat(\'Wired Programmable\');' +
 '})();' +
 '</script>' +
 '</body>' +
