@@ -550,7 +550,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '};' +
 'var DESIGN_RATE_PER_HOUR = 36;' +
 'var DESIGN_BASE_HOURS = 2;' +
-'var DELIVERY_PER_100M2 = 75;' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 'var bomExpanded = false;' +
@@ -1058,6 +1057,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    for (var fcKey2 in floorConstructionTotals) {' +
 '        if (floorConstructionTotals.hasOwnProperty(fcKey2)) { itemCodesObj[fcKey2] = true; }' +
 '    }' +
+'    itemCodesObj["DEL/C"] = true;' +
 '    var itemCodes = Object.keys(itemCodesObj);' +
 '    window.fetchPrices(itemCodes, priceLevelId, function(err, prices) {' +
 '        if (err || !prices) {' +
@@ -1125,11 +1125,25 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        /* Design line — included in project scope, price 0 */' +
 '        lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, price: 0, totalPrice: 0 });' +
-'        var pallets = Math.max(2, Math.ceil(totalArea / 100) + 1);' +
-'        var deliveryCost = pallets * DELIVERY_PER_100M2;' +
-'        /* Delivery price = cost × 1.15 */' +
-'        var deliveryPrice = deliveryCost * 1.15;' +
-'        lineItems.push({ section: "Design and Delivery", description: "Delivery charge (" + pallets + " pallets)", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice });' +
+'        /* Calculate total FC pallets from floor construction totals */' +
+'        var totalFCPallets = 0;' +
+'        for (var delFcKey in floorConstructionTotals) {' +
+'            if (floorConstructionTotals.hasOwnProperty(delFcKey)) {' +
+'                var delFcDat = floorConstructionTotals[delFcKey];' +
+'                totalFCPallets += (delFcDat.fc.palletsPerSqm || 0) * delFcDat.area;' +
+'            }' +
+'        }' +
+'        /* Property area pallet allowance: 0.5 for properties under 100 m2, 1.0 otherwise */' +
+'        var propertyAreaPallets = totalArea < 100 ? 0.5 : 1.0;' +
+'        var totalPallets = totalFCPallets + propertyAreaPallets;' +
+'        /* Look up DEL/C unit price from fetched price level prices */' +
+'        var delcUnitPrice = getPrice("DEL/C");' +
+'        if (!delcUnitPrice) {' +
+'            errors.push("Delivery item DEL/C price not found \u2014 delivery charge excluded");' +
+'        } else {' +
+'            var deliveryPrice = totalPallets * delcUnitPrice;' +
+'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) \u2014 " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
+'        }' +
 '        var totalPrice = 0;' +
 '        for (var liIdx = 0; liIdx < lineItems.length; liIdx++) { totalPrice += lineItems[liIdx].totalPrice; }' +
 '        renderResults(lineItems, errors, totalPrice);' +

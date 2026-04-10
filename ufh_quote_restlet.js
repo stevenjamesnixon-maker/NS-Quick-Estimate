@@ -119,7 +119,8 @@ define(['N/search', 'N/log'], function(search, log) {
                 search.createColumn({ name: 'custitem_qdt_pipe_spacing' }),
                 search.createColumn({ name: 'custitem_qdt_pipe_diameter' }),
                 search.createColumn({ name: 'displayname' }),
-                search.createColumn({ name: 'salesdescription' })
+                search.createColumn({ name: 'salesdescription' }),
+                search.createColumn({ name: 'custitem_qdt_pallets_per_sqm' })
             ]
         });
 
@@ -135,12 +136,13 @@ define(['N/search', 'N/log'], function(search, log) {
                 var groupValue    = (groupRaw && typeof groupRaw === 'object') ? groupRaw.value : groupRaw;
 
                 results.push({
-                    itemid:       result.getValue({ name: 'itemid' }),
-                    internalid:   result.id,
-                    fcGroup:      groupValue ? parseInt(groupValue, 10) : null,
-                    pipeSpacing:  result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
-                    pipeDiameter: result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
-                    label:        displayname || salesDesc || ''
+                    itemid:         result.getValue({ name: 'itemid' }),
+                    internalid:     result.id,
+                    fcGroup:        groupValue ? parseInt(groupValue, 10) : null,
+                    pipeSpacing:    result.getValue({ name: 'custitem_qdt_pipe_spacing' }),
+                    pipeDiameter:   result.getValue({ name: 'custitem_qdt_pipe_diameter' }),
+                    palletsPerSqm:  parseFloat(result.getValue({ name: 'custitem_qdt_pallets_per_sqm' })) || 0,
+                    label:          displayname || salesDesc || ''
                 });
             });
         });
