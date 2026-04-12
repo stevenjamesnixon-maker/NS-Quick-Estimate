@@ -92,6 +92,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            font-family: var(--nh-font-family);' +
 '            background: var(--nh-bg);' +
 '            color: var(--nh-text);' +
+'            width: 100%;' +
+'            overflow-x: hidden;' +
 '            -webkit-font-smoothing: antialiased;' +
 '            -moz-osx-font-smoothing: grayscale;' +
 '            font-size: 16px;' +
@@ -133,9 +135,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            line-height: 1.7;' +
 '        }' +
 '        /* === Page wrapper === */' +
-'        .nh-page { max-width: 1000px; margin: 0 auto; padding: 0 40px 64px; box-shadow: var(--nh-shadow-lg); background: var(--nh-white); }' +
+'        .nh-page { max-width: 1400px; margin: 0 auto; padding: 0 40px 64px; box-shadow: var(--nh-shadow-lg); background: var(--nh-white); }' +
 '        /* === Section === */' +
 '        .nh-section {' +
+'            margin-top: 32px;' +
 '            margin-bottom: 36px;' +
 '            background: var(--nh-white);' +
 '            border-radius: 8px;' +
@@ -454,7 +457,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    </style>' +
 '</head>' +
 '<body>' +
-'<div class="nh-header"></div>' +
 '<div class="nh-hero">' +
 '    <h1>Instant Estimate Builder</h1>' +
 '    <p>Configure your underfloor heating system and get an instant materials estimate.</p>' +
