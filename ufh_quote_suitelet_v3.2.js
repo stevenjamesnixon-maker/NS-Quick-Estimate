@@ -381,7 +381,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .nh-calculate-row .price-level-group { flex: 1; min-width: 180px; max-width: 260px; }' +
 '        .nh-calculate-row .calc-btn-group { flex-shrink: 0; }' +
 '        /* === Results === */' +
-'        .nh-results { background: var(--nh-white); border: 1px solid var(--nh-grey-border); border-radius: 8px; overflow: hidden; }' +
+'        .nh-results { background: var(--nh-white); border: 1px solid var(--nh-grey-border); border-radius: 8px; overflow: hidden; box-shadow: var(--nh-shadow-md); }' +
 '        .nh-results-header { background: var(--nh-teal); padding: 12px 20px; }' +
 '        .nh-results-header h2 { color: var(--nh-white); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }' +
 '        .nh-results-body { padding: 24px 20px; }' +
@@ -389,7 +389,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .summary-box { flex: 1; min-width: 160px; border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 14px 16px; text-align: center; }' +
 '        .summary-box.highlight { border-color: var(--nh-teal); background: #f0f9f8; }' +
 '        .summary-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--nh-text); margin-bottom: 6px; }' +
-'        .summary-box .value { font-size: 22px; font-weight: 700; color: var(--nh-purple); }' +
+'        .summary-box .value { font-size: 28px; font-weight: 700; color: var(--nh-purple); }' +
 '        .summary-box.highlight .value { color: var(--nh-teal-dark); }' +
 '        /* === BOM === */' +
 '        .bom-collapsible { border: 1px solid var(--nh-grey-border); border-radius: 6px; overflow: hidden; }' +
@@ -406,7 +406,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .results-table th { background: var(--nh-grey-light); padding: 8px 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--nh-text); border-bottom: 1px solid var(--nh-grey-border); }' +
 '        .results-table td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; color: var(--nh-text-dark); }' +
 '        .results-table tr:last-child td { border-bottom: none; }' +
-'        .item-count { font-size: 12px; color: var(--nh-text); margin-right: 8px; font-weight: 400; }' +
+'        .item-count { font-size: 12px; color: var(--nh-text-light); margin-right: 8px; font-weight: 400; }' +
 '        .chevron { font-size: 11px; color: var(--nh-teal); }' +
 '        /* === Spinner / FC error === */' +
 '        .fc-spinner { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--nh-text); padding: 7px 10px; border: 1px solid var(--nh-grey-border); border-radius: 4px; }' +
@@ -416,9 +416,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* === Error messages === */' +
 '        .error-message { background: #fdf2f2; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: #721c24; }' +
 '        /* === Quote description === */' +
-'        .quote-description { background: var(--nh-grey-light); border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }' +
+'        .quote-description { background: var(--nh-grey-light); border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 16px; }' +
 '        .price-line { font-size: 18px; font-weight: 700; color: var(--nh-teal-dark); margin-top: 12px; }' +
-'        .disclaimer { font-size: 12px; color: var(--nh-text); margin-top: 8px; font-style: italic; }' +
+'        .disclaimer { font-size: 12px; color: var(--nh-text-light); margin-top: 8px; font-style: italic; }' +
 '        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: var(--nh-radius-md); font-family: var(--nh-font-family); font-size: 12px; font-weight: 600; cursor: pointer; }' +
 '        .copy-btn.copied { background: var(--nh-teal); color: var(--nh-white); }' +
 '        /* === Utility === */' +
