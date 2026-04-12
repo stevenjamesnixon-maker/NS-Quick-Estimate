@@ -454,6 +454,114 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            .nh-hero h1 { font-size: 20px; }' +
 '            .btn-cta { font-size: 13px; padding: 10px 16px; }' +
 '        }' +
+'        .nh-epc-card {' +
+'            background: var(--nh-white);' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: var(--nh-radius-md);' +
+'            padding: 20px 24px;' +
+'            margin-bottom: 16px;' +
+'        }' +
+'        .nh-epc-card-title {' +
+'            font-size: 13px;' +
+'            font-weight: 600;' +
+'            color: var(--nh-text-dark);' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.3px;' +
+'            margin-bottom: 4px;' +
+'        }' +
+'        .nh-epc-card-hint {' +
+'            font-size: 13px;' +
+'            color: var(--nh-text-light);' +
+'            margin-bottom: 16px;' +
+'        }' +
+'        .nh-epc-input-row {' +
+'            display: flex;' +
+'            align-items: center;' +
+'            gap: 10px;' +
+'            flex-wrap: wrap;' +
+'        }' +
+'        .nh-epc-postcode-input {' +
+'            padding: 10px 14px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 6px;' +
+'            font-size: 14px;' +
+'            font-family: var(--nh-font-family);' +
+'            width: 160px;' +
+'            text-transform: uppercase;' +
+'        }' +
+'        .nh-epc-postcode-input:focus {' +
+'            outline: none;' +
+'            border-color: var(--nh-teal);' +
+'            box-shadow: 0 0 0 3px rgba(0,133,125,0.15);' +
+'        }' +
+'        .nh-epc-address-select {' +
+'            padding: 10px 14px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 6px;' +
+'            font-size: 14px;' +
+'            font-family: var(--nh-font-family);' +
+'            min-width: 280px;' +
+'            max-width: 420px;' +
+'        }' +
+'        .nh-epc-status {' +
+'            font-size: 13px;' +
+'            color: var(--nh-text-light);' +
+'            font-style: italic;' +
+'        }' +
+'        .nh-epc-data-strip {' +
+'            margin-top: 14px;' +
+'            padding: 12px 16px;' +
+'            background: var(--nh-grey-light);' +
+'            border-radius: 6px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            display: flex;' +
+'            flex-wrap: wrap;' +
+'            gap: 16px;' +
+'            align-items: center;' +
+'        }' +
+'        .nh-epc-data-item {' +
+'            display: flex;' +
+'            flex-direction: column;' +
+'            gap: 2px;' +
+'        }' +
+'        .nh-epc-data-label {' +
+'            font-size: 10px;' +
+'            font-weight: 600;' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.3px;' +
+'            color: var(--nh-text-light);' +
+'        }' +
+'        .nh-epc-data-value {' +
+'            font-size: 14px;' +
+'            font-weight: 500;' +
+'            color: var(--nh-text-dark);' +
+'        }' +
+'        .nh-epc-rating {' +
+'            display: inline-block;' +
+'            padding: 2px 10px;' +
+'            border-radius: 4px;' +
+'            font-weight: 700;' +
+'            font-size: 14px;' +
+'            color: white;' +
+'        }' +
+'        .nh-epc-rating-a { background: #009a44; }' +
+'        .nh-epc-rating-b { background: #4daf23; }' +
+'        .nh-epc-rating-c { background: #8cc21b; }' +
+'        .nh-epc-rating-d { background: #f0b800; }' +
+'        .nh-epc-rating-e { background: #f07800; }' +
+'        .nh-epc-rating-f { background: #e02020; }' +
+'        .nh-epc-rating-g { background: #a00000; }' +
+'        .nh-epc-badge {' +
+'            display: inline-block;' +
+'            padding: 2px 8px;' +
+'            background: var(--nh-teal);' +
+'            color: white;' +
+'            border-radius: 4px;' +
+'            font-size: 11px;' +
+'            font-weight: 600;' +
+'            margin-left: 6px;' +
+'            vertical-align: middle;' +
+'        }' +
 '    </style>' +
 '</head>' +
 '<body>' +
@@ -469,6 +577,44 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        </div>' +
 '        <div class="nh-collapsible-body" id="propertyInfoBody">' +
 '            <div class="nh-section-body">' +
+'<div class="nh-epc-card">' +
+'  <div class="nh-epc-card-title">Postcode / EPC Lookup</div>' +
+'  <div class="nh-epc-card-hint">Enter your postcode to automatically populate your estimate from your EPC certificate, or leave blank and continue entering details manually.</div>' +
+'  <div class="nh-epc-input-row">' +
+'    <input type="text" id="epcPostcodeInput" class="nh-epc-postcode-input" placeholder="e.g. EX5 1AB" maxlength="8" />' +
+'    <button type="button" class="btn btn-secondary" onclick="window.lookupEpc()">Look Up</button>' +
+'    <select id="epcAddressSelect" class="nh-epc-address-select" style="display:none;" onchange="window.selectEpcAddress()">' +
+'      <option value="">— Select your address —</option>' +
+'    </select>' +
+'    <span id="epcStatus" class="nh-epc-status"></span>' +
+'  </div>' +
+'  <div id="epcDataStrip" class="nh-epc-data-strip" style="display:none;">' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Address</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayAddress">—</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Property Type</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayPropertyType">—</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Floor Area</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloorArea">—</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">EPC Rating</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayRating">—</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Floor Type</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloor">—</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Construction</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayConstruction">—</span>' +
+'    </div>' +
+'  </div>' +
+'</div>' +
 '                <div class="nh-config-section">' +
 '                    <div class="nh-config-label">' +
 '                        <div class="nh-config-label-title">1. Project Type</div>' +
@@ -704,6 +850,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'var selectedProjectType = null;' +
 'var selectedHeatSource = null;' +
 'var selectedThermostat = null;' +
+'var epcData = null;' +
+'var epcAddressRows = [];' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 'var FLOOR_ORDER = { basement: 1, lowerground: 2, ground: 3, upper: 4 };' +
@@ -1542,6 +1690,95 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    bomContainer.innerHTML = bomHtml;' +
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
+'};' +
+'window.lookupEpc = function() {' +
+'  var postcode = document.getElementById("epcPostcodeInput").value.trim().toUpperCase();' +
+'  if (!postcode) {' +
+'    document.getElementById("epcStatus").textContent = "Please enter a postcode.";' +
+'    return;' +
+'  }' +
+'  var statusEl = document.getElementById("epcStatus");' +
+'  var selectEl = document.getElementById("epcAddressSelect");' +
+'  var stripEl = document.getElementById("epcDataStrip");' +
+'  statusEl.textContent = "Looking up...";' +
+'  selectEl.style.display = "none";' +
+'  stripEl.style.display = "none";' +
+'  epcAddressRows = [];' +
+'  epcData = null;' +
+'  fetch(RESTLET_BASE_URL + "&action=getEpcData&postcode=" + encodeURIComponent(postcode), {' +
+'    method: "GET",' +
+'    headers: { "Content-Type": "application/json" }' +
+'  })' +
+'  .then(function(r) { return r.json(); })' +
+'  .then(function(data) {' +
+'    if (!data.success) {' +
+'      statusEl.textContent = "EPC lookup failed: " + (data.error || "Unknown error");' +
+'      return;' +
+'    }' +
+'    if (!data.rows || data.rows.length === 0) {' +
+'      statusEl.textContent = "No EPC certificates found for this postcode. Please enter details manually.";' +
+'      return;' +
+'    }' +
+'    epcAddressRows = data.rows;' +
+'    selectEl.innerHTML = "<option value=\"\">— Select your address —</option>";' +
+'    data.rows.forEach(function(row, idx) {' +
+'      var opt = document.createElement("option");' +
+'      opt.value = idx;' +
+'      opt.textContent = row.address + " (" + row.lodgementDate + ")";' +
+'      selectEl.appendChild(opt);' +
+'    });' +
+'    selectEl.style.display = "inline-block";' +
+'    statusEl.textContent = data.rows.length + " certificate(s) found.";' +
+'  })' +
+'  .catch(function(err) {' +
+'    statusEl.textContent = "EPC lookup error. Please enter details manually.";' +
+'  });' +
+'};' +
+'window.selectEpcAddress = function() {' +
+'  var selectEl = document.getElementById("epcAddressSelect");' +
+'  var idx = selectEl.value;' +
+'  if (idx === "" || idx === null) return;' +
+'  var row = epcAddressRows[parseInt(idx)];' +
+'  if (!row) return;' +
+'  var statusEl = document.getElementById("epcStatus");' +
+'  statusEl.textContent = "Loading certificate...";' +
+'  fetch(RESTLET_BASE_URL + "&action=getEpcData&lmkKey=" + encodeURIComponent(row.lmkKey), {' +
+'    method: "GET",' +
+'    headers: { "Content-Type": "application/json" }' +
+'  })' +
+'  .then(function(r) { return r.json(); })' +
+'  .then(function(data) {' +
+'    if (!data.success || !data.data) {' +
+'      statusEl.textContent = "Could not load certificate. Please enter details manually.";' +
+'      return;' +
+'    }' +
+'    epcData = data.data;' +
+'    statusEl.textContent = "";' +
+'    /* --- Pre-populate property type --- */' +
+'    var pt = (epcData.propertyType || "").toLowerCase();' +
+'    var ptMap = { "house": "house", "bungalow": "bungalow", "flat": "flat", "maisonette": "maisonette" };' +
+'    var mappedPt = ptMap[pt] || null;' +
+'    if (mappedPt) {' +
+'      window.selectPropertyType(mappedPt);' +
+'    }' +
+'    /* --- Pre-populate project type --- */' +
+'    window.selectProjectType("Renovation (Light Touch)");' +
+'    /* --- Update EPC data strip --- */' +
+'    var rating = (epcData.currentEnergyRating || "").toLowerCase();' +
+'    var ratingHtml = epcData.currentEnergyRating' +
+'      ? "<span class=\"nh-epc-rating nh-epc-rating-" + rating + "\">" + epcData.currentEnergyRating + "</span>"' +
+'      : "—";' +
+'    document.getElementById("epcDisplayAddress").innerHTML = epcData.address || "—";' +
+'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "—") + "<span class=\"nh-epc-badge\">From EPC</span>";' +
+'    document.getElementById("epcDisplayFloorArea").innerHTML = epcData.totalFloorArea ? epcData.totalFloorArea + " m²" + "<span class=\"nh-epc-badge\">From EPC</span>" : "—";' +
+'    document.getElementById("epcDisplayRating").innerHTML = ratingHtml;' +
+'    document.getElementById("epcDisplayFloor").innerHTML = epcData.floorDescription || "—";' +
+'    document.getElementById("epcDisplayConstruction").innerHTML = epcData.constructionAgeBand || "—";' +
+'    document.getElementById("epcDataStrip").style.display = "flex";' +
+'  })' +
+'  .catch(function(err) {' +
+'    document.getElementById("epcStatus").textContent = "Certificate load error. Please enter details manually.";' +
+'  });' +
 '};' +
 '/* Fetch floor constructions from the RESTlet on page load. */' +
 '/* Renders manifolds once loaded; shows spinner in FC dropdowns while loading. */' +
