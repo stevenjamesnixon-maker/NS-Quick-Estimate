@@ -133,11 +133,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            line-height: 1.7;' +
 '        }' +
 '        /* === Page wrapper === */' +
-'        .nh-page {' +
-'            max-width: 1400px;' +
-'            margin: 0 auto;' +
-'            padding: 24px 32px 64px;' +
-'        }' +
+'        .nh-page { max-width: 1000px; margin: 0 auto; padding: 0 40px 64px; box-shadow: var(--nh-shadow-lg); background: var(--nh-white); }' +
 '        /* === Section === */' +
 '        .nh-section {' +
 '            margin-bottom: 36px;' +
@@ -150,9 +146,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            background: var(--nh-teal);' +
 '            padding: 12px 20px;' +
 '            color: var(--nh-white);' +
-'            font-size: 14px;' +
+'            font-size: 18px;' +
 '            font-weight: 600;' +
-'            letter-spacing: 1px;' +
+'            letter-spacing: 0.5px;' +
 '            text-transform: uppercase;' +
 '            display: flex;' +
 '            align-items: center;' +
@@ -165,7 +161,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            width: 22px;' +
 '            height: 22px;' +
 '            border-radius: 50%;' +
-'            background: rgba(255,255,255,0.25);' +
+'            background: rgba(255,255,255,0.2);' +
 '            font-size: 12px;' +
 '            font-weight: 700;' +
 '            flex-shrink: 0;' +
@@ -381,7 +377,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* === Results === */' +
 '        .nh-results { background: var(--nh-white); border: 1px solid var(--nh-grey-border); border-radius: 8px; overflow: hidden; }' +
 '        .nh-results-header { background: var(--nh-teal); padding: 12px 20px; }' +
-'        .nh-results-header h2 { color: var(--nh-white); font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }' +
+'        .nh-results-header h2 { color: var(--nh-white); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }' +
 '        .nh-results-body { padding: 24px 20px; }' +
 '        .summary-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }' +
 '        .summary-box { flex: 1; min-width: 160px; border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 14px 16px; text-align: center; }' +
