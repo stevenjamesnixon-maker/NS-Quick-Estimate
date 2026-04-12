@@ -59,26 +59,37 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    <meta charset="UTF-8">' +
 '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' +
 '    <style>' +
-'        @import url(\'https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap\');' +
+'        @import url(\'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap\');' +
 '        /* === Nu-Heat Brand Tokens === */' +
 '        :root {' +
-'            --nh-teal: #00857D;' +
-'            --nh-teal-dark: #006b64;' +
-'            --nh-yellow: #FFB500;' +
-'            --nh-yellow-light: #fff8e1;' +
-'            --nh-magenta: #AA0061;' +
-'            --nh-purple: #59315F;' +
-'            --nh-text: #53565A;' +
-'            --nh-text-dark: #2d2d2d;' +
-'            --nh-grey-light: #f5f5f5;' +
-'            --nh-grey-border: #ddd;' +
-'            --nh-white: #ffffff;' +
-'            --nh-bg: #f7f7f5;' +
+'  --nh-teal: #00857D;' +
+'  --nh-teal-dark: #074F71;' +
+'  --nh-secondary: #00B0B9;' +
+'  --nh-accent: #E35205;' +
+'  --nh-yellow: #FFB500;' +
+'  --nh-yellow-light: #fff8e1;' +
+'  --nh-magenta: #AA0061;' +
+'  --nh-purple: #59315F;' +
+'  --nh-success: #00b67a;' +
+'  --nh-text: #53565A;' +
+'  --nh-text-dark: #2d2d2d;' +
+'  --nh-text-light: #796E65;' +
+'  --nh-grey-light: #f5f5f5;' +
+'  --nh-grey-border: #D9D9D6;' +
+'  --nh-white: #FFFFFF;' +
+'  --nh-bg: #F5F5F5;' +
+'  --nh-shadow-sm: 0 1px 3px rgba(0,0,0,0.08);' +
+'  --nh-shadow-md: 0 4px 12px rgba(0,0,0,0.10);' +
+'  --nh-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);' +
+'  --nh-radius-sm: 4px;' +
+'  --nh-radius-md: 8px;' +
+'  --nh-radius-lg: 12px;' +
+'  --nh-font-family: "Poppins", sans-serif;' +
 '        }' +
 '        /* === Base === */' +
 '        * { box-sizing: border-box; margin: 0; padding: 0; }' +
 '        body {' +
-'            font-family: \'Raleway\', sans-serif;' +
+'            font-family: var(--nh-font-family);' +
 '            background: var(--nh-bg);' +
 '            color: var(--nh-text);' +
 '            font-size: 15px;' +
@@ -268,7 +279,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border-radius: 4px;' +
 '            background: var(--nh-white);' +
 '            color: var(--nh-text-dark);' +
-'            font-family: \'Raleway\', sans-serif;' +
+'            font-family: var(--nh-font-family);' +
 '        }' +
 '        .floor-card-header .btn-danger { border-color: #bbb; color: #c0392b; padding: 3px 8px; font-size: 11px; flex-shrink: 0; }' +
 '        .floor-card-header .btn-danger:hover { background: #fdf2f2; }' +
@@ -318,7 +329,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border: 1px solid var(--nh-grey-border);' +
 '            border-radius: 4px;' +
 '            padding: 7px 10px;' +
-'            font-family: \'Raleway\', sans-serif;' +
+'            font-family: var(--nh-font-family);' +
 '            font-size: 14px;' +
 '            color: var(--nh-text-dark);' +
 '            background: var(--nh-white);' +
@@ -336,7 +347,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            gap: 6px;' +
 '            padding: 9px 18px;' +
 '            border-radius: 4px;' +
-'            font-family: \'Raleway\', sans-serif;' +
+'            font-family: var(--nh-font-family);' +
 '            font-size: 13px;' +
 '            font-weight: 700;' +
 '            cursor: pointer;' +
@@ -404,7 +415,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .quote-description { background: var(--nh-grey-light); border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }' +
 '        .price-line { font-size: 18px; font-weight: 800; color: var(--nh-teal-dark); margin-top: 12px; }' +
 '        .disclaimer { font-size: 12px; color: var(--nh-text); margin-top: 8px; font-style: italic; }' +
-'        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: 4px; font-family: \'Raleway\', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }' +
+'        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: 4px; font-family: var(--nh-font-family); font-size: 12px; font-weight: 700; cursor: pointer; }' +
 '        .copy-btn.copied { background: var(--nh-teal); color: var(--nh-white); }' +
 '        /* === Utility === */' +
 '        .hidden { display: none !important; }' +
