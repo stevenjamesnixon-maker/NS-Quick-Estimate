@@ -584,34 +584,34 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    <input type="text" id="epcPostcodeInput" class="nh-epc-postcode-input" placeholder="e.g. EX5 1AB" maxlength="8" />' +
 '    <button type="button" class="btn btn-secondary" onclick="window.lookupEpc()">Look Up</button>' +
 '    <select id="epcAddressSelect" class="nh-epc-address-select" style="display:none;" onchange="window.selectEpcAddress()">' +
-'      <option value="">— Select your address —</option>' +
+'      <option value="">- Select your address -</option>' +
 '    </select>' +
 '    <span id="epcStatus" class="nh-epc-status"></span>' +
 '  </div>' +
 '  <div id="epcDataStrip" class="nh-epc-data-strip" style="display:none;">' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">Address</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayAddress">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayAddress">-</span>' +
 '    </div>' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">Property Type</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayPropertyType">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayPropertyType">-</span>' +
 '    </div>' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">Floor Area</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayFloorArea">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloorArea">-</span>' +
 '    </div>' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">EPC Rating</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayRating">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayRating">-</span>' +
 '    </div>' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">Floor Type</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayFloor">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloor">-</span>' +
 '    </div>' +
 '    <div class="nh-epc-data-item">' +
 '      <span class="nh-epc-data-label">Construction</span>' +
-'      <span class="nh-epc-data-value" id="epcDisplayConstruction">—</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayConstruction">-</span>' +
 '    </div>' +
 '  </div>' +
 '</div>' +
@@ -748,10 +748,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '<script>' +
 '/* RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript. */' +
 '/* It resolves correctly for whichever NetSuite environment (production / sandbox) */' +
-'/* the Suitelet is running in — no environment URL is hardcoded here. */' +
+'/* the Suitelet is running in - no environment URL is hardcoded here. */' +
 'var RESTLET_BASE_URL = ' + JSON.stringify(restletUrl) + ';' +
 '' +
-'/* Floor constructions — populated at runtime from the RESTlet (action=getFloorConstructions). */' +
+'/* Floor constructions - populated at runtime from the RESTlet (action=getFloorConstructions). */' +
 '/* Do NOT add hardcoded items here; they are loaded dynamically on page load. */' +
 'var FLOOR_CONSTRUCTIONS = [];' +
 'var floorConstructionsLoaded = false;' +
@@ -830,7 +830,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    10: { itemCode: "ALE075/10-C", description: "3/4in x 10mm Eurofitting manifold pipe nut, tail and olive" },' +
 '    12: { itemCode: "UMFP0112-C",  description: "12mm pipe connectors" },' +
 '    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive" },' +
-'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder — confirm item code)" }' +
+'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder - confirm item code)" }' +
 '};' +
 'var GUIDE_CURVES = {' +
 '    10: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe" },' +
@@ -1555,7 +1555,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcDat.area), price: fcPrice, totalPrice: fcPrice * Math.ceil(fcDat.area) });' +
 '            }' +
 '        }' +
-'        /* Design line — included in project scope, price 0 */' +
+'        /* Design line - included in project scope, price 0 */' +
 '        lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, price: 0, totalPrice: 0 });' +
 '        /* Calculate total FC pallets from floor construction totals */' +
 '        var totalFCPallets = 0;' +
@@ -1662,7 +1662,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var bomHtml = "<div class=\\"bom-collapsible\\">";' +
 '    bomHtml += "<div class=\\"bom-header\\" onclick=\\"window.toggleBom()\\">";' +
 '    bomHtml += "<h3>Bill of Materials</h3>";' +
-'    bomHtml += "<div><span class=\\"item-count\\">" + lineItems.length + " items</span><span id=\\"bomChevron\\" class=\\"chevron\\">▶</span></div>";' +
+'    bomHtml += "<div><span class=\\"item-count\\">" + lineItems.length + " items</span><span id=\\"bomChevron\\" class=\\"chevron\\">&gt;</span></div>";' +
 '    bomHtml += "</div>";' +
 '    bomHtml += "<div id=\\"bomContent\\" class=\\"bom-content\\">";' +
 '    for (var sIdx = 0; sIdx < sections.length; sIdx++) {' +
@@ -1676,7 +1676,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        if (items.length > 0) {' +
 '            bomHtml += "<div class=\\"bom-section\\">";' +
-'            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">▶</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
+'            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">&gt;</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
 '            bomHtml += "<div id=\\"bomSection_" + sectionId + "\\" class=\\"bom-section-content\\">";' +
 '            bomHtml += "<table class=\\"results-table\\"><colgroup><col class=\\"col-desc\\"><col class=\\"col-qty\\"><col class=\\"col-unit\\"><col class=\\"col-total\\"></colgroup><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
 '            for (var iIdx = 0; iIdx < items.length; iIdx++) {' +
