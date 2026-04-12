@@ -1057,9 +1057,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 240px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Construction</label>";' +
 '                if (!floorConstructionsLoaded) {' +
-'                    html += "<div class=\\"fc-spinner\\">Loading floor constructions\u2026</div>";' +
+'                    html += "<div class=\\"fc-spinner\\">Loading floor constructions...</div>";' +
 '                } else if (FLOOR_CONSTRUCTIONS.length === 0) {' +
-'                    html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable \u2014 please contact support</div>";' +
+'                    html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable - please contact support</div>";' +
 '                } else {' +
 '                    html += "<select style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderFloors();\\">";' +
 '                    for (var fcIdx = 0; fcIdx < FLOOR_CONSTRUCTIONS.length; fcIdx++) {' +
@@ -1070,7 +1070,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                }' +
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
-'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m\u00b2</label>";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m2</label>";' +
 '                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
@@ -1301,10 +1301,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var chevron = document.getElementById("bomChevron");' +
 '    if (content.style.display === "block") {' +
 '        content.style.display = "none";' +
-'        chevron.textContent = "\u25B6";' +
+'        chevron.textContent = ">";' +
 '    } else {' +
 '        content.style.display = "block";' +
-'        chevron.textContent = "\u25BC";' +
+'        chevron.textContent = "v";' +
 '    }' +
 '};' +
 'window.toggleBomSection = function(section) {' +
@@ -1313,10 +1313,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var chevron = document.getElementById("bomSectionChevron_" + sectionId);' +
 '    if (content.style.display === "block") {' +
 '        content.style.display = "none";' +
-'        chevron.textContent = "\u25B6";' +
+'        chevron.textContent = ">";' +
 '    } else {' +
 '        content.style.display = "block";' +
-'        chevron.textContent = "\u25BC";' +
+'        chevron.textContent = "v";' +
 '    }' +
 '};' +
 'window.copyQuoteDescription = function() {' +
@@ -1462,7 +1462,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            }' +
 '            if (!selectedCoil) {' +
 '                selectedCoil = coilList[coilList.length - 1];' +
-'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used \u2014 manual review required.");' +
+'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used - manual review required.");' +
 '            }' +
 '            selectedPipeCoils[d] = selectedCoil;' +
 '        }' +
@@ -1571,10 +1571,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* Look up DEL/C unit price from fetched price level prices */' +
 '        var delcUnitPrice = getPrice("DEL/C");' +
 '        if (!delcUnitPrice) {' +
-'            errors.push("Delivery item DEL/C price not found \u2014 delivery charge excluded");' +
+'            errors.push("Delivery item DEL/C price not found - delivery charge excluded");' +
 '        } else {' +
 '            var deliveryPrice = totalPallets * delcUnitPrice;' +
-'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) \u2014 " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
+'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) - " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
 '        }' +
 '        var totalPrice = 0;' +
 '        for (var liIdx = 0; liIdx < lineItems.length; liIdx++) { totalPrice += lineItems[liIdx].totalPrice; }' +
