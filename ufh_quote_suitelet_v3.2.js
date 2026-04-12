@@ -339,14 +339,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        input[type="number"]:focus, input[type="text"]:focus, select:focus {' +
 '            outline: none;' +
 '            border-color: var(--nh-teal);' +
+'            box-shadow: 0 0 0 3px rgba(0,133,125,0.15);' +
 '        }' +
 '        /* === Buttons === */' +
 '        .btn {' +
 '            display: inline-flex;' +
 '            align-items: center;' +
 '            gap: 6px;' +
-'            padding: 9px 18px;' +
-'            border-radius: 4px;' +
+'            padding: 12px 24px;' +
+'            border-radius: var(--nh-radius-md);' +
 '            font-family: var(--nh-font-family);' +
 '            font-size: 13px;' +
 '            font-weight: 600;' +
@@ -355,12 +356,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            transition: background 0.15s, box-shadow 0.15s;' +
 '            letter-spacing: 0.3px;' +
 '        }' +
+'        .btn:hover { transform: translateY(-1px); }' +
 '        .btn-primary { background: var(--nh-teal); color: var(--nh-white); }' +
 '        .btn-primary:hover { background: var(--nh-teal-dark); box-shadow: 0 2px 8px rgba(0,133,125,0.25); }' +
+'        .btn-cta { background: var(--nh-magenta); color: var(--nh-white); font-weight: 600; padding: 14px 32px; font-size: 15px; border-radius: var(--nh-radius-md); letter-spacing: 0.3px; }' +
+'        .btn-cta:hover { background: #8c0050; box-shadow: 0 4px 12px rgba(170,0,97,0.3); transform: translateY(-1px); }' +
 '        .btn-secondary { background: var(--nh-white); color: var(--nh-teal); border: 1px solid var(--nh-teal); }' +
 '        .btn-secondary:hover { background: #f0f9f8; }' +
 '        .btn-danger { background: transparent; color: #c0392b; border: 1px solid #c0392b; padding: 5px 10px; font-size: 12px; }' +
-'        .btn-danger:hover { background: #fdf2f2; }' +
+'        .btn-danger:hover { background: #fdf2f2; transform: none; }' +
 '        .btn-sm { padding: 6px 12px; font-size: 12px; }' +
 '        /* === Calculate row === */' +
 '        .nh-calculate-row {' +
@@ -415,7 +419,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .quote-description { background: var(--nh-grey-light); border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }' +
 '        .price-line { font-size: 18px; font-weight: 700; color: var(--nh-teal-dark); margin-top: 12px; }' +
 '        .disclaimer { font-size: 12px; color: var(--nh-text); margin-top: 8px; font-style: italic; }' +
-'        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: 4px; font-family: var(--nh-font-family); font-size: 12px; font-weight: 600; cursor: pointer; }' +
+'        .copy-btn { margin-top: 10px; background: var(--nh-white); border: 1px solid var(--nh-teal); color: var(--nh-teal); padding: 7px 14px; border-radius: var(--nh-radius-md); font-family: var(--nh-font-family); font-size: 12px; font-weight: 600; cursor: pointer; }' +
 '        .copy-btn.copied { background: var(--nh-teal); color: var(--nh-white); }' +
 '        /* === Utility === */' +
 '        .hidden { display: none !important; }' +
@@ -561,7 +565,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            </select>' +
 '        </div>' +
 '        <div class="calc-btn-group">' +
-'            <button type="button" class="btn btn-primary" onclick="window.calculateQuote()">Calculate Estimate</button>' +
+'            <button type="button" class="btn btn-cta" onclick="window.calculateQuote()">Calculate Estimate</button>' +
 '        </div>' +
 '    </div>' +
 '    <div id="resultsSection" class="nh-results hidden">' +
