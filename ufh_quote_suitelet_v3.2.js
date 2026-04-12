@@ -426,11 +426,30 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .mt-8 { margin-top: 8px; }' +
 '        .mt-12 { margin-top: 12px; }' +
 '        /* === Responsive === */' +
-'        @media (max-width: 600px) {' +
-'            .nh-hero h1 { font-size: 26px; }' +
-'            .nh-card { flex: 1 1 120px; }' +
+'        @media (max-width: 768px) {' +
+'            .nh-page { padding: 0 20px 40px; box-shadow: none; }' +
+'            .nh-hero h1 { font-size: 28px; }' +
+'            .nh-hero p { font-size: 14px; }' +
+'            .nh-section-header { font-size: 16px; padding: 10px 16px; }' +
+'            .nh-config-section { flex-direction: column; gap: 8px; }' +
+'            .nh-config-label { flex: none; }' +
+'            .nh-card { flex: 0 0 calc(33.33% - 8px); min-height: 80px; }' +
+'            .nh-card-grid { gap: 8px; }' +
+'            .summary-box { min-width: calc(50% - 8px); }' +
 '            .nh-calculate-row { flex-direction: column; align-items: stretch; }' +
+'            .nh-calculate-row .price-level-group { max-width: 100%; }' +
+'        }' +
+'        @media (max-width: 600px) {' +
+'            .nh-page { padding: 0 12px 32px; }' +
+'            .nh-hero h1 { font-size: 24px; }' +
+'            .nh-section-header { font-size: 14px; padding: 10px 14px; }' +
+'            .nh-card { flex: 0 0 calc(50% - 6px); }' +
 '            .summary-box { min-width: 100%; }' +
+'            .summary-box .value { font-size: 22px; }' +
+'            .btn { padding: 10px 20px; font-size: 13px; }' +
+'            .btn-cta { padding: 12px 24px; font-size: 14px; width: 100%; }' +
+'            .area-row { flex-wrap: wrap; }' +
+'            .nh-results-header h2 { font-size: 14px; }' +
 '        }' +
 '    </style>' +
 '</head>' +
