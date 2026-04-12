@@ -23,7 +23,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
     function onRequest(context) {
         if (context.request.method === 'GET') {
             var form = serverWidget.createForm({
-                title: 'Nu-Heat UFH Quick Quote Tool'
+                title: ' '
             });
 
             var htmlField = form.addField({
@@ -92,17 +92,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            font-family: var(--nh-font-family);' +
 '            background: var(--nh-bg);' +
 '            color: var(--nh-text);' +
+'            width: 100%;' +
+'            overflow-x: hidden;' +
 '            -webkit-font-smoothing: antialiased;' +
 '            -moz-osx-font-smoothing: grayscale;' +
 '            font-size: 16px;' +
 '            line-height: 1.6;' +
 '        }' +
 '        /* === Header === */' +
-'        .nh-header {' +
-'            background: var(--nh-teal);' +
-'            padding: 10px 32px;' +
-'            min-height: 8px;' +
-'        }' +
 '        .nh-header-logo {' +
 '            color: var(--nh-white);' +
 '            font-size: 22px;' +
@@ -133,9 +130,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            line-height: 1.7;' +
 '        }' +
 '        /* === Page wrapper === */' +
-'        .nh-page { max-width: 1000px; margin: 0 auto; padding: 0 40px 64px; box-shadow: var(--nh-shadow-lg); background: var(--nh-white); }' +
+'        .nh-page { max-width: 1400px; margin: 0 auto; padding: 0 40px 64px; box-shadow: var(--nh-shadow-lg); background: var(--nh-white); }' +
 '        /* === Section === */' +
 '        .nh-section {' +
+'            margin-top: 32px;' +
 '            margin-bottom: 36px;' +
 '            background: var(--nh-white);' +
 '            border-radius: 8px;' +
@@ -213,8 +211,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .nh-card-grid { display: flex; flex-wrap: wrap; gap: 12px; }' +
 '        .nh-card {' +
 '            flex: 0 0 140px;' +
-'            width: 120px;' +
-'            max-width: 120px;' +
 '            min-height: 90px;' +
 '            border: 1px solid var(--nh-grey-border);' +
 '            border-radius: 8px;' +
@@ -451,10 +447,16 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            .area-row { flex-wrap: wrap; }' +
 '            .nh-results-header h2 { font-size: 14px; }' +
 '        }' +
+'        @media (max-width: 320px) {' +
+'            .nh-page { padding: 0 8px 24px; }' +
+'            .nh-card { flex: 0 0 calc(50% - 4px); min-height: 70px; padding: 8px 6px; font-size: 11px; }' +
+'            .nh-card-grid { gap: 6px; }' +
+'            .nh-hero h1 { font-size: 20px; }' +
+'            .btn-cta { font-size: 13px; padding: 10px 16px; }' +
+'        }' +
 '    </style>' +
 '</head>' +
 '<body>' +
-'<div class="nh-header"></div>' +
 '<div class="nh-hero">' +
 '    <h1>Instant Estimate Builder</h1>' +
 '    <p>Configure your underfloor heating system and get an instant materials estimate.</p>' +
