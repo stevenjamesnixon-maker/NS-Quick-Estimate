@@ -212,11 +212,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* === Card grid === */' +
 '        .nh-card-grid { display: flex; flex-wrap: wrap; gap: 12px; }' +
 '        .nh-card {' +
-'            flex: 0 0 120px;' +
+'            flex: 0 0 140px;' +
 '            width: 120px;' +
 '            max-width: 120px;' +
 '            min-height: 90px;' +
-'            border: 2px solid var(--nh-grey-border);' +
+'            border: 1px solid var(--nh-grey-border);' +
 '            border-radius: 8px;' +
 '            padding: 12px 10px 10px;' +
 '            text-align: center;' +
@@ -226,8 +226,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            position: relative;' +
 '            user-select: none;' +
 '        }' +
-'        .nh-card:hover { border-color: var(--nh-teal); box-shadow: 0 2px 8px rgba(0,133,125,0.12); }' +
-'        .nh-card.selected { border-color: var(--nh-teal); background: #e8f4f3; box-shadow: 0 2px 10px rgba(0,133,125,0.18); }' +
+'        .nh-card:hover { border-color: var(--nh-teal); box-shadow: var(--nh-shadow-md); }' +
+'        .nh-card.selected { border-color: var(--nh-teal); background: #f0f9f8; box-shadow: 0 2px 10px rgba(0,133,125,0.18); }' +
 '        .nh-card.selected .nh-card-label { color: var(--nh-teal-dark); }' +
 '        .nh-card-icon { margin-bottom: 6px; display: flex; justify-content: center; align-items: center; height: 32px; }' +
 '        .nh-card-icon svg {' +
@@ -256,6 +256,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border-radius: 8px;' +
 '            margin-bottom: 12px;' +
 '            overflow: hidden;' +
+'            box-shadow: var(--nh-shadow-sm);' +
 '        }' +
 '        .floor-card-header {' +
 '            background: #e9e9e7;' +
@@ -289,6 +290,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            border-radius: 6px;' +
 '            margin-bottom: 10px;' +
 '            overflow: hidden;' +
+'            box-shadow: var(--nh-shadow-sm);' +
 '        }' +
 '        .manifold-card-header {' +
 '            background: var(--nh-white);' +
@@ -325,8 +327,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        input[type="number"], input[type="text"], select {' +
 '            border: 1px solid var(--nh-grey-border);' +
-'            border-radius: 4px;' +
-'            padding: 7px 10px;' +
+'            border-radius: 6px;' +
+'            padding: 10px 14px;' +
 '            font-family: var(--nh-font-family);' +
 '            font-size: 14px;' +
 '            color: var(--nh-text-dark);' +
@@ -356,7 +358,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .btn-primary { background: var(--nh-teal); color: var(--nh-white); }' +
 '        .btn-primary:hover { background: var(--nh-teal-dark); box-shadow: 0 2px 8px rgba(0,133,125,0.25); }' +
 '        .btn-secondary { background: var(--nh-white); color: var(--nh-teal); border: 1px solid var(--nh-teal); }' +
-'        .btn-secondary:hover { background: #e8f4f3; }' +
+'        .btn-secondary:hover { background: #f0f9f8; }' +
 '        .btn-danger { background: transparent; color: #c0392b; border: 1px solid #c0392b; padding: 5px 10px; font-size: 12px; }' +
 '        .btn-danger:hover { background: #fdf2f2; }' +
 '        .btn-sm { padding: 6px 12px; font-size: 12px; }' +
@@ -381,7 +383,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        .nh-results-body { padding: 24px 20px; }' +
 '        .summary-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }' +
 '        .summary-box { flex: 1; min-width: 160px; border: 1px solid var(--nh-grey-border); border-radius: 6px; padding: 14px 16px; text-align: center; }' +
-'        .summary-box.highlight { border-color: var(--nh-teal); background: #e8f4f3; }' +
+'        .summary-box.highlight { border-color: var(--nh-teal); background: #f0f9f8; }' +
 '        .summary-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--nh-text); margin-bottom: 6px; }' +
 '        .summary-box .value { font-size: 22px; font-weight: 700; color: var(--nh-purple); }' +
 '        .summary-box.highlight .value { color: var(--nh-teal-dark); }' +
