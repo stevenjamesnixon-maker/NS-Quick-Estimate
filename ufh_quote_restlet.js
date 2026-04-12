@@ -24,7 +24,7 @@
  * ============================================================
  */
 
-define(['N/search', 'N/log'], function(search, log) {
+define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(search, log, https, encode, runtime) {
 
     /**
      * GET entry point — routes to the correct handler based on the
@@ -43,6 +43,10 @@ define(['N/search', 'N/log'], function(search, log) {
 
             if (action === 'getItemPrices') {
                 return getItemPrices(params);
+            }
+
+            if (action === 'getEpcData') {
+                return getEpcData(params);
             }
 
             return { success: false, error: 'Unknown action: ' + action };
@@ -239,6 +243,145 @@ define(['N/search', 'N/log'], function(search, log) {
         });
 
         return JSON.stringify({ success: true, data: result });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // action = getEpcData
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Proxies requests to the DLUHC EPC Open Data Communities API.
+     * Credentials are read from Script Parameters (custscript_epc_email and
+     * custscript_epc_api_key) and combined into a Basic Auth header.
+     *
+     * Sub-modes (determined by which param is present):
+     *   params.postcode  → address search — returns a sorted list of EPC rows
+     *   params.lmkKey    → certificate lookup — returns a single certificate object
+     *
+     * @param {Object} params - Query-string parameters from the request
+     * @returns {string} JSON string
+     */
+    function getEpcData(params) {
+        try {
+            var script    = runtime.getCurrentScript();
+            var epcEmail  = script.getParameter({ name: 'custscript_epc_email' });
+            var epcApiKey = script.getParameter({ name: 'custscript_epc_api_key' });
+
+            var token = encode.convert({
+                string: epcEmail + ':' + epcApiKey,
+                inputEncoding: encode.Encoding.UTF_8,
+                outputEncoding: encode.Encoding.BASE_64
+            });
+            var authHeader = 'Basic ' + token;
+
+            /* ── Address search ── */
+            if (params.postcode) {
+                var searchUrl = 'https://epc.opendatacommunities.org/api/v1/domestic/search?postcode=' +
+                    encodeURIComponent(params.postcode) + '&size=25';
+
+                var searchResponse = https.get({
+                    url: searchUrl,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': authHeader
+                    }
+                });
+
+                if (searchResponse.code !== 200) {
+                    return JSON.stringify({
+                        success: false,
+                        error: 'EPC API returned status ' + searchResponse.code,
+                        statusCode: searchResponse.code
+                    });
+                }
+
+                var searchBody = JSON.parse(searchResponse.body);
+                var rawRows    = (searchBody && searchBody.rows) ? searchBody.rows : [];
+
+                if (rawRows.length === 0) {
+                    return JSON.stringify({
+                        success: true,
+                        type: 'addressList',
+                        rows: [],
+                        message: 'No EPC certificates found for this postcode'
+                    });
+                }
+
+                var mappedRows = rawRows.map(function(row) {
+                    return {
+                        lmkKey:         row['lmk-key'],
+                        address:        row['address'],
+                        postcode:       row['postcode'],
+                        lodgementDate:  row['lodgement-date'],
+                        propertyType:   row['property-type'],
+                        totalFloorArea: row['total-floor-area']
+                    };
+                });
+
+                /* Sort by lodgement-date descending (most recent first) */
+                mappedRows.sort(function(a, b) {
+                    if (a.lodgementDate > b.lodgementDate) return -1;
+                    if (a.lodgementDate < b.lodgementDate) return 1;
+                    return 0;
+                });
+
+                return JSON.stringify({
+                    success: true,
+                    type: 'addressList',
+                    rows: mappedRows
+                });
+            }
+
+            /* ── Certificate lookup ── */
+            if (params.lmkKey) {
+                var certUrl = 'https://epc.opendatacommunities.org/api/v1/domestic/certificate/' +
+                    encodeURIComponent(params.lmkKey);
+
+                var certResponse = https.get({
+                    url: certUrl,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': authHeader
+                    }
+                });
+
+                if (certResponse.code !== 200) {
+                    return JSON.stringify({
+                        success: false,
+                        error: 'EPC API returned status ' + certResponse.code,
+                        statusCode: certResponse.code
+                    });
+                }
+
+                var certBody = JSON.parse(certResponse.body);
+                var row      = certBody.rows && certBody.rows[0];
+
+                return JSON.stringify({
+                    success: true,
+                    type: 'certificate',
+                    data: {
+                        lmkKey:               row['lmk-key'],
+                        address:              row['address'],
+                        postcode:             row['postcode'],
+                        propertyType:         row['property-type'],
+                        builtForm:            row['built-form'],
+                        totalFloorArea:       parseFloat(row['total-floor-area']) || null,
+                        currentEnergyRating:  row['current-energy-rating'],
+                        floorDescription:     row['floor-description'],
+                        wallsDescription:     row['walls-description'],
+                        roofDescription:      row['roof-description'],
+                        constructionAgeBand:  row['construction-age-band'],
+                        lodgementDate:        row['lodgement-date']
+                    }
+                });
+            }
+
+            return JSON.stringify({ success: false, error: 'getEpcData requires postcode or lmkKey parameter' });
+
+        } catch (e) {
+            log.error({ title: 'getEpcData error', details: e });
+            return JSON.stringify({ success: false, error: e.message });
+        }
     }
 
     return { get: get };
