@@ -584,7 +584,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    <input type="text" id="epcPostcodeInput" class="nh-epc-postcode-input" placeholder="e.g. EX5 1AB" maxlength="8" />' +
 '    <button type="button" class="btn btn-secondary" onclick="window.lookupEpc()">Look Up</button>' +
 '    <select id="epcAddressSelect" class="nh-epc-address-select" style="display:none;" onchange="window.selectEpcAddress()">' +
-'      <option value="">- Select your address -</option>' +
+'      <option value=\"\">- Select your address -</option>' +
 '    </select>' +
 '    <span id="epcStatus" class="nh-epc-status"></span>' +
 '  </div>' +
