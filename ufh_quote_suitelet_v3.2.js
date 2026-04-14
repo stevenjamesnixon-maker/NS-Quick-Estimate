@@ -1132,6 +1132,167 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    window.renderFloors();' +
 '};' +
+'window.autoCalcZones = function() {' +
+'    if (!epcData || !epcData.totalFloorArea) { return; }' +
+'    var tfa = parseFloat(epcData.totalFloorArea);' +
+'    if (isNaN(tfa) || tfa <= 0) { return; }' +
+'    var pt = (epcData.propertyType || "").toLowerCase();' +
+'    var isSingleStorey = (pt === "bungalow" || pt === "flat");' +
+'    var MAX_PORTS = 12;' +
+'    /* Determine default floor constructions from current project type */' +
+'    var solidFC = (selectedProjectType === "Renovation (Light Touch)") ? "LPM(150)10" : "SC(150)14";' +
+'    var joistedFC = (selectedProjectType === "Renovation (Light Touch)") ? "OT2(120)12" : "ND(150)14";' +
+'    /* --- HABITABLE ROOMS PATH --- */' +
+'    if (epcData.habitableRooms && epcData.habitableRooms > 0) {' +
+'        var adjustedRooms = epcData.habitableRooms + 2;' +
+'        /* Derive bedroom count using FRD scaling to estimate split */' +
+'        var scaleFactor = Math.pow(tfa / 85, 0.6);' +
+'        function scaledRoom(base, min, max) {' +
+'            return Math.min(max, Math.max(min, base * scaleFactor));' +
+'        }' +
+'        var bedroomCount = 1;' +
+'        var remainingBedArea = (isSingleStorey ? tfa : tfa * 0.5);' +
+'        remainingBedArea -= scaledRoom(14, 10, 25);' +
+'        remainingBedArea -= scaledRoom(5, 3.5, 10);' +
+'        while (remainingBedArea > scaledRoom(12, 9, 20) && bedroomCount < 4) {' +
+'            bedroomCount++;' +
+'            remainingBedArea -= scaledRoom(12, 9, 20);' +
+'        }' +
+'        /* Reset floors and counters */' +
+'        floors = [];' +
+'        floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'        function makeManifolds(areaSqm, thermostats, floorType, fc) {' +
+'            var manifoldList = [];' +
+'            if (thermostats <= MAX_PORTS) {' +
+'                manifoldList.push({' +
+'                    id: generateId(),' +
+'                    name: "Manifold 1",' +
+'                    floorType: floorType,' +
+'                    expanded: true,' +
+'                    areas: [{ id: generateId(), roomName: "", floorConstruction: fc, floorType: floorType, areaSqm: Math.round(areaSqm), thermostats: thermostats }]' +
+'                });' +
+'            } else {' +
+'                var t1 = Math.round(thermostats / 2);' +
+'                var t2 = thermostats - t1;' +
+'                var a1 = Math.round(areaSqm / 2);' +
+'                var a2 = Math.round(areaSqm - a1);' +
+'                manifoldList.push({' +
+'                    id: generateId(),' +
+'                    name: "Manifold 1",' +
+'                    floorType: floorType,' +
+'                    expanded: true,' +
+'                    areas: [{ id: generateId(), roomName: "", floorConstruction: fc, floorType: floorType, areaSqm: a1, thermostats: t1 }]' +
+'                });' +
+'                manifoldList.push({' +
+'                    id: generateId(),' +
+'                    name: "Manifold 2",' +
+'                    floorType: floorType,' +
+'                    expanded: true,' +
+'                    areas: [{ id: generateId(), roomName: "", floorConstruction: fc, floorType: floorType, areaSqm: a2, thermostats: t2 }]' +
+'                });' +
+'            }' +
+'            return manifoldList;' +
+'        }' +
+'        if (isSingleStorey) {' +
+'            /* Single storey: all rooms on ground floor */' +
+'            floorCounters.ground++;' +
+'            floors.push({' +
+'                id: generateId(),' +
+'                type: "ground",' +
+'                name: "Ground Floor",' +
+'                floorType: "solid",' +
+'                expanded: true,' +
+'                manifolds: makeManifolds(tfa, adjustedRooms, "solid", solidFC)' +
+'            });' +
+'        } else {' +
+'            /* Multi-storey: split ground and upper */' +
+'            var groundThermostats = Math.max(1, adjustedRooms - bedroomCount);' +
+'            var upperThermostats = bedroomCount + 1;' +
+'            var groundArea = Math.round(tfa * 0.5);' +
+'            var upperArea = Math.round(tfa * 0.5);' +
+'            floorCounters.ground++;' +
+'            floors.push({' +
+'                id: generateId(),' +
+'                type: "ground",' +
+'                name: "Ground Floor",' +
+'                floorType: "solid",' +
+'                expanded: true,' +
+'                manifolds: makeManifolds(groundArea, groundThermostats, "solid", solidFC)' +
+'            });' +
+'            floorCounters.upper++;' +
+'            floors.push({' +
+'                id: generateId(),' +
+'                type: "upper",' +
+'                name: "Upper Floor",' +
+'                floorType: "joisted",' +
+'                expanded: true,' +
+'                manifolds: makeManifolds(upperArea, upperThermostats, "joisted", joistedFC)' +
+'            });' +
+'        }' +
+'        window.renderFloors();' +
+'        return;' +
+'    }' +
+'    /* --- FALLBACK: FRD 12.3 scaled room algorithm --- */' +
+'    var scaleFactor = Math.pow(tfa / 85, 0.6);' +
+'    function scaledRoom(base, min, max) {' +
+'        return Math.min(max, Math.max(min, Math.round(base * scaleFactor)));' +
+'    }' +
+'    floors = [];' +
+'    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'    function makeAreaRow(roomName, areaSqm, floorType, fc) {' +
+'        return { id: generateId(), roomName: roomName, floorConstruction: fc, floorType: floorType, areaSqm: areaSqm, thermostats: 1 };' +
+'    }' +
+'    function packIntoManifolds(areas, floorType) {' +
+'        var manifoldList = [];' +
+'        var current = [];' +
+'        for (var ai = 0; ai < areas.length; ai++) {' +
+'            current.push(areas[ai]);' +
+'            if (current.length >= MAX_PORTS) {' +
+'                manifoldList.push({ id: generateId(), name: "Manifold " + (manifoldList.length + 1), floorType: floorType, expanded: true, areas: current });' +
+'                current = [];' +
+'            }' +
+'        }' +
+'        if (current.length > 0) {' +
+'            manifoldList.push({ id: generateId(), name: "Manifold " + (manifoldList.length + 1), floorType: floorType, expanded: true, areas: current });' +
+'        }' +
+'        return manifoldList;' +
+'    }' +
+'    /* Ground floor rooms */' +
+'    var groundAreas = [];' +
+'    groundAreas.push(makeAreaRow("Living Room", scaledRoom(18, 12, 35), "solid", solidFC));' +
+'    groundAreas.push(makeAreaRow("Kitchen/Dining", scaledRoom(14, 10, 30), "solid", solidFC));' +
+'    groundAreas.push(makeAreaRow("Hallway", scaledRoom(6, 4, 12), "solid", solidFC));' +
+'    if (tfa > 70) { groundAreas.push(makeAreaRow("WC", scaledRoom(2.5, 1.5, 5), "solid", solidFC)); }' +
+'    if (tfa > 100) { groundAreas.push(makeAreaRow("Utility Room", scaledRoom(4, 3, 8), "solid", solidFC)); }' +
+'    floorCounters.ground++;' +
+'    floors.push({ id: generateId(), type: "ground", name: "Ground Floor", floorType: "solid", expanded: true, manifolds: packIntoManifolds(groundAreas, "solid") });' +
+'    if (!isSingleStorey) {' +
+'        /* Upper floor rooms */' +
+'        var upperAreas = [];' +
+'        var remUpper = tfa * 0.5;' +
+'        var masterSize = scaledRoom(14, 10, 25);' +
+'        upperAreas.push(makeAreaRow("Master Bedroom", masterSize, "joisted", joistedFC));' +
+'        remUpper -= masterSize;' +
+'        var bathSize = scaledRoom(5, 3.5, 10);' +
+'        upperAreas.push(makeAreaRow("Bathroom", bathSize, "joisted", joistedFC));' +
+'        remUpper -= bathSize;' +
+'        var bedCount = 1;' +
+'        while (remUpper > scaledRoom(12, 9, 20) && bedCount < 4) {' +
+'            var dblSize = scaledRoom(12, 9, 20);' +
+'            upperAreas.push(makeAreaRow("Bedroom " + (bedCount + 1), dblSize, "joisted", joistedFC));' +
+'            remUpper -= dblSize;' +
+'            bedCount++;' +
+'            if (bedCount === 2 && tfa > 120) {' +
+'                var enSize = scaledRoom(3.5, 2, 7);' +
+'                upperAreas.push(makeAreaRow("En-Suite", enSize, "joisted", joistedFC));' +
+'                remUpper -= enSize;' +
+'            }' +
+'        }' +
+'        floorCounters.upper++;' +
+'        floors.push({ id: generateId(), type: "upper", name: "Upper Floor", floorType: "joisted", expanded: true, manifolds: packIntoManifolds(upperAreas, "joisted") });' +
+'    }' +
+'    window.renderFloors();' +
+'};' +
 'window.removeFloor = function(floorId) {' +
 '    var newFloors = [];' +
 '    for (var i = 0; i < floors.length; i++) {' +
@@ -1763,6 +1924,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    /* --- Pre-populate project type --- */' +
 '    window.selectProjectType("Renovation (Light Touch)");' +
+'    window.autoCalcZones();' +
 '    /* --- Update EPC data strip --- */' +
 '    var rating = (epcData.currentEnergyRating || "").toLowerCase();' +
 '    var ratingHtml = epcData.currentEnergyRating' +
