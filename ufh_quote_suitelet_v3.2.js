@@ -1720,7 +1720,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '      return;' +
 '    }' +
 '    epcAddressRows = data.rows;' +
-'    selectEl.innerHTML = "<option value=\"\">-- Select your address --</option>";' +
+'    selectEl.innerHTML = "<option value=\\\"\\\">" + "-- Select your address --</option>";' +
 '    data.rows.forEach(function(row, idx) {' +
 '      var opt = document.createElement("option");' +
 '      opt.value = idx;' +
@@ -1766,11 +1766,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    /* --- Update EPC data strip --- */' +
 '    var rating = (epcData.currentEnergyRating || "").toLowerCase();' +
 '    var ratingHtml = epcData.currentEnergyRating' +
-'      ? "<span class=\"nh-epc-rating nh-epc-rating-" + rating + "\">" + epcData.currentEnergyRating + "</span>"' +
+'      ? "<span class=\\\"nh-epc-rating nh-epc-rating-" + rating + "\\\">" + epcData.currentEnergyRating + "</span>"' +
 '      : "--";' +
 '    document.getElementById("epcDisplayAddress").innerHTML = epcData.address || "--";' +
-'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "--") + "<span class=\"nh-epc-badge\">From EPC</span>";' +
-'    document.getElementById("epcDisplayFloorArea").innerHTML = epcData.totalFloorArea ? epcData.totalFloorArea + " m2" + "<span class=\"nh-epc-badge\">From EPC</span>" : "--";' +
+'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "--") + "<span class=\\\"nh-epc-badge\\\">From EPC</span>";' +
+'    document.getElementById("epcDisplayFloorArea").innerHTML = epcData.totalFloorArea ? epcData.totalFloorArea + " m2" + "<span class=\\\"nh-epc-badge\\\">From EPC</span>" : "--";' +
 '    document.getElementById("epcDisplayRating").innerHTML = ratingHtml;' +
 '    document.getElementById("epcDisplayFloor").innerHTML = epcData.floorDescription || "--";' +
 '    document.getElementById("epcDisplayConstruction").innerHTML = epcData.constructionAgeBand || "--";' +
