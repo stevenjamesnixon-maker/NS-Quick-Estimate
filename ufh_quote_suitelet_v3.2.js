@@ -1711,8 +1711,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '  })' +
 '  .then(function(r) { return r.json(); })' +
 '  .then(function(data) {' +
-'    if (!data.success) {' +
-'      statusEl.textContent = "EPC lookup failed: " + (data.error || "Unknown error");' +
+'    if (!data || !data.success) {' +
+'      statusEl.textContent = "No EPC record found for this postcode. Please enter your property details manually.";' +
 '      return;' +
 '    }' +
 '    if (!data.rows || data.rows.length === 0) {' +
@@ -1731,7 +1731,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    statusEl.textContent = data.rows.length + " certificate(s) found.";' +
 '  })' +
 '  .catch(function(err) {' +
-'    statusEl.textContent = "EPC lookup error. Please enter details manually.";' +
+'    statusEl.textContent = "No EPC record found for this postcode. Please enter your property details manually.";' +
 '  });' +
 '};' +
 'window.selectEpcAddress = function() {' +
