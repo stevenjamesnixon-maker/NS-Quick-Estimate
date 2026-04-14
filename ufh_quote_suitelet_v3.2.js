@@ -454,6 +454,114 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            .nh-hero h1 { font-size: 20px; }' +
 '            .btn-cta { font-size: 13px; padding: 10px 16px; }' +
 '        }' +
+'        .nh-epc-card {' +
+'            background: var(--nh-white);' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: var(--nh-radius-md);' +
+'            padding: 20px 24px;' +
+'            margin-bottom: 16px;' +
+'        }' +
+'        .nh-epc-card-title {' +
+'            font-size: 13px;' +
+'            font-weight: 600;' +
+'            color: var(--nh-text-dark);' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.3px;' +
+'            margin-bottom: 4px;' +
+'        }' +
+'        .nh-epc-card-hint {' +
+'            font-size: 13px;' +
+'            color: var(--nh-text-light);' +
+'            margin-bottom: 16px;' +
+'        }' +
+'        .nh-epc-input-row {' +
+'            display: flex;' +
+'            align-items: center;' +
+'            gap: 10px;' +
+'            flex-wrap: wrap;' +
+'        }' +
+'        .nh-epc-postcode-input {' +
+'            padding: 10px 14px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 6px;' +
+'            font-size: 14px;' +
+'            font-family: var(--nh-font-family);' +
+'            width: 160px;' +
+'            text-transform: uppercase;' +
+'        }' +
+'        .nh-epc-postcode-input:focus {' +
+'            outline: none;' +
+'            border-color: var(--nh-teal);' +
+'            box-shadow: 0 0 0 3px rgba(0,133,125,0.15);' +
+'        }' +
+'        .nh-epc-address-select {' +
+'            padding: 10px 14px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            border-radius: 6px;' +
+'            font-size: 14px;' +
+'            font-family: var(--nh-font-family);' +
+'            min-width: 280px;' +
+'            max-width: 420px;' +
+'        }' +
+'        .nh-epc-status {' +
+'            font-size: 13px;' +
+'            color: var(--nh-text-light);' +
+'            font-style: italic;' +
+'        }' +
+'        .nh-epc-data-strip {' +
+'            margin-top: 14px;' +
+'            padding: 12px 16px;' +
+'            background: var(--nh-grey-light);' +
+'            border-radius: 6px;' +
+'            border: 1px solid var(--nh-grey-border);' +
+'            display: flex;' +
+'            flex-wrap: wrap;' +
+'            gap: 16px;' +
+'            align-items: center;' +
+'        }' +
+'        .nh-epc-data-item {' +
+'            display: flex;' +
+'            flex-direction: column;' +
+'            gap: 2px;' +
+'        }' +
+'        .nh-epc-data-label {' +
+'            font-size: 10px;' +
+'            font-weight: 600;' +
+'            text-transform: uppercase;' +
+'            letter-spacing: 0.3px;' +
+'            color: var(--nh-text-light);' +
+'        }' +
+'        .nh-epc-data-value {' +
+'            font-size: 14px;' +
+'            font-weight: 500;' +
+'            color: var(--nh-text-dark);' +
+'        }' +
+'        .nh-epc-rating {' +
+'            display: inline-block;' +
+'            padding: 2px 10px;' +
+'            border-radius: 4px;' +
+'            font-weight: 700;' +
+'            font-size: 14px;' +
+'            color: white;' +
+'        }' +
+'        .nh-epc-rating-a { background: #009a44; }' +
+'        .nh-epc-rating-b { background: #4daf23; }' +
+'        .nh-epc-rating-c { background: #8cc21b; }' +
+'        .nh-epc-rating-d { background: #f0b800; }' +
+'        .nh-epc-rating-e { background: #f07800; }' +
+'        .nh-epc-rating-f { background: #e02020; }' +
+'        .nh-epc-rating-g { background: #a00000; }' +
+'        .nh-epc-badge {' +
+'            display: inline-block;' +
+'            padding: 2px 8px;' +
+'            background: var(--nh-teal);' +
+'            color: white;' +
+'            border-radius: 4px;' +
+'            font-size: 11px;' +
+'            font-weight: 600;' +
+'            margin-left: 6px;' +
+'            vertical-align: middle;' +
+'        }' +
 '    </style>' +
 '</head>' +
 '<body>' +
@@ -469,6 +577,44 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        </div>' +
 '        <div class="nh-collapsible-body" id="propertyInfoBody">' +
 '            <div class="nh-section-body">' +
+'<div class="nh-epc-card">' +
+'  <div class="nh-epc-card-title">Postcode / EPC Lookup</div>' +
+'  <div class="nh-epc-card-hint">Enter your postcode to automatically populate your estimate from your EPC certificate, or leave blank and continue entering details manually.</div>' +
+'  <div class="nh-epc-input-row">' +
+'    <input type="text" id="epcPostcodeInput" class="nh-epc-postcode-input" placeholder="e.g. EX5 1AB" maxlength="8" />' +
+'    <button type="button" class="btn btn-secondary" onclick="window.lookupEpc()">Look Up</button>' +
+'    <select id="epcAddressSelect" class="nh-epc-address-select" style="display:none;" onchange="window.selectEpcAddress()">' +
+'      <option value="">- Select your address -</option>' +
+'    </select>' +
+'    <span id="epcStatus" class="nh-epc-status"></span>' +
+'  </div>' +
+'  <div id="epcDataStrip" class="nh-epc-data-strip" style="display:none;">' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Address</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayAddress">-</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Property Type</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayPropertyType">-</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Floor Area</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloorArea">-</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">EPC Rating</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayRating">-</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Floor Type</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayFloor">-</span>' +
+'    </div>' +
+'    <div class="nh-epc-data-item">' +
+'      <span class="nh-epc-data-label">Construction</span>' +
+'      <span class="nh-epc-data-value" id="epcDisplayConstruction">-</span>' +
+'    </div>' +
+'  </div>' +
+'</div>' +
 '                <div class="nh-config-section">' +
 '                    <div class="nh-config-label">' +
 '                        <div class="nh-config-label-title">1. Project Type</div>' +
@@ -602,10 +748,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '<script>' +
 '/* RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript. */' +
 '/* It resolves correctly for whichever NetSuite environment (production / sandbox) */' +
-'/* the Suitelet is running in — no environment URL is hardcoded here. */' +
+'/* the Suitelet is running in - no environment URL is hardcoded here. */' +
 'var RESTLET_BASE_URL = ' + JSON.stringify(restletUrl) + ';' +
 '' +
-'/* Floor constructions — populated at runtime from the RESTlet (action=getFloorConstructions). */' +
+'/* Floor constructions - populated at runtime from the RESTlet (action=getFloorConstructions). */' +
 '/* Do NOT add hardcoded items here; they are loaded dynamically on page load. */' +
 'var FLOOR_CONSTRUCTIONS = [];' +
 'var floorConstructionsLoaded = false;' +
@@ -684,7 +830,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    10: { itemCode: "ALE075/10-C", description: "3/4in x 10mm Eurofitting manifold pipe nut, tail and olive" },' +
 '    12: { itemCode: "UMFP0112-C",  description: "12mm pipe connectors" },' +
 '    14: { itemCode: "ALE075/14-C", description: "3/4in x 14mm Eurofitting manifold pipe nut, tail and olive" },' +
-'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder — confirm item code)" }' +
+'    16: { itemCode: "UMFP0116-C",  description: "16mm pipe connectors (placeholder - confirm item code)" }' +
 '};' +
 'var GUIDE_CURVES = {' +
 '    10: { itemCode: "GC10-C", description: "Guide curve for 10-12mm pipe" },' +
@@ -704,6 +850,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 'var selectedProjectType = null;' +
 'var selectedHeatSource = null;' +
 'var selectedThermostat = null;' +
+'var epcData = null;' +
+'var epcAddressRows = [];' +
 'var floors = [];' +
 'var floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 'var FLOOR_ORDER = { basement: 1, lowerground: 2, ground: 3, upper: 4 };' +
@@ -909,9 +1057,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 240px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Floor Construction</label>";' +
 '                if (!floorConstructionsLoaded) {' +
-'                    html += "<div class=\\"fc-spinner\\">Loading floor constructions\u2026</div>";' +
+'                    html += "<div class=\\"fc-spinner\\">Loading floor constructions...</div>";' +
 '                } else if (FLOOR_CONSTRUCTIONS.length === 0) {' +
-'                    html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable \u2014 please contact support</div>";' +
+'                    html += "<div class=\\"fc-error-inline\\">Floor construction data unavailable - please contact support</div>";' +
 '                } else {' +
 '                    html += "<select style=\\"height:36px;padding:0 8px;box-sizing:border-box;\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'floorConstruction\', this.value); window.renderFloors();\\">";' +
 '                    for (var fcIdx = 0; fcIdx < FLOOR_CONSTRUCTIONS.length; fcIdx++) {' +
@@ -922,7 +1070,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                }' +
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
-'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m\u00b2</label>";' +
+'                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m2</label>";' +
 '                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
@@ -1153,10 +1301,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var chevron = document.getElementById("bomChevron");' +
 '    if (content.style.display === "block") {' +
 '        content.style.display = "none";' +
-'        chevron.textContent = "\u25B6";' +
+'        chevron.textContent = ">";' +
 '    } else {' +
 '        content.style.display = "block";' +
-'        chevron.textContent = "\u25BC";' +
+'        chevron.textContent = "v";' +
 '    }' +
 '};' +
 'window.toggleBomSection = function(section) {' +
@@ -1165,10 +1313,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var chevron = document.getElementById("bomSectionChevron_" + sectionId);' +
 '    if (content.style.display === "block") {' +
 '        content.style.display = "none";' +
-'        chevron.textContent = "\u25B6";' +
+'        chevron.textContent = ">";' +
 '    } else {' +
 '        content.style.display = "block";' +
-'        chevron.textContent = "\u25BC";' +
+'        chevron.textContent = "v";' +
 '    }' +
 '};' +
 'window.copyQuoteDescription = function() {' +
@@ -1314,7 +1462,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            }' +
 '            if (!selectedCoil) {' +
 '                selectedCoil = coilList[coilList.length - 1];' +
-'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used \u2014 manual review required.");' +
+'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used - manual review required.");' +
 '            }' +
 '            selectedPipeCoils[d] = selectedCoil;' +
 '        }' +
@@ -1407,7 +1555,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcDat.area), price: fcPrice, totalPrice: fcPrice * Math.ceil(fcDat.area) });' +
 '            }' +
 '        }' +
-'        /* Design line — included in project scope, price 0 */' +
+'        /* Design line - included in project scope, price 0 */' +
 '        lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, price: 0, totalPrice: 0 });' +
 '        /* Calculate total FC pallets from floor construction totals */' +
 '        var totalFCPallets = 0;' +
@@ -1423,10 +1571,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        /* Look up DEL/C unit price from fetched price level prices */' +
 '        var delcUnitPrice = getPrice("DEL/C");' +
 '        if (!delcUnitPrice) {' +
-'            errors.push("Delivery item DEL/C price not found \u2014 delivery charge excluded");' +
+'            errors.push("Delivery item DEL/C price not found - delivery charge excluded");' +
 '        } else {' +
 '            var deliveryPrice = totalPallets * delcUnitPrice;' +
-'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) \u2014 " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
+'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) - " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
 '        }' +
 '        var totalPrice = 0;' +
 '        for (var liIdx = 0; liIdx < lineItems.length; liIdx++) { totalPrice += lineItems[liIdx].totalPrice; }' +
@@ -1514,7 +1662,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var bomHtml = "<div class=\\"bom-collapsible\\">";' +
 '    bomHtml += "<div class=\\"bom-header\\" onclick=\\"window.toggleBom()\\">";' +
 '    bomHtml += "<h3>Bill of Materials</h3>";' +
-'    bomHtml += "<div><span class=\\"item-count\\">" + lineItems.length + " items</span><span id=\\"bomChevron\\" class=\\"chevron\\">▶</span></div>";' +
+'    bomHtml += "<div><span class=\\"item-count\\">" + lineItems.length + " items</span><span id=\\"bomChevron\\" class=\\"chevron\\">&gt;</span></div>";' +
 '    bomHtml += "</div>";' +
 '    bomHtml += "<div id=\\"bomContent\\" class=\\"bom-content\\">";' +
 '    for (var sIdx = 0; sIdx < sections.length; sIdx++) {' +
@@ -1528,7 +1676,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        if (items.length > 0) {' +
 '            bomHtml += "<div class=\\"bom-section\\">";' +
-'            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">▶</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
+'            bomHtml += "<div class=\\"bom-section-header\\" onclick=\\"window.toggleBomSection(\'" + section + "\')\\"><span><span id=\\"bomSectionChevron_" + sectionId + "\\" class=\\"chevron\\">&gt;</span> " + section + "</span><span>" + items.length + " items</span></div>";' +
 '            bomHtml += "<div id=\\"bomSection_" + sectionId + "\\" class=\\"bom-section-content\\">";' +
 '            bomHtml += "<table class=\\"results-table\\"><colgroup><col class=\\"col-desc\\"><col class=\\"col-qty\\"><col class=\\"col-unit\\"><col class=\\"col-total\\"></colgroup><thead><tr><th>Description</th><th style=\\"text-align:center\\">Qty</th><th style=\\"text-align:right\\">Unit Price</th><th style=\\"text-align:right\\">Total</th></tr></thead><tbody>";' +
 '            for (var iIdx = 0; iIdx < items.length; iIdx++) {' +
@@ -1542,6 +1690,95 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    bomContainer.innerHTML = bomHtml;' +
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
+'};' +
+'window.lookupEpc = function() {' +
+'  var postcode = document.getElementById("epcPostcodeInput").value.trim().toUpperCase();' +
+'  if (!postcode) {' +
+'    document.getElementById("epcStatus").textContent = "Please enter a postcode.";' +
+'    return;' +
+'  }' +
+'  var statusEl = document.getElementById("epcStatus");' +
+'  var selectEl = document.getElementById("epcAddressSelect");' +
+'  var stripEl = document.getElementById("epcDataStrip");' +
+'  statusEl.textContent = "Looking up...";' +
+'  selectEl.style.display = "none";' +
+'  stripEl.style.display = "none";' +
+'  epcAddressRows = [];' +
+'  epcData = null;' +
+'  fetch(RESTLET_BASE_URL + "&action=getEpcData&postcode=" + encodeURIComponent(postcode), {' +
+'    method: "GET",' +
+'    headers: { "Content-Type": "application/json" }' +
+'  })' +
+'  .then(function(r) { return r.json(); })' +
+'  .then(function(data) {' +
+'    if (!data || !data.success) {' +
+'      statusEl.textContent = "No EPC record found for this postcode. Please enter your property details manually.";' +
+'      return;' +
+'    }' +
+'    if (!data.rows || data.rows.length === 0) {' +
+'      statusEl.textContent = "No EPC certificates found for this postcode. Please enter details manually.";' +
+'      return;' +
+'    }' +
+'    epcAddressRows = data.rows;' +
+'    selectEl.innerHTML = "<option value=\\\"\\\">" + "-- Select your address --</option>";' +
+'    data.rows.forEach(function(row, idx) {' +
+'      var opt = document.createElement("option");' +
+'      opt.value = idx;' +
+'      opt.textContent = row.address + " (" + row.lodgementDate + ")";' +
+'      selectEl.appendChild(opt);' +
+'    });' +
+'    selectEl.style.display = "inline-block";' +
+'    statusEl.textContent = data.rows.length + " certificate(s) found.";' +
+'  })' +
+'  .catch(function(err) {' +
+'    statusEl.textContent = "No EPC record found for this postcode. Please enter your property details manually.";' +
+'  });' +
+'};' +
+'window.selectEpcAddress = function() {' +
+'  var selectEl = document.getElementById("epcAddressSelect");' +
+'  var idx = selectEl.value;' +
+'  if (idx === "" || idx === null) return;' +
+'  var row = epcAddressRows[parseInt(idx)];' +
+'  if (!row) return;' +
+'  var statusEl = document.getElementById("epcStatus");' +
+'  statusEl.textContent = "Loading certificate...";' +
+'  fetch(RESTLET_BASE_URL + "&action=getEpcData&lmkKey=" + encodeURIComponent(row.lmkKey), {' +
+'    method: "GET",' +
+'    headers: { "Content-Type": "application/json" }' +
+'  })' +
+'  .then(function(r) { return r.json(); })' +
+'  .then(function(data) {' +
+'    if (!data.success || !data.data) {' +
+'      statusEl.textContent = "Could not load certificate. Please enter details manually.";' +
+'      return;' +
+'    }' +
+'    epcData = data.data;' +
+'    statusEl.textContent = "";' +
+'    /* --- Pre-populate property type --- */' +
+'    var pt = (epcData.propertyType || "").toLowerCase();' +
+'    var ptMap = { "house": "house", "bungalow": "bungalow", "flat": "flat", "maisonette": "maisonette" };' +
+'    var mappedPt = ptMap[pt] || null;' +
+'    if (mappedPt) {' +
+'      window.selectPropertyType(mappedPt);' +
+'    }' +
+'    /* --- Pre-populate project type --- */' +
+'    window.selectProjectType("Renovation (Light Touch)");' +
+'    /* --- Update EPC data strip --- */' +
+'    var rating = (epcData.currentEnergyRating || "").toLowerCase();' +
+'    var ratingHtml = epcData.currentEnergyRating' +
+'      ? "<span class=\\\"nh-epc-rating nh-epc-rating-" + rating + "\\\">" + epcData.currentEnergyRating + "</span>"' +
+'      : "--";' +
+'    document.getElementById("epcDisplayAddress").innerHTML = epcData.address || "--";' +
+'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "--") + "<span class=\\\"nh-epc-badge\\\">From EPC</span>";' +
+'    document.getElementById("epcDisplayFloorArea").innerHTML = epcData.totalFloorArea ? epcData.totalFloorArea + " m2" + "<span class=\\\"nh-epc-badge\\\">From EPC</span>" : "--";' +
+'    document.getElementById("epcDisplayRating").innerHTML = ratingHtml;' +
+'    document.getElementById("epcDisplayFloor").innerHTML = epcData.floorDescription || "--";' +
+'    document.getElementById("epcDisplayConstruction").innerHTML = epcData.constructionAgeBand || "--";' +
+'    document.getElementById("epcDataStrip").style.display = "flex";' +
+'  })' +
+'  .catch(function(err) {' +
+'    document.getElementById("epcStatus").textContent = "Certificate load error. Please enter details manually.";' +
+'  });' +
 '};' +
 '/* Fetch floor constructions from the RESTlet on page load. */' +
 '/* Renders manifolds once loaded; shows spinner in FC dropdowns while loading. */' +
