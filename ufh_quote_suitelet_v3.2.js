@@ -1769,7 +1769,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '      ? "<span class=\\\"nh-epc-rating nh-epc-rating-" + rating + "\\\">" + epcData.currentEnergyRating + "</span>"' +
 '      : "--";' +
 '    document.getElementById("epcDisplayAddress").innerHTML = epcData.address || "--";' +
-'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "--") + "<span class=\\\"nh-epc-badge\\\">From EPC</span>";' +
+'    document.getElementById("epcDisplayPropertyType").innerHTML = (epcData.propertyType || "--") + (epcData.builtForm ? " \u2014 " + epcData.builtForm : "") + "<span class=\\\"nh-epc-badge\\\">From EPC</span>";' +
 '    document.getElementById("epcDisplayFloorArea").innerHTML = epcData.totalFloorArea ? epcData.totalFloorArea + " m2" + "<span class=\\\"nh-epc-badge\\\">From EPC</span>" : "--";' +
 '    document.getElementById("epcDisplayRating").innerHTML = ratingHtml;' +
 '    document.getElementById("epcDisplayFloor").innerHTML = epcData.floorDescription || "--";' +

@@ -364,14 +364,16 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(searc
                         address:              row['address'],
                         postcode:             row['postcode'],
                         propertyType:         row['property-type'],
-                        builtForm:            row['built-form'],
+                        builtForm:            row['built-form'] || null,
                         totalFloorArea:       parseFloat(row['total-floor-area']) || null,
                         currentEnergyRating:  row['current-energy-rating'],
                         floorDescription:     row['floor-description'],
                         wallsDescription:     row['walls-description'],
                         roofDescription:      row['roof-description'],
                         constructionAgeBand:  row['construction-age-band'],
-                        lodgementDate:        row['lodgement-date']
+                        lodgementDate:        row['lodgement-date'],
+                        habitableRooms:       parseFloat(row['number-habitable-rooms']) || null,
+                        uprn:                 row['uprn'] || null
                     }
                 });
             }
