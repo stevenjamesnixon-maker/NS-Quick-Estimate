@@ -1138,6 +1138,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    if (isNaN(tfa) || tfa <= 0) { return; }' +
 '    var pt = (epcData.propertyType || "").toLowerCase();' +
 '    var isSingleStorey = (pt === "bungalow" || pt === "flat");' +
+'    var scaleFactor = Math.pow(tfa / 85, 0.6);' +
+'    function scaledRoom(base, min, max) {' +
+'        return Math.min(max, Math.max(min, Math.round(base * scaleFactor)));' +
+'    }' +
 '    var MAX_PORTS = 12;' +
 '    /* Determine default floor constructions from current project type */' +
 '    var solidFC = (selectedProjectType === "Renovation (Light Touch)") ? "LPM(150)10" : "SC(150)14";' +
@@ -1146,10 +1150,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    if (epcData.habitableRooms && epcData.habitableRooms > 0) {' +
 '        var adjustedRooms = epcData.habitableRooms + 2;' +
 '        /* Derive bedroom count using FRD scaling to estimate split */' +
-'        var scaleFactor = Math.pow(tfa / 85, 0.6);' +
-'        function scaledRoom(base, min, max) {' +
-'            return Math.min(max, Math.max(min, base * scaleFactor));' +
-'        }' +
 '        var bedroomCount = 1;' +
 '        var remainingBedArea = (isSingleStorey ? tfa : tfa * 0.5);' +
 '        remainingBedArea -= scaledRoom(14, 10, 25);' +
@@ -1233,10 +1233,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        return;' +
 '    }' +
 '    /* --- FALLBACK: FRD 12.3 scaled room algorithm --- */' +
-'    var scaleFactor = Math.pow(tfa / 85, 0.6);' +
-'    function scaledRoom(base, min, max) {' +
-'        return Math.min(max, Math.max(min, Math.round(base * scaleFactor)));' +
-'    }' +
 '    floors = [];' +
 '    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
 '    function makeAreaRow(roomName, areaSqm, floorType, fc) {' +
