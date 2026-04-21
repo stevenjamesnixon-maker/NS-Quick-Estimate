@@ -1775,11 +1775,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '        if (splitterTotals.numPS4 > 0) {' +
 '            var ps4Price = getPrice(PIPE_SPLITTER_4.itemCode);' +
-'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_4.description + " (" + PIPE_SPLITTER_4.itemCode + ")", quantity: splitterTotals.numPS4 * 2, price: ps4Price, totalPrice: ps4Price * splitterTotals.numPS4 * 2 });' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_4.description + " (" + PIPE_SPLITTER_4.itemCode + ")", quantity: splitterTotals.numPS4, price: ps4Price, totalPrice: ps4Price * splitterTotals.numPS4 });' +
 '        }' +
 '        if (splitterTotals.numPS2 > 0) {' +
 '            var ps2Price = getPrice(PIPE_SPLITTER_2.itemCode);' +
-'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_2.description + " (" + PIPE_SPLITTER_2.itemCode + ")", quantity: splitterTotals.numPS2 * 2, price: ps2Price, totalPrice: ps2Price * splitterTotals.numPS2 * 2 });' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_2.description + " (" + PIPE_SPLITTER_2.itemCode + ")", quantity: splitterTotals.numPS2, price: ps2Price, totalPrice: ps2Price * splitterTotals.numPS2 });' +
 '        }' +
 '        for (var fcN in floorConstructionTotals) {' +
 '            if (floorConstructionTotals.hasOwnProperty(fcN)) {' +
