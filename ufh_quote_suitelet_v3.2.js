@@ -841,6 +841,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    14: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe" },' +
 '    16: { itemCode: "GC14-C", description: "Guide curve for 14 and 17mm pipe" }' +
 '};' +
+'var PIPE_SPLITTER_4 = { itemCode: "PS4/10-A", internalId: 6008, description: "4-way pipe splitter 10mm" };' +
+'var PIPE_SPLITTER_2 = { itemCode: "PS2/10-A", internalId: 8076, description: "2-way pipe splitter 10mm" };' +
 'var MAX_PIPE_LENGTH = {' +
 '    10: { newBuild: 50, renovation: 45 },' +
 '    12: { newBuild: 80, renovation: 70 },' +
@@ -886,7 +888,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '            var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
 '            var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
-'            totalPorts += Math.ceil(pipeLength / maxLength);' +
+'            var totalCircuits = Math.ceil(pipeLength / maxLength);' +
+'            if (diameter === 10) {' +
+'                totalPorts += Math.ceil(totalCircuits / 4);' +
+'            } else {' +
+'                totalPorts += totalCircuits;' +
+'            }' +
 '        }' +
 '    }' +
 '    return totalPorts;' +
@@ -1561,6 +1568,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var floorConstructionTotals = {};' +
 '    var pipeDiameterTotals = {};' +
 '    var pipeCoilLineItems = [];' +
+'    var splitterTotals = { numPS4: 0, numPS2: 0, numSingle: 0 };' +
 '    var totalManifolds = 0;' +
 '    for (var fIdx = 0; fIdx < floors.length; fIdx++) {' +
 '        var floorObj = floors[fIdx];' +
@@ -1593,6 +1601,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '                    var numCircuits = Math.ceil(pipeLength / maxLength);' +
 '                    pipeDiameterTotals[diameter].ports += numCircuits;' +
+'                    if (diameter === 10) {' +
+'                        var remainder = numCircuits % 4;' +
+'                        var portsFor4 = Math.floor(numCircuits / 4);' +
+'                        splitterTotals.numPS4 += (remainder === 3) ? portsFor4 + 1 : portsFor4;' +
+'                        splitterTotals.numPS2 += (remainder === 2) ? 1 : 0;' +
+'                        splitterTotals.numSingle += (remainder === 1) ? 1 : 0;' +
+'                    }' +
 '                    var lengthPerCircuit = pipeLength / numCircuits;' +
 '                    var areaCoilList = PIPE_COILS[diameter].coils;' +
 '                    var areaSelectedCoil = null;' +
@@ -1683,6 +1698,8 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            itemCodesObj[GUIDE_CURVES[d2].itemCode] = true;' +
 '        }' +
 '    }' +
+'    if (splitterTotals.numPS4 > 0) { itemCodesObj[PIPE_SPLITTER_4.itemCode] = true; }' +
+'    if (splitterTotals.numPS2 > 0) { itemCodesObj[PIPE_SPLITTER_2.itemCode] = true; }' +
 '    for (var fcKey2 in floorConstructionTotals) {' +
 '        if (floorConstructionTotals.hasOwnProperty(fcKey2)) { itemCodesObj[fcKey2] = true; }' +
 '    }' +
@@ -1754,6 +1771,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                var gcPrice = getPrice(guideCurve.itemCode);' +
 '                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: numberOfCircuits, price: gcPrice, totalPrice: gcPrice * numberOfCircuits });' +
 '            }' +
+'        }' +
+'        if (splitterTotals.numPS4 > 0) {' +
+'            var ps4Price = getPrice(PIPE_SPLITTER_4.itemCode);' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_4.description + " (" + PIPE_SPLITTER_4.itemCode + ")", quantity: splitterTotals.numPS4 * 2, price: ps4Price, totalPrice: ps4Price * splitterTotals.numPS4 * 2 });' +
+'        }' +
+'        if (splitterTotals.numPS2 > 0) {' +
+'            var ps2Price = getPrice(PIPE_SPLITTER_2.itemCode);' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_2.description + " (" + PIPE_SPLITTER_2.itemCode + ")", quantity: splitterTotals.numPS2 * 2, price: ps2Price, totalPrice: ps2Price * splitterTotals.numPS2 * 2 });' +
 '        }' +
 '        for (var fcN in floorConstructionTotals) {' +
 '            if (floorConstructionTotals.hasOwnProperty(fcN)) {' +
