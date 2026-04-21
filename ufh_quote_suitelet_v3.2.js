@@ -1087,11 +1087,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Area m2</label>";' +
-'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0);\\">";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.areaSqm + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'areaSqm\', parseFloat(this.value) || 0); window.renderFloors();\\">";' +
 '                html += "</div>";' +
 '                html += "<div style=\\"display:flex;flex-direction:column;gap:4px;flex:0 0 60px;\\">";' +
 '                html += "<label style=\\"font-size:11px;color:#64748b;font-weight:500;\\">Thermostats</label>";' +
-'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0);\\">";' +
+'                html += "<input type=\\"number\\" style=\\"height:36px;padding:0 8px;box-sizing:border-box;width:100%;\\" value=\\"" + area.thermostats + "\\" min=\\"0\\" onchange=\\"window.updateArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\', \'thermostats\', parseInt(this.value) || 0); window.renderFloors();\\">";' +
 '                html += "</div>";' +
 '                if (manifold.areas.length > 1) {' +
 '                    html += "<button type=\\"button\\" class=\\"btn btn-danger\\" style=\\"align-self:flex-end;flex:0 0 36px;min-width:36px;width:36px;\\" onclick=\\"window.removeArea(\'" + floor.id + "\', \'" + manifold.id + "\', \'" + area.id + "\')\\">[X]</button>";' +
@@ -1147,6 +1147,31 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        floors.push(newFloor);' +
 '    }' +
 '    window.renderFloors();' +
+'};' +
+'window.splitOverflowManifolds = function() {' +
+'    var splitWorkType = selectedProjectType || "New Build";' +
+'    for (var ofIdx = 0; ofIdx < floors.length; ofIdx++) {' +
+'        var newManifolds = [];' +
+'        for (var omIdx = 0; omIdx < floors[ofIdx].manifolds.length; omIdx++) {' +
+'            var om = floors[ofIdx].manifolds[omIdx];' +
+'            var totalPorts = calculateManifoldPorts(om.areas, splitWorkType);' +
+'            if (totalPorts <= 12) {' +
+'                newManifolds.push(om);' +
+'            } else {' +
+'                var numManifolds = Math.ceil(totalPorts / 12);' +
+'                var totalAreaSqm = 0;' +
+'                for (var oa = 0; oa < om.areas.length; oa++) { totalAreaSqm += om.areas[oa].areaSqm; }' +
+'                var areaPerManifold = totalAreaSqm / numManifolds;' +
+'                var inheritFC = om.areas[0].floorConstruction;' +
+'                var inheritFloorType = om.areas[0].floorType;' +
+'                for (var nm = 0; nm < numManifolds; nm++) {' +
+'                    newManifolds.push({ id: generateId(), name: "Manifold " + (nm + 1), floorType: floors[ofIdx].floorType, expanded: true, areas: [{ id: generateId(), roomName: "", floorConstruction: inheritFC, floorType: inheritFloorType, areaSqm: Math.round(areaPerManifold * 10) / 10, thermostats: 1 }] });' +
+'                }' +
+'            }' +
+'        }' +
+'        for (var rn = 0; rn < newManifolds.length; rn++) { newManifolds[rn].name = "Manifold " + (rn + 1); }' +
+'        floors[ofIdx].manifolds = newManifolds;' +
+'    }' +
 '};' +
 'window.autoCalcZones = function() {' +
 '    if (!epcData || !epcData.totalFloorArea) { return; }' +
@@ -1245,6 +1270,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                manifolds: makeManifolds(upperArea, upperThermostats, "joisted", joistedFC)' +
 '            });' +
 '        }' +
+'        window.splitOverflowManifolds();' +
 '        window.renderFloors();' +
 '        return;' +
 '    }' +
@@ -1303,6 +1329,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        floorCounters.upper++;' +
 '        floors.push({ id: generateId(), type: "upper", name: "Upper Floor", floorType: "joisted", expanded: true, manifolds: packIntoManifolds(upperAreas, "joisted") });' +
 '    }' +
+'    window.splitOverflowManifolds();' +
 '    window.renderFloors();' +
 '};' +
 'window.removeFloor = function(floorId) {' +
@@ -1808,8 +1835,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    descLines.push("Estimated Price: " + formatCurrency(totalPrice));' +
 '    descLines.push("--------------------------------");' +
 '    descLines.push("");' +
-'    descLines.push("This quote includes all materials, design, and delivery.");' +
-'    descLines.push("Final price subject to full survey and specification.");' +
+'    descLines.push("This is an initial estimate. For a detailed quote, please provide us with a set of floor plans.");' +
 '    window.quoteDescriptionText = descLines.join("\\n");' +
 '    var descHtml = "<div class=\\"quote-description-box\\">";' +
 '    descHtml += "<div class=\\"quote-description-header\\">";' +
@@ -1836,7 +1862,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '    }' +
 '    descHtml += "<div class=\\"price-line\\">Estimated Price: " + formatCurrency(totalPrice) + "</div>";' +
-'    descHtml += "<div class=\\"disclaimer\\">This is a quick estimate. For a detailed quote, please provide us with a set of floor plans.</div>";' +
+'    descHtml += "<div class=\\"disclaimer\\">This is an initial estimate. For a detailed quote, please provide us with a set of floor plans.</div>";' +
 '    descHtml += "</div></div>";' +
 '    quoteDescriptionContainer.innerHTML = descHtml;' +
 '    var sections = ["Pump", "Manifold", "Controls", "Pipe", "Floor Construction", "Design and Delivery"];' +
