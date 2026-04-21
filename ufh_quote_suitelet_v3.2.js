@@ -708,6 +708,9 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            </div>' +
 '        </div>' +
 '    </div>' +
+'    <div style="text-align:center;padding:16px 0 8px;">' +
+'        <button type="button" class="btn btn-primary" onclick="window.generateFloorsAndManifolds()">Generate Floors &amp; Manifolds</button>' +
+'    </div>' +
 '    <div class="nh-section">' +
 '        <div class="nh-section-header"><span class="nh-step-num">5</span> Floors &amp; Manifolds</div>' +
 '        <div class="nh-section-body">' +
@@ -942,7 +945,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        cards[i].classList.remove(\'selected\');' +
 '    }' +
 '    document.getElementById(\'pt-\' + type).classList.add(\'selected\');' +
-'    window.applyPropertyTypeFloors(type);' +
 '};' +
 'window.applyPropertyTypeFloors = function(type) {' +
 '    floors = [];' +
@@ -959,6 +961,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        window.addFloor(\'upper\');' +
 '    }' +
 '    window.renderFloors();' +
+'};' +
+'window.generateFloorsAndManifolds = function() {' +
+'    if (floors.length > 0) {' +
+'        var ok = confirm("This will replace your current floor and manifold configuration. Any changes you have made will be lost. Continue?");' +
+'        if (!ok) { return; }' +
+'    }' +
+'    floors = [];' +
+'    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
+'    window.autoCalcZones();' +
 '};' +
 'window.selectProjectType = function(type) {' +
 '    selectedProjectType = type;' +
