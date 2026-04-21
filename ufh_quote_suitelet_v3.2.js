@@ -969,7 +969,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    floors = [];' +
 '    floorCounters = { ground: 0, upper: 0, lowerground: 0, basement: 0 };' +
-'    window.autoCalcZones();' +
+'    if (epcData && epcData.totalFloorArea) {' +
+'        window.autoCalcZones();' +
+'    } else {' +
+'        window.applyPropertyTypeFloors(selectedPropertyType);' +
+'    }' +
+'    window.renderFloors();' +
 '};' +
 'window.selectProjectType = function(type) {' +
 '    selectedProjectType = type;' +
