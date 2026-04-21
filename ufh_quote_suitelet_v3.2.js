@@ -32,15 +32,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
                 label: ' '
             });
 
-            // Build the RESTlet URL server-side so no environment URL is hardcoded
-            // in the client-side HTML.
-            // IMPORTANT: Replace 'customscript_ufh_quote_restlet' and
-            // 'customdeploy_ufh_quote_restlet' with the actual Script ID and
-            // Deployment ID values once the RESTlet has been deployed in NetSuite.
-            // The Script ID is visible on the Script record
-            // (Customization > Scripting > Scripts > [RESTlet record] > ID field).
-            // The Deployment ID is on the Deployment record
-            // (same Script record > Deployments subtab > open the deployment > ID field).
+            /* Build the RESTlet URL server-side so no environment URL is hardcoded
+               in the client-side HTML.
+               IMPORTANT: Replace 'customscript_ufh_quote_restlet' and
+               'customdeploy_ufh_quote_restlet' with the actual Script ID and
+               Deployment ID values once the RESTlet has been deployed in NetSuite.
+               The Script ID is visible on the Script record
+               (Customization > Scripting > Scripts > [RESTlet record] > ID field).
+               The Deployment ID is on the Deployment record
+               (same Script record > Deployments subtab > open the deployment > ID field). */
             var restletUrl = url.resolveScript({
                 scriptId: 'customscript_quick_quote_rl',
                 deploymentId: 'customdeploy_quick_quote_rl',
@@ -1607,9 +1607,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        if (pipeDiameterTotals.hasOwnProperty(diam)) {' +
 '            var d = parseInt(diam);' +
 '            var diamPre = pipeDiameterTotals[diam];' +
-'            if (diamPre.ports === 0) { continue; }' +
+'            var numberOfCircuits = diamPre.ports;' +
+'            if (numberOfCircuits === 0) { continue; }' +
 '            var coilList = PIPE_COILS[d].coils;' +
-'            var lengthPerCircuit = diamPre.length / diamPre.ports;' +
+'            var lengthPerCircuit = diamPre.length / numberOfCircuits;' +
 '            var selectedCoil = null;' +
 '            for (var ci = 0; ci < coilList.length; ci++) {' +
 '                if (coilList[ci].length >= lengthPerCircuit) {' +
@@ -1619,7 +1620,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            }' +
 '            if (!selectedCoil) {' +
 '                selectedCoil = coilList[coilList.length - 1];' +
-'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used - manual review required.");' +
+'                errors.push("Warning: pipe circuit length for " + d + "mm exceeds largest available coil — check manually");' +
 '            }' +
 '            selectedPipeCoils[d] = selectedCoil;' +
 '        }' +
@@ -1692,9 +1693,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                var diamData = pipeDiameterTotals[diam3];' +
 '                var d3 = parseInt(diam3);' +
 '                var coil = selectedPipeCoils[d3];' +
-'                if (!coil || diamData.ports === 0) { continue; }' +
+'                var numberOfCircuits = diamData.ports;' +
+'                if (!coil || numberOfCircuits === 0) { continue; }' +
 '                var coilPrice = getPrice(coil.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: diamData.ports, price: coilPrice, totalPrice: coilPrice * diamData.ports, cost: 0, totalCost: 0 });' +
+'                lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: numberOfCircuits, price: coilPrice, totalPrice: coilPrice * numberOfCircuits, cost: 0, totalCost: 0 });' +
 '                var connectors = diamData.ports * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
 '                var connPrice = getPrice(connector.itemCode);' +
