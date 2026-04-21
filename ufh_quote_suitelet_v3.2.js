@@ -32,15 +32,15 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
                 label: ' '
             });
 
-            // Build the RESTlet URL server-side so no environment URL is hardcoded
-            // in the client-side HTML.
-            // IMPORTANT: Replace 'customscript_ufh_quote_restlet' and
-            // 'customdeploy_ufh_quote_restlet' with the actual Script ID and
-            // Deployment ID values once the RESTlet has been deployed in NetSuite.
-            // The Script ID is visible on the Script record
-            // (Customization > Scripting > Scripts > [RESTlet record] > ID field).
-            // The Deployment ID is on the Deployment record
-            // (same Script record > Deployments subtab > open the deployment > ID field).
+            /* Build the RESTlet URL server-side so no environment URL is hardcoded
+               in the client-side HTML.
+               IMPORTANT: Replace 'customscript_ufh_quote_restlet' and
+               'customdeploy_ufh_quote_restlet' with the actual Script ID and
+               Deployment ID values once the RESTlet has been deployed in NetSuite.
+               The Script ID is visible on the Script record
+               (Customization > Scripting > Scripts > [RESTlet record] > ID field).
+               The Deployment ID is on the Deployment record
+               (same Script record > Deployments subtab > open the deployment > ID field). */
             var restletUrl = url.resolveScript({
                 scriptId: 'customscript_quick_quote_rl',
                 deploymentId: 'customdeploy_quick_quote_rl',
@@ -1517,6 +1517,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var totalPorts = 0;' +
 '    var floorConstructionTotals = {};' +
 '    var pipeDiameterTotals = {};' +
+'    var pipeCoilLineItems = [];' +
 '    var totalManifolds = 0;' +
 '    for (var fIdx = 0; fIdx < floors.length; fIdx++) {' +
 '        var floorObj = floors[fIdx];' +
@@ -1542,13 +1543,27 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    var spacing = fcPipeSpacing(fc);' +
 '                    var diameter = fcPipeDiameter(fc);' +
 '                    if (!pipeDiameterTotals[diameter]) {' +
-'                        pipeDiameterTotals[diameter] = { length: 0, ports: 0 };' +
+'                        pipeDiameterTotals[diameter] = { ports: 0 };' +
 '                    }' +
 '                    var pipeLength = (area.areaSqm * 1000) / spacing;' +
-'                    pipeDiameterTotals[diameter].length += pipeLength;' +
 '                    var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
 '                    var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
-'                    pipeDiameterTotals[diameter].ports += Math.ceil(pipeLength / maxLength);' +
+'                    var numCircuits = Math.ceil(pipeLength / maxLength);' +
+'                    pipeDiameterTotals[diameter].ports += numCircuits;' +
+'                    var lengthPerCircuit = pipeLength / numCircuits;' +
+'                    var areaCoilList = PIPE_COILS[diameter].coils;' +
+'                    var areaSelectedCoil = null;' +
+'                    for (var aci = 0; aci < areaCoilList.length; aci++) {' +
+'                        if (areaCoilList[aci].length >= lengthPerCircuit) {' +
+'                            areaSelectedCoil = areaCoilList[aci];' +
+'                            break;' +
+'                        }' +
+'                    }' +
+'                    if (!areaSelectedCoil) {' +
+'                        areaSelectedCoil = areaCoilList[areaCoilList.length - 1];' +
+'                        errors.push("Warning: pipe circuit length for " + diameter + "mm exceeds largest available coil — check manually");' +
+'                    }' +
+'                    pipeCoilLineItems.push({ diameter: diameter, coil: areaSelectedCoil, circuits: numCircuits });' +
 '                }' +
 '            }' +
 '        }' +
@@ -1602,28 +1617,6 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    /* Wiring centre quantity = max(ceil(thermostats/8), number of manifolds) */' +
 '    var wiringCentres = Math.max(Math.ceil(totalThermostats / 8), totalManifolds);' +
 '    var junctionBoxes = (heatSource !== "Heat Pump" && totalPorts > 0) ? Math.ceil(totalPorts / 12) : 0;' +
-'    var selectedPipeCoils = {};' +
-'    for (var diam in pipeDiameterTotals) {' +
-'        if (pipeDiameterTotals.hasOwnProperty(diam)) {' +
-'            var d = parseInt(diam);' +
-'            var diamPre = pipeDiameterTotals[diam];' +
-'            if (diamPre.ports === 0) { continue; }' +
-'            var coilList = PIPE_COILS[d].coils;' +
-'            var lengthPerCircuit = diamPre.length / diamPre.ports;' +
-'            var selectedCoil = null;' +
-'            for (var ci = 0; ci < coilList.length; ci++) {' +
-'                if (coilList[ci].length >= lengthPerCircuit) {' +
-'                    selectedCoil = coilList[ci];' +
-'                    break;' +
-'                }' +
-'            }' +
-'            if (!selectedCoil) {' +
-'                selectedCoil = coilList[coilList.length - 1];' +
-'                errors.push("Warning: a pipe circuit requires more than the largest available coil for " + d + "mm pipe. Largest coil used - manual review required.");' +
-'            }' +
-'            selectedPipeCoils[d] = selectedCoil;' +
-'        }' +
-'    }' +
 '    var itemCodesObj = {};' +
 '    itemCodesObj[selectedPump.itemCode] = true;' +
 '    for (var smi = 0; smi < selectedManifoldData.length; smi++) { itemCodesObj[selectedManifoldData[smi].itemCode] = true; }' +
@@ -1637,10 +1630,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        itemCodesObj[ACTUATOR.itemCode] = true;' +
 '        if (heatSource !== "Heat Pump" && junctionBoxes > 0) { itemCodesObj[JUNCTION_BOX.itemCode] = true; }' +
 '    }' +
+'    for (var pci = 0; pci < pipeCoilLineItems.length; pci++) {' +
+'        itemCodesObj[pipeCoilLineItems[pci].coil.itemCode] = true;' +
+'    }' +
 '    for (var diam2 in pipeDiameterTotals) {' +
 '        if (pipeDiameterTotals.hasOwnProperty(diam2)) {' +
 '            var d2 = parseInt(diam2);' +
-'            itemCodesObj[selectedPipeCoils[d2].itemCode] = true;' +
 '            itemCodesObj[PIPE_CONNECTORS[d2].itemCode] = true;' +
 '            itemCodesObj[GUIDE_CURVES[d2].itemCode] = true;' +
 '        }' +
@@ -1687,21 +1682,34 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                lineItems.push({ section: "Controls", description: JUNCTION_BOX.description + " (" + JUNCTION_BOX.itemCode + ")", quantity: junctionBoxes, price: jbPrice, totalPrice: jbPrice * junctionBoxes });' +
 '            }' +
 '        }' +
+'        var coilGroups = {};' +
+'        for (var pli = 0; pli < pipeCoilLineItems.length; pli++) {' +
+'            var pliItem = pipeCoilLineItems[pli];' +
+'            if (!coilGroups[pliItem.coil.itemCode]) {' +
+'                coilGroups[pliItem.coil.itemCode] = { coil: pliItem.coil, totalCircuits: 0 };' +
+'            }' +
+'            coilGroups[pliItem.coil.itemCode].totalCircuits += pliItem.circuits;' +
+'        }' +
+'        for (var cgKey in coilGroups) {' +
+'            if (coilGroups.hasOwnProperty(cgKey)) {' +
+'                var cg = coilGroups[cgKey];' +
+'                var coilPrice = getPrice(cg.coil.itemCode);' +
+'                lineItems.push({ section: "Pipe", description: cg.coil.description + " (" + cg.coil.itemCode + ")", quantity: cg.totalCircuits, price: coilPrice, totalPrice: coilPrice * cg.totalCircuits, cost: 0, totalCost: 0 });' +
+'            }' +
+'        }' +
 '        for (var diam3 in pipeDiameterTotals) {' +
 '            if (pipeDiameterTotals.hasOwnProperty(diam3)) {' +
 '                var diamData = pipeDiameterTotals[diam3];' +
 '                var d3 = parseInt(diam3);' +
-'                var coil = selectedPipeCoils[d3];' +
-'                if (!coil || diamData.ports === 0) { continue; }' +
-'                var coilPrice = getPrice(coil.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: coil.description + " (" + coil.itemCode + ")", quantity: diamData.ports, price: coilPrice, totalPrice: coilPrice * diamData.ports, cost: 0, totalCost: 0 });' +
-'                var connectors = diamData.ports * 2;' +
+'                var numberOfCircuits = diamData.ports;' +
+'                if (numberOfCircuits === 0) { continue; }' +
+'                var connectors = numberOfCircuits * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
 '                var connPrice = getPrice(connector.itemCode);' +
 '                lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, price: connPrice, totalPrice: connPrice * connectors });' +
 '                var guideCurve = GUIDE_CURVES[d3];' +
 '                var gcPrice = getPrice(guideCurve.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: diamData.ports, price: gcPrice, totalPrice: gcPrice * diamData.ports });' +
+'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: numberOfCircuits, price: gcPrice, totalPrice: gcPrice * numberOfCircuits });' +
 '            }' +
 '        }' +
 '        for (var fcN in floorConstructionTotals) {' +
