@@ -1594,13 +1594,14 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    var spacing = fcPipeSpacing(fc);' +
 '                    var diameter = fcPipeDiameter(fc);' +
 '                    if (!pipeDiameterTotals[diameter]) {' +
-'                        pipeDiameterTotals[diameter] = { ports: 0 };' +
+'                        pipeDiameterTotals[diameter] = { ports: 0, circuits: 0 };' +
 '                    }' +
 '                    var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '                    var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
 '                    var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '                    var numCircuits = Math.ceil(pipeLength / maxLength);' +
 '                    pipeDiameterTotals[diameter].ports += numCircuits;' +
+'                    pipeDiameterTotals[diameter].circuits += numCircuits;' +
 '                    if (diameter === 10) {' +
 '                        var remainder = numCircuits % 4;' +
 '                        var portsFor4 = Math.floor(numCircuits / 4);' +
@@ -1763,13 +1764,13 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                var d3 = parseInt(diam3);' +
 '                var numberOfCircuits = diamData.ports;' +
 '                if (numberOfCircuits === 0) { continue; }' +
-'                var connectors = numberOfCircuits * 2;' +
+'                var connectors = (d3 === 10) ? splitterTotals.numSingle * 2 : numberOfCircuits * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
 '                var connPrice = getPrice(connector.itemCode);' +
 '                lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, price: connPrice, totalPrice: connPrice * connectors });' +
 '                var guideCurve = GUIDE_CURVES[d3];' +
 '                var gcPrice = getPrice(guideCurve.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: numberOfCircuits, price: gcPrice, totalPrice: gcPrice * numberOfCircuits });' +
+'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: diamData.circuits * 2, price: gcPrice, totalPrice: gcPrice * diamData.circuits * 2 });' +
 '            }' +
 '        }' +
 '        if (splitterTotals.numPS4 > 0) {' +
