@@ -1835,8 +1835,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    descLines.push("Estimated Price: " + formatCurrency(totalPrice));' +
 '    descLines.push("--------------------------------");' +
 '    descLines.push("");' +
-'    descLines.push("This quote includes all materials, design, and delivery.");' +
-'    descLines.push("Final price subject to full survey and specification.");' +
+'    descLines.push("This is an initial estimate. For a detailed quote, please provide us with a set of floor plans.");' +
 '    window.quoteDescriptionText = descLines.join("\\n");' +
 '    var descHtml = "<div class=\\"quote-description-box\\">";' +
 '    descHtml += "<div class=\\"quote-description-header\\">";' +
@@ -1863,7 +1862,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        }' +
 '    }' +
 '    descHtml += "<div class=\\"price-line\\">Estimated Price: " + formatCurrency(totalPrice) + "</div>";' +
-'    descHtml += "<div class=\\"disclaimer\\">This is a quick estimate. For a detailed quote, please provide us with a set of floor plans.</div>";' +
+'    descHtml += "<div class=\\"disclaimer\\">This is an initial estimate. For a detailed quote, please provide us with a set of floor plans.</div>";' +
 '    descHtml += "</div></div>";' +
 '    quoteDescriptionContainer.innerHTML = descHtml;' +
 '    var sections = ["Pump", "Manifold", "Controls", "Pipe", "Floor Construction", "Design and Delivery"];' +
