@@ -2119,14 +2119,17 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '        document.getElementById("entitySearchResults").innerHTML = "";' +
 '        return;' +
 '    }' +
-'    var url = RESTLET_BASE_URL + "&action=searchEntities&q=" + encodeURIComponent(q);' +
-'    fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } })' +
+'    var searchUrl = RESTLET_BASE_URL + "&action=searchEntities&q=" + encodeURIComponent(q);' +
+'    console.log("searchEntities URL:", searchUrl);' +
+'    fetch(searchUrl, { method: "GET", headers: { "Content-Type": "application/json" } })' +
 '        .then(function(r) { return r.json(); })' +
 '        .then(function(data) {' +
-'            if (!data.success || !data.results.length) {' +
+'            console.log("searchEntities response:", JSON.stringify(data));' +
+'            if (!data.success || !data.results || !data.results.length) {' +
 '                document.getElementById("entitySearchResults").innerHTML = "<div style=\\"padding:8px;color:#64748b;\\">No results found</div>";' +
 '                return;' +
 '            }' +
+'            console.log("Rendering", data.results.length, "results");' +
 '            var html = "";' +
 '            window._entityResults = data.results;' +
 '            for (var i = 0; i < data.results.length; i++) {' +
@@ -2139,6 +2142,10 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                html += "</div>";' +
 '            }' +
 '            document.getElementById("entitySearchResults").innerHTML = html;' +
+'        })' +
+'        .catch(function(err) {' +
+'            console.log("searchEntities error:", err.message);' +
+'            document.getElementById("entitySearchResults").innerHTML = "<div style=\\"padding:8px;color:#dc2626;\\">Search error: " + err.message + "</div>";' +
 '        });' +
 '};' +
 'window.selectEntity = function(internalid, displayName) {' +
