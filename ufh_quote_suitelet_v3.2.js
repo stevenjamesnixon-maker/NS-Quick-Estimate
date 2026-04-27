@@ -2128,10 +2128,11 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                return;' +
 '            }' +
 '            var html = "";' +
+'            window._entityResults = data.results;' +
 '            for (var i = 0; i < data.results.length; i++) {' +
 '                var e = data.results[i];' +
 '                var name = e.companyname || (e.firstname + " " + e.lastname);' +
-'                html += "<div class=\\"entity-result-item\\" onclick=\\"window.selectEntity(\'" + e.internalid + "\', \'" + name.replace(/\'/g, "\\\\\\'") + "\')\\" style=\\"padding:10px 12px;cursor:pointer;border-bottom:1px solid #e2e8f0;\\">";' +
+'                html += "<div class=\\"entity-result-item\\" onclick=\\"window.selectEntityByIndex(" + i + ")\\" style=\\"padding:10px 12px;cursor:pointer;border-bottom:1px solid #e2e8f0;background:#fff;\\">";' +
 '                html += "<span style=\\"font-size:11px;background:#e8f4f3;color:#00857D;padding:2px 6px;border-radius:4px;margin-right:8px;\\">" + e.type + "</span>";' +
 '                html += name;' +
 '                if (e.entityid) { html += " <span style=\\"color:#94a3b8;font-size:12px;\\">(" + e.entityid + ")</span>"; }' +
@@ -2147,6 +2148,12 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    var display = document.getElementById("selectedEntityDisplay");' +
 '    display.style.display = "block";' +
 '    display.innerHTML = "<span style=\\"color:#00857D;font-weight:600;\\">\u2713 Selected: </span>" + displayName + " <a href=\\"#\\" onclick=\\"window.clearEntity();return false;\\" style=\\"color:#94a3b8;font-size:12px;margin-left:8px;\\">Change</a>";' +
+'};' +
+'window.selectEntityByIndex = function(i) {' +
+'    var e = window._entityResults[i];' +
+'    if (!e) { return; }' +
+'    var name = e.companyname || (e.firstname + " " + e.lastname);' +
+'    window.selectEntity(e.internalid, name);' +
 '};' +
 'window.clearEntity = function() {' +
 '    window.selectedEntityId = null;' +
