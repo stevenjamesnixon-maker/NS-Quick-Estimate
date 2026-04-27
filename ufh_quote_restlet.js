@@ -404,31 +404,6 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
         }
 
         try {
-            /* Bare search -- no filters, just confirm search.Type.CUSTOMER returns anything */
-            var bareResults = [];
-            search.create({
-                type: search.Type.CUSTOMER,
-                columns: [
-                    search.createColumn({ name: 'internalId' }),
-                    search.createColumn({ name: 'entityId' }),
-                    search.createColumn({ name: 'companyName' }),
-                    search.createColumn({ name: 'firstName' }),
-                    search.createColumn({ name: 'lastName' }),
-                    search.createColumn({ name: 'type' })
-                ]
-            }).run().each(function(result) {
-                bareResults.push({
-                    internalid:  result.getValue({ name: 'internalId' }),
-                    entityid:    result.getValue({ name: 'entityId' }),
-                    companyname: result.getValue({ name: 'companyName' }),
-                    firstname:   result.getValue({ name: 'firstName' }),
-                    lastname:    result.getValue({ name: 'lastName' }),
-                    type:        result.getText({ name: 'type' })
-                });
-                return bareResults.length < 5;
-            });
-
-            /* Full filtered search */
             var filters = [
                 ['type', search.Operator.ANYOF, ['CustJob', 'Lead', 'Prospect']],
                 'AND',
@@ -452,8 +427,7 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                     search.createColumn({ name: 'companyName' }),
                     search.createColumn({ name: 'firstName' }),
                     search.createColumn({ name: 'lastName' }),
-                    search.createColumn({ name: 'email' }),
-                    search.createColumn({ name: 'type' })
+                    search.createColumn({ name: 'email' })
                 ],
                 filters: filters
             }).run().each(function(result) {
@@ -464,23 +438,15 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                     firstname:   result.getValue({ name: 'firstName' }),
                     lastname:    result.getValue({ name: 'lastName' }),
                     email:       result.getValue({ name: 'email' }),
-                    type:        result.getText({ name: 'type' })
+                    type:        ''
                 });
                 return filteredResults.length < 10;
             });
 
-            return JSON.stringify({
-                success: true,
-                debug: {
-                    q: q,
-                    bareCount: bareResults.length,
-                    bareSample: bareResults,
-                    filteredCount: filteredResults.length
-                },
-                results: filteredResults
-            });
+            return JSON.stringify({ success: true, results: filteredResults });
 
         } catch(e) {
+            log.error({ title: 'searchEntities error', details: e });
             return JSON.stringify({ success: false, error: e.message, stack: e.stack });
         }
     }
