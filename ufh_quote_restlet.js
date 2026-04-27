@@ -403,21 +403,22 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 return JSON.stringify({ success: false, error: 'Query too short' });
             }
 
-            var entitySearch = search.create({
+            var filters = [
+                ['type', search.Operator.ANYOF, ['CustJob', 'Lead', 'Prospect']],
+                'AND',
+                ['isinactive', search.Operator.IS, 'F'],
+                'AND',
+                [
+                    ['companyname', search.Operator.CONTAINS, q],
+                    'OR',
+                    ['firstname', search.Operator.CONTAINS, q],
+                    'OR',
+                    ['lastname', search.Operator.CONTAINS, q]
+                ]
+            ];
+
+            var mySearch = search.create({
                 type: search.Type.CUSTOMER,
-                filters: [
-                    ['type', search.Operator.ANYOF, ['CustJob', 'Lead', 'Prospect']],
-                    'AND',
-                    ['isinactive', search.Operator.IS, 'F'],
-                    'AND',
-                    [
-                        ['companyname', search.Operator.CONTAINS, q],
-                        'OR',
-                        ['firstname', search.Operator.CONTAINS, q],
-                        'OR',
-                        ['lastname', search.Operator.CONTAINS, q]
-                    ]
-                ],
                 columns: [
                     search.createColumn({ name: 'internalId' }),
                     search.createColumn({ name: 'entityId' }),
@@ -426,25 +427,23 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                     search.createColumn({ name: 'lastName' }),
                     search.createColumn({ name: 'email' }),
                     search.createColumn({ name: 'type' })
-                ]
+                ],
+                filters: filters
             });
 
-            var rows = entitySearch.run().getRange({ start: 0, end: 10 });
             var results = [];
-            for (var i = 0; i < rows.length; i++) {
-                var r = rows[i];
-                var typeRaw = r.getValue({ name: 'type' });
-                var typeLabel = typeRaw === 'Lead' ? 'Lead' : (typeRaw === 'Prospect' ? 'Prospect' : 'Customer');
+            mySearch.run().each(function(result) {
                 results.push({
-                    internalid:  r.getValue({ name: 'internalId' }),
-                    entityid:    r.getValue({ name: 'entityId' }),
-                    companyname: r.getValue({ name: 'companyName' }),
-                    firstname:   r.getValue({ name: 'firstName' }),
-                    lastname:    r.getValue({ name: 'lastName' }),
-                    email:       r.getValue({ name: 'email' }),
-                    type:        typeLabel
+                    internalid:  result.getValue({ name: 'internalId' }),
+                    entityid:    result.getValue({ name: 'entityId' }),
+                    companyname: result.getValue({ name: 'companyName' }),
+                    firstname:   result.getValue({ name: 'firstName' }),
+                    lastname:    result.getValue({ name: 'lastName' }),
+                    email:       result.getValue({ name: 'email' }),
+                    type:        result.getText({ name: 'type' })
                 });
-            }
+                return results.length < 10;
+            });
 
             return JSON.stringify({ success: true, results: results });
         } catch (e) {
