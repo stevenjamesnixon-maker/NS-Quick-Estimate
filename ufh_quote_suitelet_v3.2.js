@@ -747,6 +747,26 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            <div id="bomContainer"></div>' +
 '        </div>' +
 '    </div>' +
+'    <div id="estimatePanel" class="hidden" style="margin-top:24px;">' +
+'        <div class="card" style="border:1px solid #d1d5db;border-radius:8px;padding:24px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);">' +
+'            <h3 style="font-size:16px;font-weight:700;color:#59315F;margin-bottom:16px;">Save as Estimate in NetSuite</h3>' +
+'            <div style="margin-bottom:16px;">' +
+'                <label style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;display:block;">Search for Customer, Lead or Prospect</label>' +
+'                <input type="text" id="entitySearchInput" placeholder="Type a name to search..." oninput="window.searchEntities()" style="width:100%;max-width:480px;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:inherit;" />' +
+'                <div id="entitySearchResults" style="max-width:480px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;background:#fff;box-shadow:0 4px 8px rgba(0,0,0,0.08);"></div>' +
+'                <div id="selectedEntityDisplay" style="display:none;margin-top:8px;padding:10px 12px;background:#f0f9f8;border:1px solid #00857D;border-radius:6px;font-size:14px;"></div>' +
+'            </div>' +
+'            <div style="margin-bottom:16px;">' +
+'                <label style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;display:block;">Site Address</label>' +
+'                <input type="text" id="siteAddressInput" placeholder="Enter site address" style="width:100%;max-width:480px;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:inherit;" />' +
+'            </div>' +
+'            <div style="display:flex;gap:12px;flex-wrap:wrap;">' +
+'                <button type="button" id="confirmEstimateBtn" class="btn btn-primary" onclick="window.submitEstimate()">Confirm &amp; Create Estimate</button>' +
+'                <button type="button" class="btn btn-secondary" onclick="window.closeEstimatePanel()">Cancel</button>' +
+'            </div>' +
+'            <div id="estimateStatus" style="display:none;margin-top:12px;"></div>' +
+'        </div>' +
+'    </div>' +
 '</div>' +
 '<script>' +
 '/* RESTLET_BASE_URL is injected server-side by the Suitelet using N/url.resolveScript. */' +
@@ -1594,21 +1614,37 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    var spacing = fcPipeSpacing(fc);' +
 '                    var diameter = fcPipeDiameter(fc);' +
 '                    if (!pipeDiameterTotals[diameter]) {' +
-'                        pipeDiameterTotals[diameter] = { ports: 0, circuits: 0 };' +
+'                        pipeDiameterTotals[diameter] = { ports: 0, singlePorts: 0, circuits: 0 };' +
 '                    }' +
 '                    var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '                    var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
 '                    var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '                    var numCircuits = Math.ceil(pipeLength / maxLength);' +
-'                    pipeDiameterTotals[diameter].ports += numCircuits;' +
-'                    pipeDiameterTotals[diameter].circuits += numCircuits;' +
+'                    var areaPorts = 0;' +
+'                    var areaSinglePorts = 0;' +
 '                    if (diameter === 10) {' +
-'                        var remainder = numCircuits % 4;' +
 '                        var portsFor4 = Math.floor(numCircuits / 4);' +
+'                        var remainder = numCircuits % 4;' +
 '                        splitterTotals.numPS4 += (remainder === 3) ? portsFor4 + 1 : portsFor4;' +
 '                        splitterTotals.numPS2 += (remainder === 2) ? 1 : 0;' +
 '                        splitterTotals.numSingle += (remainder === 1) ? 1 : 0;' +
+'                        if (remainder === 0) {' +
+'                            areaPorts = portsFor4;' +
+'                            areaSinglePorts = portsFor4;' +
+'                        } else if (remainder === 1) {' +
+'                            areaPorts = portsFor4 + 1;' +
+'                            areaSinglePorts = portsFor4 + 1;' +
+'                        } else {' +
+'                            areaPorts = portsFor4 + 1;' +
+'                            areaSinglePorts = portsFor4;' +
+'                        }' +
+'                    } else {' +
+'                        areaPorts = numCircuits;' +
+'                        areaSinglePorts = numCircuits;' +
 '                    }' +
+'                    pipeDiameterTotals[diameter].ports += areaPorts;' +
+'                    pipeDiameterTotals[diameter].singlePorts += areaSinglePorts;' +
+'                    pipeDiameterTotals[diameter].circuits += numCircuits;' +
 '                    var lengthPerCircuit = pipeLength / numCircuits;' +
 '                    var areaCoilList = PIPE_COILS[diameter].coils;' +
 '                    var areaSelectedCoil = null;' +
@@ -1717,30 +1753,35 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            console.warn("Price not found for: " + itemCode);' +
 '            return 0;' +
 '        }' +
+'        function getInternalId(itemCode) {' +
+'            var p = prices[itemCode];' +
+'            if (p && !p.notFound) { return p.internalid || null; }' +
+'            return null;' +
+'        }' +
 '        var lineItems = [];' +
 '        var pumpPrice = getPrice(selectedPump.itemCode);' +
-'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: pumpQuantity, price: pumpPrice, totalPrice: pumpPrice * pumpQuantity });' +
+'        lineItems.push({ section: "Pump", description: selectedPump.description + " (" + selectedPump.itemCode + ")", quantity: pumpQuantity, price: pumpPrice, totalPrice: pumpPrice * pumpQuantity, internalid: getInternalId(selectedPump.itemCode) });' +
 '        for (var mi = 0; mi < selectedManifoldData.length; mi++) {' +
 '            var md = selectedManifoldData[mi];' +
 '            var mdPrice = getPrice(md.itemCode);' +
-'            lineItems.push({ section: "Manifold", description: md.description + " (" + md.itemCode + ")", quantity: 1, price: mdPrice, totalPrice: mdPrice });' +
+'            lineItems.push({ section: "Manifold", description: md.description + " (" + md.itemCode + ")", quantity: 1, price: mdPrice, totalPrice: mdPrice, internalid: getInternalId(md.itemCode) });' +
 '        }' +
 '        var mcPrice = getPrice(MANIFOLD_CONNECTION.itemCode);' +
-'        lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: totalManifolds, price: mcPrice, totalPrice: mcPrice * totalManifolds });' +
+'        lineItems.push({ section: "Manifold", description: MANIFOLD_CONNECTION.description + " (" + MANIFOLD_CONNECTION.itemCode + ")", quantity: totalManifolds, price: mcPrice, totalPrice: mcPrice * totalManifolds, internalid: getInternalId(MANIFOLD_CONNECTION.itemCode) });' +
 '        if (totalThermostats > 0) {' +
 '            var thPrice = getPrice(activeThermostat.itemCode);' +
-'            lineItems.push({ section: "Controls", description: activeThermostat.description + " (" + activeThermostat.itemCode + ")", quantity: totalThermostats, price: thPrice, totalPrice: thPrice * totalThermostats });' +
+'            lineItems.push({ section: "Controls", description: activeThermostat.description + " (" + activeThermostat.itemCode + ")", quantity: totalThermostats, price: thPrice, totalPrice: thPrice * totalThermostats, internalid: getInternalId(activeThermostat.itemCode) });' +
 '        }' +
 '        if (wiringCentres > 0) {' +
 '            var wcPrice = getPrice(activeWiringCentre.itemCode);' +
-'            lineItems.push({ section: "Controls", description: activeWiringCentre.description + " (" + activeWiringCentre.itemCode + ")", quantity: wiringCentres, price: wcPrice, totalPrice: wcPrice * wiringCentres });' +
+'            lineItems.push({ section: "Controls", description: activeWiringCentre.description + " (" + activeWiringCentre.itemCode + ")", quantity: wiringCentres, price: wcPrice, totalPrice: wcPrice * wiringCentres, internalid: getInternalId(activeWiringCentre.itemCode) });' +
 '        }' +
 '        if (totalPorts > 0) {' +
 '            var actPrice = getPrice(ACTUATOR.itemCode);' +
-'            lineItems.push({ section: "Controls", description: ACTUATOR.description + " (" + ACTUATOR.itemCode + ")", quantity: totalPorts, price: actPrice, totalPrice: actPrice * totalPorts });' +
+'            lineItems.push({ section: "Controls", description: ACTUATOR.description + " (" + ACTUATOR.itemCode + ")", quantity: totalPorts, price: actPrice, totalPrice: actPrice * totalPorts, internalid: getInternalId(ACTUATOR.itemCode) });' +
 '            if (heatSource !== "Heat Pump" && junctionBoxes > 0) {' +
 '                var jbPrice = getPrice(JUNCTION_BOX.itemCode);' +
-'                lineItems.push({ section: "Controls", description: JUNCTION_BOX.description + " (" + JUNCTION_BOX.itemCode + ")", quantity: junctionBoxes, price: jbPrice, totalPrice: jbPrice * junctionBoxes });' +
+'                lineItems.push({ section: "Controls", description: JUNCTION_BOX.description + " (" + JUNCTION_BOX.itemCode + ")", quantity: junctionBoxes, price: jbPrice, totalPrice: jbPrice * junctionBoxes, internalid: getInternalId(JUNCTION_BOX.itemCode) });' +
 '            }' +
 '        }' +
 '        var coilGroups = {};' +
@@ -1755,41 +1796,45 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            if (coilGroups.hasOwnProperty(cgKey)) {' +
 '                var cg = coilGroups[cgKey];' +
 '                var coilPrice = getPrice(cg.coil.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: cg.coil.description + " (" + cg.coil.itemCode + ")", quantity: cg.totalCircuits, price: coilPrice, totalPrice: coilPrice * cg.totalCircuits, cost: 0, totalCost: 0 });' +
+'                lineItems.push({ section: "Pipe", description: cg.coil.description + " (" + cg.coil.itemCode + ")", quantity: cg.totalCircuits, price: coilPrice, totalPrice: coilPrice * cg.totalCircuits, cost: 0, totalCost: 0, internalid: getInternalId(cg.coil.itemCode) });' +
 '            }' +
 '        }' +
 '        for (var diam3 in pipeDiameterTotals) {' +
 '            if (pipeDiameterTotals.hasOwnProperty(diam3)) {' +
 '                var diamData = pipeDiameterTotals[diam3];' +
 '                var d3 = parseInt(diam3);' +
-'                var numberOfCircuits = diamData.ports;' +
-'                if (numberOfCircuits === 0) { continue; }' +
-'                var connectors = (d3 === 10) ? splitterTotals.numSingle * 2 : numberOfCircuits * 2;' +
+'                if (diamData.circuits === 0) { continue; }' +
+'                var connectorQty = (d3 === 10) ? diamData.singlePorts * 2 : diamData.ports * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
-'                var connPrice = getPrice(connector.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, price: connPrice, totalPrice: connPrice * connectors });' +
-'                var guideCurve = GUIDE_CURVES[d3];' +
-'                var gcPrice = getPrice(guideCurve.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: diamData.circuits * 2, price: gcPrice, totalPrice: gcPrice * diamData.circuits * 2 });' +
+'                if (connectorQty > 0) {' +
+'                    var connPrice = getPrice(connector.itemCode);' +
+'                    lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectorQty, price: connPrice, totalPrice: connPrice * connectorQty, internalid: getInternalId(connector.itemCode) });' +
+'                }' +
+'                var guideCurveQty = diamData.circuits * 2;' +
+'                if (guideCurveQty > 0) {' +
+'                    var guideCurve = GUIDE_CURVES[d3];' +
+'                    var gcPrice = getPrice(guideCurve.itemCode);' +
+'                    lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: guideCurveQty, price: gcPrice, totalPrice: gcPrice * guideCurveQty, internalid: getInternalId(guideCurve.itemCode) });' +
+'                }' +
 '            }' +
 '        }' +
 '        if (splitterTotals.numPS4 > 0) {' +
 '            var ps4Price = getPrice(PIPE_SPLITTER_4.itemCode);' +
-'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_4.description + " (" + PIPE_SPLITTER_4.itemCode + ")", quantity: splitterTotals.numPS4, price: ps4Price, totalPrice: ps4Price * splitterTotals.numPS4 });' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_4.description + " (" + PIPE_SPLITTER_4.itemCode + ")", quantity: splitterTotals.numPS4, price: ps4Price, totalPrice: ps4Price * splitterTotals.numPS4, internalid: getInternalId(PIPE_SPLITTER_4.itemCode) });' +
 '        }' +
 '        if (splitterTotals.numPS2 > 0) {' +
 '            var ps2Price = getPrice(PIPE_SPLITTER_2.itemCode);' +
-'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_2.description + " (" + PIPE_SPLITTER_2.itemCode + ")", quantity: splitterTotals.numPS2, price: ps2Price, totalPrice: ps2Price * splitterTotals.numPS2 });' +
+'            lineItems.push({ section: "Pipe", description: PIPE_SPLITTER_2.description + " (" + PIPE_SPLITTER_2.itemCode + ")", quantity: splitterTotals.numPS2, price: ps2Price, totalPrice: ps2Price * splitterTotals.numPS2, internalid: getInternalId(PIPE_SPLITTER_2.itemCode) });' +
 '        }' +
 '        for (var fcN in floorConstructionTotals) {' +
 '            if (floorConstructionTotals.hasOwnProperty(fcN)) {' +
 '                var fcDat = floorConstructionTotals[fcN];' +
 '                var fcLabel = (fcDat.fc.label || fcDat.fc.itemid) + " (" + fcDat.fc.itemid + ") - " + fcDat.area.toFixed(1) + " m2";' +
 '                var fcPrice = getPrice(fcN);' +
-'                lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcDat.area), price: fcPrice, totalPrice: fcPrice * Math.ceil(fcDat.area) });' +
+'                lineItems.push({ section: "Floor Construction", description: fcLabel, quantity: Math.ceil(fcDat.area), price: fcPrice, totalPrice: fcPrice * Math.ceil(fcDat.area), internalid: fcDat.fc.internalid });' +
 '            }' +
 '        }' +
-'        /* Design line - included in project scope, price 0 */' +
+'        /* Design line - no NetSuite item, excluded from estimateItems */' +
 '        lineItems.push({ section: "Design and Delivery", description: "UFH Design", quantity: 1, price: 0, totalPrice: 0 });' +
 '        /* Calculate total FC pallets from floor construction totals */' +
 '        var totalFCPallets = 0;' +
@@ -1808,10 +1853,24 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            errors.push("Delivery item DEL/C price not found - delivery charge excluded");' +
 '        } else {' +
 '            var deliveryPrice = totalPallets * delcUnitPrice;' +
-'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) - " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0 });' +
+'            lineItems.push({ section: "Design and Delivery", description: "Delivery (DEL/C) - " + totalPallets.toFixed(2) + " pallets", quantity: 1, price: deliveryPrice, totalPrice: deliveryPrice, cost: 0, totalCost: 0, internalid: getInternalId("DEL/C") });' +
 '        }' +
 '        var totalPrice = 0;' +
 '        for (var liIdx = 0; liIdx < lineItems.length; liIdx++) { totalPrice += lineItems[liIdx].totalPrice; }' +
+'        /* Build estimateItems: all BOM lines that have a NetSuite internalid */' +
+'        window.estimateItems = [];' +
+'        for (var eiIdx = 0; eiIdx < lineItems.length; eiIdx++) {' +
+'            var eiLine = lineItems[eiIdx];' +
+'            if (eiLine.internalid) {' +
+'                window.estimateItems.push({' +
+'                    internalid:  eiLine.internalid,' +
+'                    quantity:    eiLine.quantity,' +
+'                    description: eiLine.description,' +
+'                    rate:        eiLine.price' +
+'                });' +
+'            }' +
+'        }' +
+'        window.epcSiteAddress = (epcData && epcData.address) ? epcData.address : "";' +
 '        renderResults(lineItems, errors, totalPrice);' +
 '    });' +
 '};' +
@@ -1921,6 +1980,16 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    }' +
 '    bomHtml += "</div></div>";' +
 '    bomContainer.innerHTML = bomHtml;' +
+'    var saveEstimateSection = document.getElementById("saveEstimateSection");' +
+'    if (!saveEstimateSection) {' +
+'        var saveDiv = document.createElement("div");' +
+'        saveDiv.id = "saveEstimateSection";' +
+'        saveDiv.style.marginTop = "24px";' +
+'        saveDiv.innerHTML = "<button type=\\"button\\" class=\\"btn btn-primary\\" onclick=\\"window.openEstimatePanel()\\">Save as Estimate in NetSuite</button>";' +
+'        bomContainer.parentNode.appendChild(saveDiv);' +
+'    } else {' +
+'        saveEstimateSection.style.display = "";' +
+'    }' +
 '    resultsSection.classList.remove("hidden");' +
 '    resultsSection.scrollIntoView({ behavior: "smooth" });' +
 '};' +
@@ -2052,6 +2121,124 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    window.selectHeatSource(\'Boiler\');' +
 '    window.selectThermostat(\'Wired Programmable\');' +
 '})();' +
+'window.openEstimatePanel = function() {' +
+'    document.getElementById("estimatePanel").classList.remove("hidden");' +
+'    document.getElementById("siteAddressInput").value = window.epcSiteAddress || "";' +
+'    document.getElementById("entitySearchInput").value = "";' +
+'    document.getElementById("entitySearchResults").innerHTML = "";' +
+'    document.getElementById("selectedEntityDisplay").style.display = "none";' +
+'    window.selectedEntityId = null;' +
+'    document.getElementById("estimatePanel").scrollIntoView({ behavior: "smooth" });' +
+'};' +
+'window.closeEstimatePanel = function() {' +
+'    document.getElementById("estimatePanel").classList.add("hidden");' +
+'};' +
+'window.searchEntities = function() {' +
+'    var q = document.getElementById("entitySearchInput").value;' +
+'    if (q.length < 2) {' +
+'        document.getElementById("entitySearchResults").innerHTML = "";' +
+'        return;' +
+'    }' +
+'    var searchUrl = RESTLET_BASE_URL + "&action=searchEntities&q=" + encodeURIComponent(q);' +
+'    console.log("searchEntities URL:", searchUrl);' +
+'    fetch(searchUrl, { method: "GET", headers: { "Content-Type": "application/json" } })' +
+'        .then(function(r) { return r.json(); })' +
+'        .then(function(data) {' +
+'            console.log("searchEntities response:", JSON.stringify(data));' +
+'            if (!data.success || !data.results || !data.results.length) {' +
+'                document.getElementById("entitySearchResults").innerHTML = "<div style=\\"padding:8px;color:#64748b;\\">No results found</div>";' +
+'                return;' +
+'            }' +
+'            console.log("Rendering", data.results.length, "results");' +
+'            var html = "";' +
+'            window._entityResults = data.results;' +
+'            for (var i = 0; i < data.results.length; i++) {' +
+'                var e = data.results[i];' +
+'                var name = e.companyname || (e.firstname + " " + e.lastname);' +
+'                html += "<div class=\\"entity-result-item\\" onclick=\\"window.selectEntityByIndex(" + i + ")\\" style=\\"padding:10px 12px;cursor:pointer;border-bottom:1px solid #e2e8f0;background:#fff;\\">";' +
+'                html += "<span style=\\"font-size:11px;background:#e8f4f3;color:#00857D;padding:2px 6px;border-radius:4px;margin-right:8px;\\">" + e.type + "</span>";' +
+'                html += name;' +
+'                if (e.entityid) { html += " <span style=\\"color:#94a3b8;font-size:12px;\\">(" + e.entityid + ")</span>"; }' +
+'                html += "</div>";' +
+'            }' +
+'            document.getElementById("entitySearchResults").innerHTML = html;' +
+'        })' +
+'        .catch(function(err) {' +
+'            console.log("searchEntities error:", err.message);' +
+'            document.getElementById("entitySearchResults").innerHTML = "<div style=\\"padding:8px;color:#dc2626;\\">Search error: " + err.message + "</div>";' +
+'        });' +
+'};' +
+'window.selectEntity = function(internalid, displayName) {' +
+'    window.selectedEntityId = internalid;' +
+'    document.getElementById("entitySearchResults").innerHTML = "";' +
+'    document.getElementById("entitySearchInput").value = "";' +
+'    var display = document.getElementById("selectedEntityDisplay");' +
+'    display.style.display = "block";' +
+'    display.innerHTML = "<span style=\\"color:#00857D;font-weight:600;\\">\u2713 Selected: </span>" + displayName + " <a href=\\"#\\" onclick=\\"window.clearEntity();return false;\\" style=\\"color:#94a3b8;font-size:12px;margin-left:8px;\\">Change</a>";' +
+'};' +
+'window.selectEntityByIndex = function(i) {' +
+'    var e = window._entityResults[i];' +
+'    if (!e) { return; }' +
+'    var name = e.companyname || (e.firstname + " " + e.lastname);' +
+'    window.selectEntity(e.internalid, name);' +
+'};' +
+'window.clearEntity = function() {' +
+'    window.selectedEntityId = null;' +
+'    document.getElementById("selectedEntityDisplay").style.display = "none";' +
+'    document.getElementById("entitySearchInput").value = "";' +
+'};' +
+'window.submitEstimate = function() {' +
+'    if (!window.selectedEntityId) {' +
+'        alert("Please search for and select a Customer, Lead or Prospect first.");' +
+'        return;' +
+'    }' +
+'    var siteAddress = document.getElementById("siteAddressInput").value.trim();' +
+'    if (!siteAddress) {' +
+'        alert("Please enter a site address.");' +
+'        return;' +
+'    }' +
+'    if (!window.estimateItems || !window.estimateItems.length) {' +
+'        alert("Please calculate the quote first before saving.");' +
+'        return;' +
+'    }' +
+'    document.getElementById("confirmEstimateBtn").disabled = true;' +
+'    document.getElementById("confirmEstimateBtn").textContent = "Creating...";' +
+'    var payload = {' +
+'        action: "createEstimate",' +
+'        entityId: window.selectedEntityId,' +
+'        siteAddress: siteAddress,' +
+'        items: window.estimateItems' +
+'    };' +
+'    fetch(RESTLET_BASE_URL, {' +
+'        method: "POST",' +
+'        headers: { "Content-Type": "application/json" },' +
+'        body: JSON.stringify(payload)' +
+'    })' +
+'    .then(function(r) { return r.json(); })' +
+'    .then(function(data) {' +
+'        var statusEl = document.getElementById("estimateStatus");' +
+'        if (data.success) {' +
+'            var nsUrl = "https://472052-sb1.app.netsuite.com/app/accounting/transactions/estimate.nl?id=" + data.estimateId;' +
+'            statusEl.innerHTML = "<div style=\\"background:#e8f4f3;border:1px solid #00857D;border-radius:8px;padding:16px;margin-top:16px;\\">" +' +
+'                "<div style=\\"color:#00857D;font-weight:700;font-size:16px;\\">\u2713 Estimate Created</div>" +' +
+'                "<div style=\\"margin-top:8px;\\">Reference: <strong>" + data.tranId + "</strong></div>" +' +
+'                "<div style=\\"margin-top:8px;\\"><a href=\\"" + nsUrl + "\\" target=\\"_blank\\" style=\\"color:#00857D;\\">Open in NetSuite \u2192</a></div>" +' +
+'                "</div>";' +
+'            document.getElementById("confirmEstimateBtn").style.display = "none";' +
+'        } else {' +
+'            statusEl.innerHTML = "<div style=\\"background:#fef2f2;border:1px solid #ef4444;border-radius:8px;padding:16px;margin-top:16px;color:#dc2626;\\">Error: " + (data.error || "Unknown error") + "</div>";' +
+'            document.getElementById("confirmEstimateBtn").disabled = false;' +
+'            document.getElementById("confirmEstimateBtn").textContent = "Confirm & Create Estimate";' +
+'        }' +
+'        statusEl.style.display = "block";' +
+'    })' +
+'    .catch(function(err) {' +
+'        document.getElementById("estimateStatus").innerHTML = "<div style=\\"color:#dc2626;\\">Request failed: " + err.message + "</div>";' +
+'        document.getElementById("estimateStatus").style.display = "block";' +
+'        document.getElementById("confirmEstimateBtn").disabled = false;' +
+'        document.getElementById("confirmEstimateBtn").textContent = "Confirm & Create Estimate";' +
+'    });' +
+'};' +
 '</script>' +
 '</body>' +
 '</html>';

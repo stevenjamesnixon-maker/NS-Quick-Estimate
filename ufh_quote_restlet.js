@@ -24,7 +24,7 @@
  * ============================================================
  */
 
-define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(search, log, https, encode, runtime) {
+define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], function(search, log, https, encode, runtime, record) {
 
     /**
      * GET entry point — routes to the correct handler based on the
@@ -47,6 +47,10 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(searc
 
             if (action === 'getEpcData') {
                 return getEpcData(params);
+            }
+
+            if (action === 'searchEntities') {
+                return searchEntities(params);
             }
 
             return { success: false, error: 'Unknown action: ' + action };
@@ -220,6 +224,7 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(searc
                     ],
                     columns: [
                         search.createColumn({ name: 'itemid' }),
+                        search.createColumn({ name: 'internalId' }),
                         search.createColumn({ name: 'unitprice', join: 'pricing' }),
                         search.createColumn({ name: 'pricelevel', join: 'pricing' })
                     ]
@@ -233,6 +238,7 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(searc
                 var row = rows[0];
                 result[itemCode] = {
                     itemid:       row.getValue({ name: 'itemid' }) || itemCode,
+                    internalid:   row.getValue({ name: 'internalId' }),
                     price:        parseFloat(row.getValue({ name: 'unitprice', join: 'pricing' })) || 0,
                     pricelevelid: priceLevelId
                 };
@@ -386,5 +392,129 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime'], function(searc
         }
     }
 
-    return { get: get };
+    // ─────────────────────────────────────────────────────────────────────────
+    // action = searchEntities
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function searchEntities(params) {
+        var q = params.q;
+
+        if (!q || q.length < 2) {
+            return JSON.stringify({ success: false, error: 'Query too short' });
+        }
+
+        try {
+            var filters = [
+                ['type', search.Operator.ANYOF, ['CustJob', 'Lead', 'Prospect']],
+                'AND',
+                ['isinactive', search.Operator.IS, 'F'],
+                'AND',
+                [
+                    ['companyname', search.Operator.CONTAINS, q],
+                    'OR',
+                    ['firstname', search.Operator.CONTAINS, q],
+                    'OR',
+                    ['lastname', search.Operator.CONTAINS, q]
+                ]
+            ];
+
+            var filteredResults = [];
+            search.create({
+                type: search.Type.CUSTOMER,
+                columns: [
+                    search.createColumn({ name: 'internalId' }),
+                    search.createColumn({ name: 'entityId' }),
+                    search.createColumn({ name: 'companyName' }),
+                    search.createColumn({ name: 'firstName' }),
+                    search.createColumn({ name: 'lastName' }),
+                    search.createColumn({ name: 'email' })
+                ],
+                filters: filters
+            }).run().each(function(result) {
+                filteredResults.push({
+                    internalid:  result.getValue({ name: 'internalId' }),
+                    entityid:    result.getValue({ name: 'entityId' }),
+                    companyname: result.getValue({ name: 'companyName' }),
+                    firstname:   result.getValue({ name: 'firstName' }),
+                    lastname:    result.getValue({ name: 'lastName' }),
+                    email:       result.getValue({ name: 'email' }),
+                    type:        ''
+                });
+                return filteredResults.length < 10;
+            });
+
+            return JSON.stringify({ success: true, results: filteredResults });
+
+        } catch(e) {
+            log.error({ title: 'searchEntities error', details: e });
+            return JSON.stringify({ success: false, error: e.message, stack: e.stack });
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // POST entry point
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function post(body) {
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch (pe) {
+                return JSON.stringify({ success: false, error: 'Invalid JSON body' });
+            }
+        }
+        var action = body.action;
+        try {
+            if (action === 'createEstimate') {
+                return createEstimate(body);
+            }
+            return JSON.stringify({ success: false, error: 'Unknown action: ' + action });
+        } catch (e) {
+            log.error({ title: 'UFH RESTlet POST error', details: e });
+            return JSON.stringify({ success: false, error: e.message || String(e) });
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // action = createEstimate
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function createEstimate(body) {
+        try {
+            var currentUser = runtime.getCurrentUser();
+            var quotedBy = currentUser.name;
+
+            var estimateRec = record.create({
+                type: record.Type.ESTIMATE,
+                isDynamic: false
+            });
+
+            estimateRec.setValue({ fieldId: 'customform',                value: 113 });
+            estimateRec.setValue({ fieldId: 'entity',                    value: body.entityId });
+            estimateRec.setValue({ fieldId: 'custbody_quoted_by',        value: quotedBy });
+            estimateRec.setValue({ fieldId: 'custbody_quote_type',       value: 25 });
+            estimateRec.setValue({ fieldId: 'custbodyquote_site_adress', value: body.siteAddress });
+
+            var items = body.items;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                estimateRec.setSublistValue({ sublistId: 'item', fieldId: 'item',        line: i, value: item.internalid });
+                estimateRec.setSublistValue({ sublistId: 'item', fieldId: 'quantity',    line: i, value: item.quantity });
+                estimateRec.setSublistValue({ sublistId: 'item', fieldId: 'description', line: i, value: item.description });
+                estimateRec.setSublistValue({ sublistId: 'item', fieldId: 'price',       line: i, value: -1 });
+                estimateRec.setSublistValue({ sublistId: 'item', fieldId: 'rate',        line: i, value: item.rate });
+            }
+
+            var estimateId = estimateRec.save({});
+
+            return JSON.stringify({
+                success:    true,
+                estimateId: estimateId,
+                tranId:     record.load({ type: record.Type.ESTIMATE, id: estimateId }).getValue({ fieldId: 'tranid' })
+            });
+        } catch (e) {
+            log.error({ title: 'createEstimate error', details: e });
+            return JSON.stringify({ success: false, error: e.message });
+        }
+    }
+
+    return { get: get, post: post };
 });
