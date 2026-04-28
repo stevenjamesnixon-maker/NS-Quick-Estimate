@@ -1614,21 +1614,37 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '                    var spacing = fcPipeSpacing(fc);' +
 '                    var diameter = fcPipeDiameter(fc);' +
 '                    if (!pipeDiameterTotals[diameter]) {' +
-'                        pipeDiameterTotals[diameter] = { ports: 0, circuits: 0 };' +
+'                        pipeDiameterTotals[diameter] = { ports: 0, singlePorts: 0, circuits: 0 };' +
 '                    }' +
 '                    var pipeLength = (area.areaSqm * 1000) / spacing;' +
 '                    var maxLengthMap = MAX_PIPE_LENGTH[diameter];' +
 '                    var maxLength = maxLengthMap ? maxLengthMap[workType === "New Build" ? "newBuild" : "renovation"] : 100;' +
 '                    var numCircuits = Math.ceil(pipeLength / maxLength);' +
-'                    pipeDiameterTotals[diameter].ports += numCircuits;' +
-'                    pipeDiameterTotals[diameter].circuits += numCircuits;' +
+'                    var areaPorts = 0;' +
+'                    var areaSinglePorts = 0;' +
 '                    if (diameter === 10) {' +
-'                        var remainder = numCircuits % 4;' +
 '                        var portsFor4 = Math.floor(numCircuits / 4);' +
+'                        var remainder = numCircuits % 4;' +
 '                        splitterTotals.numPS4 += (remainder === 3) ? portsFor4 + 1 : portsFor4;' +
 '                        splitterTotals.numPS2 += (remainder === 2) ? 1 : 0;' +
 '                        splitterTotals.numSingle += (remainder === 1) ? 1 : 0;' +
+'                        if (remainder === 0) {' +
+'                            areaPorts = portsFor4;' +
+'                            areaSinglePorts = portsFor4;' +
+'                        } else if (remainder === 1) {' +
+'                            areaPorts = portsFor4 + 1;' +
+'                            areaSinglePorts = portsFor4 + 1;' +
+'                        } else {' +
+'                            areaPorts = portsFor4 + 1;' +
+'                            areaSinglePorts = portsFor4;' +
+'                        }' +
+'                    } else {' +
+'                        areaPorts = numCircuits;' +
+'                        areaSinglePorts = numCircuits;' +
 '                    }' +
+'                    pipeDiameterTotals[diameter].ports += areaPorts;' +
+'                    pipeDiameterTotals[diameter].singlePorts += areaSinglePorts;' +
+'                    pipeDiameterTotals[diameter].circuits += numCircuits;' +
 '                    var lengthPerCircuit = pipeLength / numCircuits;' +
 '                    var areaCoilList = PIPE_COILS[diameter].coils;' +
 '                    var areaSelectedCoil = null;' +
@@ -1787,15 +1803,19 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '            if (pipeDiameterTotals.hasOwnProperty(diam3)) {' +
 '                var diamData = pipeDiameterTotals[diam3];' +
 '                var d3 = parseInt(diam3);' +
-'                var numberOfCircuits = diamData.ports;' +
-'                if (numberOfCircuits === 0) { continue; }' +
-'                var connectors = (d3 === 10) ? splitterTotals.numSingle * 2 : numberOfCircuits * 2;' +
+'                if (diamData.circuits === 0) { continue; }' +
+'                var connectorQty = (d3 === 10) ? diamData.singlePorts * 2 : diamData.ports * 2;' +
 '                var connector = PIPE_CONNECTORS[d3];' +
-'                var connPrice = getPrice(connector.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectors, price: connPrice, totalPrice: connPrice * connectors, internalid: getInternalId(connector.itemCode) });' +
-'                var guideCurve = GUIDE_CURVES[d3];' +
-'                var gcPrice = getPrice(guideCurve.itemCode);' +
-'                lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: diamData.circuits * 2, price: gcPrice, totalPrice: gcPrice * diamData.circuits * 2, internalid: getInternalId(guideCurve.itemCode) });' +
+'                if (connectorQty > 0) {' +
+'                    var connPrice = getPrice(connector.itemCode);' +
+'                    lineItems.push({ section: "Pipe", description: connector.description + " (" + connector.itemCode + ")", quantity: connectorQty, price: connPrice, totalPrice: connPrice * connectorQty, internalid: getInternalId(connector.itemCode) });' +
+'                }' +
+'                var guideCurveQty = diamData.circuits * 2;' +
+'                if (guideCurveQty > 0) {' +
+'                    var guideCurve = GUIDE_CURVES[d3];' +
+'                    var gcPrice = getPrice(guideCurve.itemCode);' +
+'                    lineItems.push({ section: "Pipe", description: guideCurve.description + " (" + guideCurve.itemCode + ")", quantity: guideCurveQty, price: gcPrice, totalPrice: gcPrice * guideCurveQty, internalid: getInternalId(guideCurve.itemCode) });' +
+'                }' +
 '            }' +
 '        }' +
 '        if (splitterTotals.numPS4 > 0) {' +
