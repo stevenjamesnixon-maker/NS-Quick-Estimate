@@ -439,29 +439,70 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 var d        = certBody.data;
 
                 /*
-                 * Field extraction notes (verified against RdSAP-Schema-21.0.1 JSON sample):
+                 * Cross-schema field notes (verified against live certs A=SAP-Schema-16.2 and B=RdSAP-Schema-20.0.0):
                  *
-                 * property_type  — integer code in new API (0=house, 1=bungalow, 2=flat, 3=maisonette).
-                 *                  Mapped via PROPERTY_TYPE_CODES to the lowercase string the front-end ptMap expects.
-                 *                  Falls back to dwelling_type string if code not in map.
+                 * property_type  — integer code (0=house, 1=bungalow, 2=flat, 3=maisonette).
+                 *                  Mapped via PROPERTY_TYPE_CODES. Falls back to dwelling_type lowercased.
+                 *                  Fix 2 (dwelling_type string handling) is DEFERRED — do not change this block.
                  *
-                 * built_form     — integer code in new API (1=Detached … 6=Enclosed Mid-Terrace).
-                 *                  Mapped via BUILT_FORM_CODES to a display string. Front-end only uses for
-                 *                  display (not calculations), so a null fallback is safe.
+                 * built_form     — integer code (1=Detached ... 6=Enclosed Mid-Terrace). Display-only.
                  *
-                 * floors/walls/roofs — arrays of objects; description is nested as description.value.
-                 *                  First element taken; null-safe chained access used.
+                 * floors/walls/roofs — arrays; description is a FLAT STRING on live API (confirmed A+B).
+                 *                  Read d.floors[n].description directly — no .value suffix.
+                 *                  Multiple entries possible (Cert A has 2 roof entries); join all with "; ".
                  *
-                 * construction_age_band — nested inside sap_building_parts[0], not top-level.
+                 * construction_age_band — nested at sap_building_parts[0].construction_age_band (confirmed A+B).
                  *
-                 * habitable_room_count — confirmed key in new schema (old API used number-habitable-rooms).
+                 * habitable_room_count — confirmed key name on live API (A=4, B=6).
                  *
-                 * certificate_number — not present in warehouse JSON sample; likely injected by API layer.
-                 *                  Mapped defensively; falls back to the param we sent.
+                 * certificate_number — not in warehouse fixture; injected by API layer.
+                 *                  Falls back to params.certificateNumber.
                  *
-                 * address_line_2..4 — not present in RdSAP-21.0.1 sample; only address_line_1 confirmed.
-                 *                  Filter applied defensively as in search mapping.
+                 * address_line_2..4 — not present in confirmed samples; guarded defensively.
+                 *
+                 * FUTURE CALC WORK — cross-schema shape differences to handle:
+                 *
+                 *   sap_floor_dimensions[].total_floor_area / room_height / heat_loss_perimeter / party_wall_length:
+                 *     SAP-16.2 (Cert A): flat numbers, e.g. total_floor_area = 54.5
+                 *     RdSAP-20.0.0 (Cert B): value-quantity objects, e.g. { "value": 56.4, "quantity": "square metres" }
+                 *     Use numOrValue() helper (defined below) when reading these nested fields.
+                 *     NOTE: top-level total_floor_area is a flat integer on BOTH certs and is what the quote uses —
+                 *     do NOT apply numOrValue() to d.total_floor_area itself.
+                 *
+                 *   window vs windows key:
+                 *     Cert A has "windows" (array); Cert B has "window" (object).
+                 *     If glazing is read later: resolve via (d.windows && d.windows[0]) || d.window
+                 *
+                 *   mains_gas vs main_gas in sap_energy_source:
+                 *     Cert A uses "main_gas"; Cert B uses "mains_gas". Guard both if read.
                  */
+
+                /*
+                 * numOrValue — normalises a sap_floor_dimensions field that may be either a flat
+                 * number (SAP-16.x) or a { value, quantity } object (RdSAP-20+).
+                 * Apply to: total_floor_area, room_height, heat_loss_perimeter, party_wall_length
+                 * inside sap_building_parts[].sap_floor_dimensions[] IF/WHEN those are consumed.
+                 */
+                function numOrValue(x) {
+                    return (x && typeof x === 'object' && 'value' in x) ? x.value : x;
+                }
+
+                /*
+                 * joinDescriptions — maps an array of component objects to a "; "-joined string of
+                 * their description values. Handles 1..n entries and absent/empty arrays safely.
+                 * description is a flat string on all confirmed live certs (no .value nesting).
+                 */
+                function joinDescriptions(arr) {
+                    if (!arr || !arr.length) { return null; }
+                    var parts = [];
+                    for (var i = 0; i < arr.length; i++) {
+                        var desc = arr[i] && arr[i].description;
+                        if (desc && typeof desc === 'string' && desc.length > 0) {
+                            parts.push(desc);
+                        }
+                    }
+                    return parts.length > 0 ? parts.join('; ') : null;
+                }
 
                 var certAddrParts = [
                     d.address_line_1 || null,
@@ -484,19 +525,11 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 var builtFormStr = (builtFormCode !== null && BUILT_FORM_CODES[builtFormCode])
                     ? BUILT_FORM_CODES[builtFormCode] : null;
 
-                var floorDesc = (d.floors && d.floors[0] && d.floors[0].description)
-                    ? (d.floors[0].description.value || d.floors[0].description || null)
-                    : null;
+                var floorDesc = joinDescriptions(d.floors);
+                var wallsDesc = joinDescriptions(d.walls);
+                var roofDesc  = joinDescriptions(d.roofs);
 
-                var wallsDesc = (d.walls && d.walls[0] && d.walls[0].description)
-                    ? (d.walls[0].description.value || d.walls[0].description || null)
-                    : null;
-
-                var roofDesc = (d.roofs && d.roofs[0] && d.roofs[0].description)
-                    ? (d.roofs[0].description.value || d.roofs[0].description || null)
-                    : null;
-
-                var constructionAge = (d.sap_building_parts && d.sap_building_parts[0])
+                var constructionAge = (d.sap_building_parts && d.sap_building_parts.length > 0)
                     ? (d.sap_building_parts[0].construction_age_band || null)
                     : null;
 
