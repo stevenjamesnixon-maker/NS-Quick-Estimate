@@ -256,34 +256,72 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Proxies requests to the DLUHC EPC Open Data Communities API.
-     * Credentials are read from Script Parameters (custscript_epc_email and
-     * custscript_epc_api_key) and combined into a Basic Auth header.
+     * Proxies requests to the GOV.UK EPC API (api.get-energy-performance-data.communities.gov.uk).
+     * Auth token is read from Script Parameter custscript_epc_bearer_token (Bearer scheme).
      *
      * Sub-modes (determined by which param is present):
-     *   params.postcode  → address search — returns a sorted list of EPC rows
-     *   params.lmkKey    → certificate lookup — returns a single certificate object
+     *   params.postcode          → address search — returns a sorted list of EPC rows
+     *   params.certificateNumber → certificate lookup — returns a single certificate object
+     *
+     * ROLLBACK RETAINED: custscript_epc_email and custscript_epc_api_key reads are kept
+     * below but unused. Remove the bearer token param and restore the Basic auth block
+     * to revert to the old opendatacommunities.org API.
      *
      * @param {Object} params - Query-string parameters from the request
      * @returns {string} JSON string
      */
     function getEpcData(params) {
-        try {
-            var script    = runtime.getCurrentScript();
-            var epcEmail  = script.getParameter({ name: 'custscript_epc_email' });
-            var epcApiKey = script.getParameter({ name: 'custscript_epc_api_key' });
 
-            var token = encode.convert({
-                string: epcEmail + ':' + epcApiKey,
-                inputEncoding: encode.Encoding.UTF_8,
-                outputEncoding: encode.Encoding.BASE_64
-            });
-            var authHeader = 'Basic ' + token;
+        /*
+         * Property-type integer codes returned by the new API certificate endpoint.
+         * The old API returned human-readable strings; the new API returns integer codes
+         * in property_type. The front-end ptMap requires lowercase strings ("house" etc.).
+         * Codes sourced from RdSAP schema documentation.
+         */
+        var PROPERTY_TYPE_CODES = {
+            0: 'house',
+            1: 'bungalow',
+            2: 'flat',
+            3: 'maisonette',
+            4: 'park home'
+        };
+
+        /*
+         * Built-form integer codes returned by the new API certificate endpoint.
+         * The old API returned human-readable strings; the new API returns integer codes.
+         * Codes sourced from RdSAP schema documentation.
+         */
+        var BUILT_FORM_CODES = {
+            1: 'Detached',
+            2: 'Semi-Detached',
+            3: 'End-Terrace',
+            4: 'Mid-Terrace',
+            5: 'Enclosed End-Terrace',
+            6: 'Enclosed Mid-Terrace'
+        };
+
+        try {
+            var script = runtime.getCurrentScript();
+
+            /* Retained for rollback only — not used while bearer token is active */
+            /* var epcEmail  = script.getParameter({ name: 'custscript_epc_email' }); */
+            /* var epcApiKey = script.getParameter({ name: 'custscript_epc_api_key' }); */
+
+            var epcBearerToken = script.getParameter({ name: 'custscript_epc_bearer_token' });
+
+            if (!epcBearerToken) {
+                return JSON.stringify({
+                    success: false,
+                    error: 'EPC bearer token is not configured. Set custscript_epc_bearer_token in Script Parameters.'
+                });
+            }
+
+            var authHeader = 'Bearer ' + epcBearerToken;
 
             /* ── Address search ── */
             if (params.postcode) {
-                var searchUrl = 'https://epc.opendatacommunities.org/api/v1/domestic/search?postcode=' +
-                    encodeURIComponent(params.postcode) + '&size=25';
+                var searchUrl = 'https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=' +
+                    encodeURIComponent(params.postcode);
 
                 var searchResponse = https.get({
                     url: searchUrl,
@@ -293,16 +331,30 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                     }
                 });
 
+                if (searchResponse.code === 404) {
+                    return JSON.stringify({
+                        success: true,
+                        type: 'addressList',
+                        rows: [],
+                        message: 'No EPC certificates found for this postcode'
+                    });
+                }
+
                 if (searchResponse.code !== 200) {
+                    var searchErrMsg = 'EPC API returned status ' + searchResponse.code;
+                    try {
+                        var searchErrBody = JSON.parse(searchResponse.body);
+                        if (searchErrBody && searchErrBody.message) { searchErrMsg = searchErrBody.message; }
+                    } catch (ignored) {}
                     return JSON.stringify({
                         success: false,
-                        error: 'EPC API returned status ' + searchResponse.code,
+                        error: searchErrMsg,
                         statusCode: searchResponse.code
                     });
                 }
 
                 var searchBody = JSON.parse(searchResponse.body);
-                var rawRows    = (searchBody && searchBody.rows) ? searchBody.rows : [];
+                var rawRows    = (searchBody && searchBody.data) ? searchBody.data : [];
 
                 if (rawRows.length === 0) {
                     return JSON.stringify({
@@ -314,20 +366,29 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 }
 
                 var mappedRows = rawRows.map(function(row) {
+                    var addrParts = [
+                        row.addressLine1 || null,
+                        row.addressLine2 || null,
+                        row.addressLine3 || null,
+                        row.addressLine4 || null
+                    ].filter(function(p) { return p && p.length > 0; });
+                    var composedAddress = addrParts.join(', ');
+
+                    var displayPostcode = row.postcode ? row.postcode.replace(/\+/g, ' ') : '';
+
                     return {
-                        lmkKey:         row['lmk-key'],
-                        address:        row['address'],
-                        postcode:       row['postcode'],
-                        lodgementDate:  row['lodgement-date'],
-                        propertyType:   row['property-type'],
-                        totalFloorArea: row['total-floor-area']
+                        certificateNumber: row.certificateNumber,
+                        address:           composedAddress,
+                        postcode:          displayPostcode,
+                        postTown:          row.postTown || null,
+                        registrationDate:  row.registrationDate || null
                     };
                 });
 
-                /* Sort by lodgement-date descending (most recent first) */
+                /* Sort by registrationDate descending (most recent first) */
                 mappedRows.sort(function(a, b) {
-                    if (a.lodgementDate > b.lodgementDate) return -1;
-                    if (a.lodgementDate < b.lodgementDate) return 1;
+                    if (a.registrationDate > b.registrationDate) return -1;
+                    if (a.registrationDate < b.registrationDate) return 1;
                     return 0;
                 });
 
@@ -339,9 +400,19 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
             }
 
             /* ── Certificate lookup ── */
-            if (params.lmkKey) {
-                var certUrl = 'https://epc.opendatacommunities.org/api/v1/domestic/certificate/' +
-                    encodeURIComponent(params.lmkKey);
+            if (params.certificateNumber) {
+                /* Validate 20-digit hyphenated format: XXXX-XXXX-XXXX-XXXX-XXXX */
+                var certNumPattern = /^\d{4}-\d{4}-\d{4}-\d{4}-\d{4}$/;
+                if (!certNumPattern.test(params.certificateNumber)) {
+                    return JSON.stringify({
+                        success: false,
+                        error: 'Invalid certificateNumber format. Expected 20-digit hyphenated value, e.g. 1111-2222-3333-4444-5555.',
+                        statusCode: 400
+                    });
+                }
+
+                var certUrl = 'https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=' +
+                    encodeURIComponent(params.certificateNumber);
 
                 var certResponse = https.get({
                     url: certUrl,
@@ -352,39 +423,107 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 });
 
                 if (certResponse.code !== 200) {
+                    var certErrMsg = 'EPC API returned status ' + certResponse.code;
+                    try {
+                        var certErrBody = JSON.parse(certResponse.body);
+                        if (certErrBody && certErrBody.message) { certErrMsg = certErrBody.message; }
+                    } catch (ignored) {}
                     return JSON.stringify({
                         success: false,
-                        error: 'EPC API returned status ' + certResponse.code,
+                        error: certErrMsg,
                         statusCode: certResponse.code
                     });
                 }
 
                 var certBody = JSON.parse(certResponse.body);
-                var row      = certBody.rows && certBody.rows[0];
+                var d        = certBody.data;
+
+                /*
+                 * Field extraction notes (verified against RdSAP-Schema-21.0.1 JSON sample):
+                 *
+                 * property_type  — integer code in new API (0=house, 1=bungalow, 2=flat, 3=maisonette).
+                 *                  Mapped via PROPERTY_TYPE_CODES to the lowercase string the front-end ptMap expects.
+                 *                  Falls back to dwelling_type string if code not in map.
+                 *
+                 * built_form     — integer code in new API (1=Detached … 6=Enclosed Mid-Terrace).
+                 *                  Mapped via BUILT_FORM_CODES to a display string. Front-end only uses for
+                 *                  display (not calculations), so a null fallback is safe.
+                 *
+                 * floors/walls/roofs — arrays of objects; description is nested as description.value.
+                 *                  First element taken; null-safe chained access used.
+                 *
+                 * construction_age_band — nested inside sap_building_parts[0], not top-level.
+                 *
+                 * habitable_room_count — confirmed key in new schema (old API used number-habitable-rooms).
+                 *
+                 * certificate_number — not present in warehouse JSON sample; likely injected by API layer.
+                 *                  Mapped defensively; falls back to the param we sent.
+                 *
+                 * address_line_2..4 — not present in RdSAP-21.0.1 sample; only address_line_1 confirmed.
+                 *                  Filter applied defensively as in search mapping.
+                 */
+
+                var certAddrParts = [
+                    d.address_line_1 || null,
+                    d.address_line_2 || null,
+                    d.address_line_3 || null,
+                    d.address_line_4 || null
+                ].filter(function(p) { return p && p.length > 0; });
+                var certAddress = certAddrParts.join(', ');
+
+                var certPostcode = d.postcode ? d.postcode.replace(/\+/g, ' ') : null;
+
+                var propertyTypeCode = (d.property_type !== undefined && d.property_type !== null)
+                    ? parseInt(d.property_type, 10) : null;
+                var propertyTypeStr = (propertyTypeCode !== null && PROPERTY_TYPE_CODES[propertyTypeCode])
+                    ? PROPERTY_TYPE_CODES[propertyTypeCode]
+                    : (d.dwelling_type ? d.dwelling_type.toLowerCase() : null);
+
+                var builtFormCode = (d.built_form !== undefined && d.built_form !== null)
+                    ? parseInt(d.built_form, 10) : null;
+                var builtFormStr = (builtFormCode !== null && BUILT_FORM_CODES[builtFormCode])
+                    ? BUILT_FORM_CODES[builtFormCode] : null;
+
+                var floorDesc = (d.floors && d.floors[0] && d.floors[0].description)
+                    ? (d.floors[0].description.value || d.floors[0].description || null)
+                    : null;
+
+                var wallsDesc = (d.walls && d.walls[0] && d.walls[0].description)
+                    ? (d.walls[0].description.value || d.walls[0].description || null)
+                    : null;
+
+                var roofDesc = (d.roofs && d.roofs[0] && d.roofs[0].description)
+                    ? (d.roofs[0].description.value || d.roofs[0].description || null)
+                    : null;
+
+                var constructionAge = (d.sap_building_parts && d.sap_building_parts[0])
+                    ? (d.sap_building_parts[0].construction_age_band || null)
+                    : null;
 
                 return JSON.stringify({
                     success: true,
                     type: 'certificate',
                     data: {
-                        lmkKey:               row['lmk-key'],
-                        address:              row['address'],
-                        postcode:             row['postcode'],
-                        propertyType:         row['property-type'],
-                        builtForm:            row['built-form'] || null,
-                        totalFloorArea:       parseFloat(row['total-floor-area']) || null,
-                        currentEnergyRating:  row['current-energy-rating'],
-                        floorDescription:     row['floor-description'],
-                        wallsDescription:     row['walls-description'],
-                        roofDescription:      row['roof-description'],
-                        constructionAgeBand:  row['construction-age-band'],
-                        lodgementDate:        row['lodgement-date'],
-                        habitableRooms:       parseFloat(row['number-habitable-rooms']) || null,
-                        uprn:                 row['uprn'] || null
+                        certificateNumber:    d.certificate_number || params.certificateNumber,
+                        address:              certAddress,
+                        postcode:             certPostcode,
+                        postTown:             d.post_town || null,
+                        propertyType:         propertyTypeStr,
+                        builtForm:            builtFormStr,
+                        totalFloorArea:       parseFloat(d.total_floor_area) || null,
+                        currentEnergyRating:  d.current_energy_efficiency_band || null,
+                        floorDescription:     floorDesc,
+                        wallsDescription:     wallsDesc,
+                        roofDescription:      roofDesc,
+                        constructionAgeBand:  constructionAge,
+                        lodgementDate:        d.registration_date || null,
+                        habitableRooms:       parseFloat(d.habitable_room_count) || null,
+                        uprn:                 d.uprn || null
                     }
                 });
             }
 
-            return JSON.stringify({ success: false, error: 'getEpcData requires postcode or lmkKey parameter' });
+            return JSON.stringify({ success: false, error: 'getEpcData requires postcode or certificateNumber parameter' });
 
         } catch (e) {
             log.error({ title: 'getEpcData error', details: e });
