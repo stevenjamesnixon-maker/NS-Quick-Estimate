@@ -2026,7 +2026,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '    data.rows.forEach(function(row, idx) {' +
 '      var opt = document.createElement("option");' +
 '      opt.value = idx;' +
-'      opt.textContent = row.address + " (" + row.lodgementDate + ")";' +
+'      opt.textContent = row.address + " (" + row.registrationDate + ")";' +
 '      selectEl.appendChild(opt);' +
 '    });' +
 '    selectEl.style.display = "inline-block";' +
@@ -2044,7 +2044,7 @@ define(['N/ui/serverWidget', 'N/url'], function(serverWidget, url) {
 '  if (!row) return;' +
 '  var statusEl = document.getElementById("epcStatus");' +
 '  statusEl.textContent = "Loading certificate...";' +
-'  fetch(RESTLET_BASE_URL + "&action=getEpcData&lmkKey=" + encodeURIComponent(row.lmkKey), {' +
+'  fetch(RESTLET_BASE_URL + "&action=getEpcData&certificateNumber=" + encodeURIComponent(row.certificateNumber), {' +
 '    method: "GET",' +
 '    headers: { "Content-Type": "application/json" }' +
 '  })' +
