@@ -582,6 +582,8 @@ define(['N/search', 'N/log', 'N/https', 'N/encode', 'N/runtime', 'N/record'], fu
                 ['isinactive', search.Operator.IS, 'F'],
                 'AND',
                 [
+                    ['entityid', search.Operator.CONTAINS, q],
+                    'OR',
                     ['companyname', search.Operator.CONTAINS, q],
                     'OR',
                     ['firstname', search.Operator.CONTAINS, q],
