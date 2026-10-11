@@ -3,6 +3,6 @@
   "private": true,
   "description": "Nu-Heat UFH Quick Quote Tool (NetSuite SuiteScript 2.1)",
   "scripts": {
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   }
 }

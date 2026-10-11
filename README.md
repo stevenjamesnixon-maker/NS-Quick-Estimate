@@ -37,7 +37,7 @@ No token → `ok:false`. A 404 or no rows → `ok:true` with `rows:[]`. Any othe
 ## Tests
 
 ```
-node --test test/
+node --test test/*.test.js
 ```
 
 `test/helpers.js` is a small AMD loader with an `N/https` stub. `test/fixtures/golden.json` holds what `getEpcData` returned for each scenario in `test/golden-scenarios.js` **before** `epc_lib` existed (captured from `fb0afc3` with `test/capture-golden.js`). The golden tests check the refactored RESTlet returns the same JSON strings and makes the same HTTP calls.
