@@ -1,0 +1,22 @@
+{
+  "data": {
+    "certificate_number": "1111-2222-3333-4444-5555",
+    "address_line_1": "Flat 2",
+    "address_line_2": "3 High Street",
+    "postcode": "SN1+1AA",
+    "post_town": "SWINDON",
+    "property_type": 0,
+    "built_form": 2,
+    "total_floor_area": 112,
+    "current_energy_efficiency_band": "D",
+    "floors": [ { "description": "Solid, no insulation (assumed)" } ],
+    "walls": [ { "description": "Cavity wall, filled cavity" }, { "description": "Timber frame, as built, insulated (assumed)" } ],
+    "roofs": [ { "description": "Pitched, 270 mm loft insulation" }, { "description": "Roof room(s), insulated (assumed)" } ],
+    "windows": [ { "description": "Fully double glazed" }, { "description": "" }, { "description": "Some secondary glazing" } ],
+    "sap_energy_source": { "main_gas": "Y" },
+    "sap_building_parts": [ { "construction_age_band": "England and Wales: 1950-1966" } ],
+    "registration_date": "2021-11-19",
+    "habitable_room_count": 6,
+    "uprn": 100121000000
+  }
+}
