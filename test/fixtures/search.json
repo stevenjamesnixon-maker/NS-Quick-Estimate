@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "certificateNumber": "0001-0002-0003-0004-0005", "addressLine1": "1 High Street", "addressLine2": "", "addressLine3": null, "postcode": "SN1+1AA", "postTown": "SWINDON", "registrationDate": "2015-03-02" },
+    { "certificateNumber": "1111-2222-3333-4444-5555", "addressLine1": "Flat 2", "addressLine2": "3 High Street", "postcode": "SN1+1AA", "postTown": "SWINDON", "registrationDate": "2021-11-19" },
+    { "certificateNumber": "9999-8888-7777-6666-5555", "addressLine1": "5 High Street", "postcode": "SN1 1AA", "registrationDate": "2018-07-30" }
+  ]
+}

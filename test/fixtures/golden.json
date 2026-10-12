@@ -1,0 +1,206 @@
+{
+  "no token": {
+    "out": "{\"success\":false,\"error\":\"EPC bearer token is not configured. Set custscript_epc_bearer_token in Script Parameters.\"}",
+    "calls": []
+  },
+  "no parameters": {
+    "out": "{\"success\":false,\"error\":\"getEpcData requires postcode or certificateNumber parameter\"}",
+    "calls": []
+  },
+  "search ok": {
+    "out": "{\"success\":true,\"type\":\"addressList\",\"rows\":[{\"certificateNumber\":\"1111-2222-3333-4444-5555\",\"address\":\"Flat 2, 3 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":\"SWINDON\",\"registrationDate\":\"2021-11-19\"},{\"certificateNumber\":\"9999-8888-7777-6666-5555\",\"address\":\"5 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":null,\"registrationDate\":\"2018-07-30\"},{\"certificateNumber\":\"0001-0002-0003-0004-0005\",\"address\":\"1 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":\"SWINDON\",\"registrationDate\":\"2015-03-02\"}]}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search 404": {
+    "out": "{\"success\":true,\"type\":\"addressList\",\"rows\":[],\"message\":\"No EPC certificates found for this postcode\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=KW1%204YT",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search empty": {
+    "out": "{\"success\":true,\"type\":\"addressList\",\"rows\":[],\"message\":\"No EPC certificates found for this postcode\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=KW1%204YT",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search no data key": {
+    "out": "{\"success\":true,\"type\":\"addressList\",\"rows\":[],\"message\":\"No EPC certificates found for this postcode\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=KW1%204YT",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search 401 with message": {
+    "out": "{\"success\":false,\"error\":\"Unauthorised\",\"statusCode\":401}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search 503 not JSON": {
+    "out": "{\"success\":false,\"error\":\"EPC API returned status 503\",\"statusCode\":503}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search exception": {
+    "out": "{\"success\":false,\"error\":\"SSS_REQUEST_TIME_EXCEEDED\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "search bad JSON": {
+    "out": "{\"success\":false,\"error\":\"Expected property name or '}' in JSON at position 1 (line 1 column 2)\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert invalid number": {
+    "out": "{\"success\":false,\"error\":\"Invalid certificateNumber format. Expected 20-digit hyphenated value, e.g. 1111-2222-3333-4444-5555.\",\"statusCode\":400}",
+    "calls": []
+  },
+  "cert A": {
+    "out": "{\"success\":true,\"type\":\"certificate\",\"data\":{\"certificateNumber\":\"1111-2222-3333-4444-5555\",\"address\":\"Flat 2, 3 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":\"SWINDON\",\"propertyType\":\"house\",\"builtForm\":\"Semi-Detached\",\"totalFloorArea\":112,\"currentEnergyRating\":\"D\",\"floorDescription\":\"Solid, no insulation (assumed)\",\"wallsDescription\":\"Cavity wall, filled cavity; Timber frame, as built, insulated (assumed)\",\"roofDescription\":\"Pitched, 270 mm loft insulation; Roof room(s), insulated (assumed)\",\"constructionAgeBand\":\"England and Wales: 1950-1966\",\"lodgementDate\":\"2021-11-19\",\"habitableRooms\":6,\"uprn\":100121000000}}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=1111-2222-3333-4444-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert B (no number in body)": {
+    "out": "{\"success\":true,\"type\":\"certificate\",\"data\":{\"certificateNumber\":\"9999-8888-7777-6666-5555\",\"address\":\"5 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":null,\"propertyType\":\"bungalow\",\"builtForm\":null,\"totalFloorArea\":56,\"currentEnergyRating\":\"C\",\"floorDescription\":null,\"wallsDescription\":\"Average thermal transmittance 0.28 W/m²K\",\"roofDescription\":null,\"constructionAgeBand\":null,\"lodgementDate\":\"2018-07-30\",\"habitableRooms\":null,\"uprn\":null}}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=9999-8888-7777-6666-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert C (unknown codes)": {
+    "out": "{\"success\":true,\"type\":\"certificate\",\"data\":{\"certificateNumber\":\"9999-8888-7777-6666-5555\",\"address\":\"7 High Street\",\"postcode\":null,\"postTown\":null,\"propertyType\":\"mid-terrace house\",\"builtForm\":null,\"totalFloorArea\":null,\"currentEnergyRating\":null,\"floorDescription\":null,\"wallsDescription\":\"Solid brick, as built, no insulation (assumed)\",\"roofDescription\":null,\"constructionAgeBand\":null,\"lodgementDate\":null,\"habitableRooms\":null,\"uprn\":null}}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=9999-8888-7777-6666-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert 404": {
+    "out": "{\"success\":false,\"error\":\"Certificate not found\",\"statusCode\":404}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=1111-2222-3333-4444-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert 500 not JSON": {
+    "out": "{\"success\":false,\"error\":\"EPC API returned status 500\",\"statusCode\":500}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=1111-2222-3333-4444-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert no data": {
+    "out": "{\"success\":false,\"error\":\"Cannot read properties of undefined (reading 'address_line_1')\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=1111-2222-3333-4444-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "cert exception": {
+    "out": "{\"success\":false,\"error\":\"Connection reset\"}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/certificate?certificate_number=1111-2222-3333-4444-5555",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  },
+  "postcode wins over certificate": {
+    "out": "{\"success\":true,\"type\":\"addressList\",\"rows\":[{\"certificateNumber\":\"1111-2222-3333-4444-5555\",\"address\":\"Flat 2, 3 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":\"SWINDON\",\"registrationDate\":\"2021-11-19\"},{\"certificateNumber\":\"9999-8888-7777-6666-5555\",\"address\":\"5 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":null,\"registrationDate\":\"2018-07-30\"},{\"certificateNumber\":\"0001-0002-0003-0004-0005\",\"address\":\"1 High Street\",\"postcode\":\"SN1 1AA\",\"postTown\":\"SWINDON\",\"registrationDate\":\"2015-03-02\"}]}",
+    "calls": [
+      {
+        "url": "https://api.get-energy-performance-data.communities.gov.uk/api/domestic/search?postcode=SN1%201AA",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer tok"
+        }
+      }
+    ]
+  }
+}

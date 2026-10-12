@@ -1,0 +1,16 @@
+{
+  "data": {
+    "address_line_1": "5 High Street",
+    "postcode": "SN1 1AA",
+    "property_type": "1",
+    "dwelling_type": "Detached bungalow",
+    "total_floor_area": "56",
+    "current_energy_efficiency_band": "C",
+    "floors": [],
+    "walls": [ { "description": "Average thermal transmittance 0.28 W/m²K" } ],
+    "window": { "description": "High performance glazing" },
+    "sap_energy_source": { "mains_gas": "N" },
+    "sap_building_parts": [],
+    "registration_date": "2018-07-30"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "certificate_number": "9999-8888-7777-6666-5555",
+    "address_line_1": "7 High Street",
+    "property_type": 9,
+    "dwelling_type": "Mid-terrace HOUSE",
+    "built_form": 7,
+    "mains_gas": true,
+    "walls": [ { "description": "Solid brick, as built, no insulation (assumed)" } ]
+  }
+}
